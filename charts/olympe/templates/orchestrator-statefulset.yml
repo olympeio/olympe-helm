@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+{{- if .Values.orchestrator.haEnabled }}
+kind: Deployment
+{{- else }}
+kind: StatefulSet
+{{- end }}
+metadata:
+  name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  {{- if not .Values.orchestrator.haEnabled }}
+  serviceName: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  {{- end }}
+  {{- if eq .Values.enabled true }}
+  replicas: {{ .Values.orchestrator.replicas }}
+  {{- else }}
+  replicas: 0
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "olympe.selectorLabels" . | nindent 6 }}
+      name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      app.kubernetes.io/component: orchestrator
+  template:
+    metadata:
+      labels:
+        {{- include "olympe.selectorLabels" . | nindent 8 }}
+        name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+        app.kubernetes.io/component: orchestrator
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "olympe.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        {{- toYaml .Values.orchestrator.podSecurityContext | nindent 8 }}
+      containers:
+        - name: orchestrator
+          securityContext:
+            {{- toYaml .Values.orchestrator.securityContext | nindent 12 }}
+          image: "{{ default .Values.appRepository .Values.orchestrator.image.repository }}/{{ .Values.orchestrator.image.name }}:{{ default .Chart.AppVersion .Values.orchestrator.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          tty: true
+          ports:
+            - containerPort: 8080
+            {{- if .Values.orchestrator.haEnabled }}
+            - containerPort: 5701
+            {{- end }}
+            - containerPort: 8081
+          
+          {{- if eq .Values.orchestrator.image.name "orchestrator" }}
+          {{ $version := .Values.orchestrator.image.tag | semver }}
+          {{ $ver_number := print $version.Major "." $version.Minor "." $version.Patch }}
+          {{- if (semverCompare ">=6.5.0" $ver_number) }}
+          livenessProbe:
+            {{- toYaml .Values.orchestrator.livenessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.orchestrator.startupProbe | nindent 12 }}
+          {{- else }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 10
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 10
+          {{- end }}
+          {{- else }}
+          livenessProbe:
+            {{- toYaml .Values.orchestrator.livenessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.orchestrator.startupProbe | nindent 12 }}
+          {{- end }}
+          
+          resources:
+            {{- toYaml .Values.orchestrator.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: {{ printf "%s-orchestrator-default-secret" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+                optional: true
+            {{ if .Values.orchestrator.secretRef }}
+            - secretRef:
+                name: {{ .Values.orchestrator.secretRef }}
+            {{ end }}
+          {{- if .Values.orchestrator.env }}
+          env:
+            {{- toYaml .Values.orchestrator.env | nindent 12 }}
+          {{ end }}
+          volumeMounts:
+            - name: file-service
+              mountPath: /opt/orchestrator/file-service
+            - name: backup-data
+              mountPath: /backupData
+            {{ with .Values.orchestrator.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: file-service
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-fs" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+        - name: backup-data
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+        {{ with .Values.orchestrator.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    {{- with .Values.orchestrator.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.orchestrator.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.orchestrator.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

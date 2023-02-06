@@ -1,0 +1,31 @@
+
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}
+{{- end }}
+{{ else }}
+  Get the Olympe URL by following this process:
+{{ if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "olympe.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{ else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "olympe.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "olympe.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{ else if contains "ClusterIP" .Values.service.type }}
+  On one shell, execute the following commands:
+  export FRONTEND_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "olympe.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace {{ .Release.Namespace }} port-forward $FRONTEND_POD_NAME 8081:80
+  
+  On another shell, execute the following commands:
+  export ORCHESTRATOR_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "olympe.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=orchestrator" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace {{ .Release.Namespace }} port-forward $ORCHESTRATOR_POD_NAME 8080
+  
+  Visit http://localhost:8081 to use your application
+    username: admin
+    password: kubectl get secret -n {{ .Release.Namespace }} {{ .Release.Namespace }}-orchestrator-secret -o jsonpath='{.data.DRAW_PASSWORD}' | base64 -d
+{{- end }}
+{{- end }}
+  

@@ -1,0 +1,65 @@
+{{ $labels := (include "olympe.labels" .) }}
+{{ $labelsSelector := (include "olympe.selectorLabels" .) }}
+{{- if eq .Values.enabled true }}
+{{- range .Values.snapshooters }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- $labels | nindent 4 }}
+    name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: snapshooter
+spec:
+  suspend: {{ default false .suspend }}
+  schedule: {{ .schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            {{- $labelsSelector | nindent 12 }}
+            app.kubernetes.io/component: snapshooter
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 0
+          containers:
+          - name: snapshooter
+            image: {{ default "olympeio/resource-feeder:stable" .image }}
+            resources:
+              requests:
+                memory: {{ if .resources }}{{ if .resources.requests -}} {{ default "200Mi" .resources.requests.memory }} {{- else -}} "100Mi" {{- end }}{{- else -}} "100Mi" {{- end }}
+                cpu: {{ if .resources }}{{ if .resources.requests -}} {{ default "100m" .resources.requests.cpu }} {{- else -}} "100m" {{- end }}{{- else -}} "100m" {{- end }}
+              limits:
+                memory: {{ if .resources }}{{ if .resources.limits -}} {{ default "1000Mi" .resources.limits.memory }} {{- else -}} "200Mi" {{- end }}{{- else -}} "200Mi" {{- end }}
+                cpu: {{ if .resources }}{{ if .resources.limits -}} {{ default "200m" .resources.limits.cpu }} {{- else -}} "200m" {{- end }}{{- else -}} "200m" {{- end }}
+            envFrom:
+              - configMapRef:
+                  name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+              - secretRef:
+                  name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            env:
+              - name: CONFIG_FILE
+                value: "/config/config.json"
+              - name: ACTION
+                value: snapshooter
+              {{- if .env }}
+              {{- toYaml .env | nindent 14 }}
+              {{- end }}
+            volumeMounts:
+              - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+                mountPath: /config
+            imagePullPolicy: IfNotPresent
+            securityContext:
+              allowPrivilegeEscalation: false
+          volumes:
+            - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+              secret:
+                secretName: {{ .secretName }}
+---
+{{- end }}
+{{- end }}

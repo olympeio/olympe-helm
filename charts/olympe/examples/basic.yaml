@@ -1,0 +1,4 @@
+appRepository: 470752198308.dkr.ecr.eu-central-1.amazonaws.com/my-project-slug
+
+orchestrator:
+  image: olympeio/orchestrator:6.1.1

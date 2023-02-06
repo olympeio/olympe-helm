@@ -1,0 +1,9 @@
+dependencies:
+- name: neo4j
+  repository: https://neo4j-contrib.github.io/neo4j-helm
+  version: 4.4.9
+- name: rabbitmq
+  repository: https://charts.bitnami.com/bitnami
+  version: 11.6.0
+digest: sha256:b00e10fbfbd06484868ab9598b8054f0f8498e5361022b10690ce36965f3305e
+generated: "2023-02-02T12:05:31.952309196+01:00"

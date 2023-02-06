@@ -1,0 +1,38 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-viewer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- kind: ServiceAccount
+  name: {{ include "olympe.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-exec-service-account
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-exec
+subjects:
+- kind: ServiceAccount
+  name: {{ include "olympe.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: create-secret-service-account
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: create-secret
+subjects:
+- kind: ServiceAccount
+  name: {{ include "olympe.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}

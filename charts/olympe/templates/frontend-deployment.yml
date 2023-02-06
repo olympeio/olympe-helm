@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+    name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+spec:
+  {{- if eq .Values.enabled false }}
+  replicas: 0
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "olympe.selectorLabels" . | nindent 6 }}
+      name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  template:
+    metadata:
+      labels:
+        {{- include "olympe.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
+        name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "olympe.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.frontend.podSecurityContext | nindent 8 }}
+      containers:
+        - name: frontend
+          securityContext:
+            {{- toYaml .Values.frontend.securityContext | nindent 12 }}
+          image: "{{ default .Values.appRepository .Values.frontend.image.repository }}/{{ .Values.frontend.image.name }}:{{ default .Chart.AppVersion .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-frontend-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+          env:
+          {{- if .Values.frontend.env }}
+            {{- toYaml .Values.frontend.env | nindent 12 }}
+          {{ end }}
+          volumeMounts:
+            - name: frontend-custom-config
+              mountPath: /etc/nginx/conf.d/
+            - name: frontend-server-config
+              mountPath: /etc/nginx/server/
+            {{- if .Values.frontend.volumeMounts }}
+              {{- toYaml .Values.frontend.volumeMounts | nindent 12 }}
+            {{ end }}
+      volumes:
+      - name: frontend-custom-config
+        configMap:
+          name: {{ printf "%s-frontend-custom-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      - name: frontend-server-config
+        configMap:
+          name: {{ printf "%s-frontend-server-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      {{- if .Values.frontend.volumes }}
+        {{- toYaml .Values.frontend.volumes | nindent 6 }}
+      {{ end }}
+    {{- with .Values.frontend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.frontend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.frontend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

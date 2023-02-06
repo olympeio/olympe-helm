@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  selector:
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  ports:
+    - name: app
+      port: 8080
+      targetPort: 8080
+    - name: micrometer
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orchestrator
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  selector:
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  ports:
+    - name: app
+      port: 8080
+      targetPort: 8080
+    - name: micrometer
+      port: 8081
+      targetPort: 8081
+
+{{- if .Values.orchestrator.haEnabled }}
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-orchestrator-ha" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  selector:
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  ports:
+    - name: hazelcast
+      protocol: TCP
+      port: 5701
+      targetPort: 5701
+  clusterIP: None
+  type: ClusterIP
+{{- end }}
+
+{{ if .Values.orchestrator.prometheus.enabled }}
+{{- $replicaCount := .Values.orchestrator.replicas | int | default 1}}
+{{- range $i, $e := until $replicaCount}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "orchestrator-prometheus-%d" $i | trunc 63 | trimSuffix "-" }}
+spec:
+  ports:
+    - name: micrometer
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
+  selector:
+    statefulset.kubernetes.io/pod-name: {{ printf "%s-orchestrator-%d" (include "olympe.fullname" $) $i | trunc 63 | trimSuffix "-" }}
+  clusterIP: None
+  type: ClusterIP
+{{- end }}
+{{- end -}}

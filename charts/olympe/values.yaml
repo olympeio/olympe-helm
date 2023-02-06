@@ -1,0 +1,250 @@
+# -- Docker repository for the resource image
+appRepository: olympeio/olympe-composer
+
+neo4j:
+  enabled: true
+  image: olympeio/olympe-database
+  imageTag: 2.3.1
+  plugins: []
+  fullnameOverride: neo4j
+  neo4jPassword: olympe
+  acceptLicenseAgreement: "yes"
+  core:
+    standalone: true
+    initContainers:
+      - name: copy-plugins
+        # -- Init container which is used to copy the plugins. This should be the set as <neo4j.image>:<neo4j.imageTag>
+        image: olympeio/olympe-database:2.3.1
+        command: ["/bin/sh", "-c", "cp /var/lib/neo4j/plugins/* /plugins"]
+        volumeMounts:
+          - name: plugins
+            mountPath: /plugins
+
+rabbitmq:
+  enabled: true
+  fullnameOverride: rabbitmq
+  extraPlugins:
+    - rabbitmq_web_mqtt
+    - rabbitmq_auth_mechanism_ssl
+    - rabbitmq_auth_backend_cache
+    - rabbitmq_auth_backend_http
+  auth:
+    username: guest
+    password: guest
+  extraConfiguration: |-
+    default_vhost = orchestrator
+    default_permissions.configure = .*
+    default_permissions.read = .*
+    default_permissions.write = .*
+    auth_backends.1         = internal
+    auth_backends.2         = http
+    auth_http.http_method   = post
+    auth_http.user_path     = http://orchestrator:8080/auth/user
+    auth_http.vhost_path    = http://orchestrator:8080/auth/vhost
+    auth_http.resource_path = http://orchestrator:8080/auth/resource
+    auth_http.topic_path    = http://orchestrator:8080/auth/topic
+
+image:
+  # -- Image pull policy
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: gitlab-docker-cfg
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Olympe admin password. This parameter is passed to resetdb command.
+drawPassword:
+
+# -- Define if a project is enabled or not. If not, replicas will be set to 0 but data will be kept
+enabled: true
+
+# -- Define if a project HTTP check is enabled on Grafana
+httpProbe: true
+
+frontend:
+  # -- Number of frontend replicas
+  replicas: 1
+  # -- frontend image
+  image:
+    registry: olympeio
+    repository: olympe-frontend
+  # -- frontend environment variables
+  env: {}
+  resources:
+    requests:
+      # -- frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # memory: "100Mi"
+      # -- frontend CPU request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # cpu: "50m"
+    limits:
+      # -- frontend memory limit. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # memory: "150Mi"
+      # -- frontend CPU limit. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # cpu: "100m"
+  podSecurityContext:
+    runAsUser: 0
+  securityContext:
+    allowPrivilegeEscalation: false
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  dataVolume:
+    storageClassName: standard
+
+businessData:
+  postgres:
+    enabled: "false"
+    # -- endpoint of postgres RDS cluster
+    endpoint: 
+    # -- user password of the project's postgres database (defaults to a 12 characters randomly generated string)
+    postgresPassword:
+
+olympeTools:
+  action: resetdb
+  image: olympeio/olympe-tools:latest
+
+orchestrator:
+  # -- Number of orchestrator replicas
+  replicas: 1
+  # -- Orchestrator image
+  image:
+    repository: olympeio
+    registry: olympe-orchestrator
+  # -- Orchestrator image
+  nfsFixerImage: 470752198308.dkr.ecr.eu-central-1.amazonaws.com/alpine
+  # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
+  clusterType: none
+  # -- Orchestrator HA setup
+  haEnabled: false
+  # -- Orchestrator environment variables (in statefulset)
+  env:
+  # -- Orchestrator environment variables (in separated configMap)
+  configMapEnv:
+    PERMISSION_CHECK_ENABLED: "false"
+    WAIT_FOR_NEO4J: "120"
+    RABBITMQ_CLIENT_PREFETCH_SIZE: 200
+    JAVA_PROCESS_XMX: 1g
+    ALLOWED_WS_ORIGINS: "|.*"
+    ACTIVITY_TIMEOUT: "70000000"
+  existingSecret: ""
+  # -- secretRef value for orchestrator
+  secretRef:
+  neo4j:
+    # -- protocol
+    protocol: bolt
+    # -- hostname of Neo4j (default to project cluster)
+    hostname:
+    # -- shared neo4j root password
+    rootPassword: password1
+    # -- database name of the project (defaults to project name without hyphen)
+    dbName:
+    # -- database username of the project (defaults to project name without hyphen)
+    dbUsername: neo4j
+    # -- database user password of the project (defaults to a 12 characters randomly generated string)
+    dbUserPassword: olympe
+    # -- Toggle resetdb execution at project creation only
+    resetDB: true
+    # -- Toggle createdb execution at project creation only
+    createDB: true
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    orchestratorUsername: guest
+    password: guest
+    orchestratorPassword: guest
+  resources:
+    requests:
+      # -- Orchestrator memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # memory: "600Mi"
+      # -- Orchestrator CPU request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # cpu: "100m"
+    limits:
+      # -- Orchestrator memory limit. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # memory: "800Mi"
+      # -- Orchestrator CPU limit. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
+      # cpu: "300m"
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  dataVolume:
+    storageClassName: standard
+    fileService: {}
+    backupData: {}
+    patches: {}
+  podSecurityContext:
+    runAsUser: 1000
+  securityContext:
+    allowPrivilegeEscalation: false
+  prometheus:
+    enabled: false
+  livenessProbe:
+    httpGet:
+      path: /readiness
+      port: 8082
+    failureThreshold: 10
+  startupProbe:
+    httpGet:
+      path: /readiness
+      port: 8082
+    failureThreshold: 10
+
+# -- Service Apps configuration. Please see the example folders for more details
+serviceApps: []
+serviceAppsImage: node:14.21.2-slim
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+# -- Snapshooters configuration, You can have multiple of them, each with the following values:<br />
+# - name: string, mandatory - Name of the snapshooter <br />
+#    schedule: string, mandatory - schedule (cron format) <br />
+#    secretName: string, mandatory - name of the secret containing the configuration <br />
+#    resources <br />
+#      requests: <br />
+#        memory: string, default "200Mi" <br />
+#        cpu: string, default "100m" <br />
+#      limits: <br />
+#        memory: string, default "1000Mi" <br />
+#        cpu: string, default "200m" <br />
+snapshooters: []
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations:
+    # change this in case you are not using nginx as ingress-controller
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "36000"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "36000"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "36000"
+
+  hosts:
+    - olympe.local
+  extraPaths: []
+  tls:
+    - secretName:
+      hosts: []
+
+# -- Kubernetes cluster name
+clusterName: "eks-ci"
+
+
+vaultTemplate: false
+nodes:
+  dataVolume:
+    storageClassName: efs-storage-class

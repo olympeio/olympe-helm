@@ -1,0 +1,171 @@
+{{ $accountName := (include "olympe.serviceAccountName" .) }}
+{{ $v := .Values}}
+{{ $c := .Chart}}
+{{ range .Values.serviceApps }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: backend
+spec:
+  {{- if eq $.Values.enabled true }}
+  replicas: {{ .replicas }}
+  {{- else }}
+  replicas: 0
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "olympe.selectorLabels" $ | nindent 6 }}
+      name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  template:
+    metadata:
+      labels:
+        {{- include "olympe.selectorLabels" $ | nindent 8 }}
+        name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+        app.kubernetes.io/component: backend
+    spec:
+    {{- with $v.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ $accountName }}
+      securityContext:
+        runAsUser: 1000
+      containers:
+        - name: {{ .name }}
+          workingDir: /home/node/app/
+          securityContext:
+            allowPrivilegeEscalation: false
+          image: {{ default $v.serviceAppsImage .image }}
+          imagePullPolicy: {{ $v.image.pullPolicy }}
+          {{ if .ports }}
+          ports:
+            {{ range .ports }}
+            - containerPort: {{ .targetPort }}
+            {{ end }}
+          {{ end }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          env:
+            - name: ORCHESTRATOR_HOST
+              value: orchestrator
+            - name: ORCHESTRATOR_PORT
+              value: "8080"
+            - name: ORCHESTRATOR_SSL
+              value: "false"
+            {{- with (first $.Values.ingress.hosts) }}
+            - name: APP_HOSTNAME
+              value: {{ . }}
+            {{- end }}
+            - name: JS_SCRIPT
+              value: /home/node/app/main.js
+          {{- if .env }}
+            {{- toYaml .env | nindent 12 }}
+          {{ end }}
+          envFrom:
+            {{- if .configMapData }}
+            {{- if gt (len .configMapData) 0 }}
+            - configMapRef:
+                name: {{ printf "%s-config" .name }}
+            {{- end }}
+            {{- end }}
+            {{- if .secretData }}
+            {{- if gt (len .secretData) 0 }}
+            - secretRef:
+                name: {{ printf "%s-secret" .name }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+            - mountPath: /test
+              name: test-volume
+            {{ if .volumeMounts }}
+              {{- toYaml .volumeMounts | nindent 12 }}
+            {{- end }}
+          livenessProbe:
+            {{- if .enableDefaultProbe }}
+            httpGet:
+              path: /readiness
+              port: 3141
+            timeoutSeconds: 5
+            initialDelaySeconds: 5
+            {{- else }}
+            {{- toYaml .livenessProbe | nindent 12 }}
+            {{- end }}
+          readinessProbe:
+            {{- toYaml .readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- if .enableDefaultProbe }}
+            httpGet:
+              path: /readiness
+              port: 3141
+            timeoutSeconds: 5
+            initialDelaySeconds: 5
+            {{- else }}
+            {{- toYaml .startupProbe | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: test-volume
+          emptyDir: {}
+        {{ if .volumes }}
+        {{- toYaml .volumes | nindent 8 }}
+        {{- end }}
+    {{- if .nodeSelector }}
+    {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- end }}
+    {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+---
+{{- if .configMapData }}
+{{- if gt (len .configMapData) 0 }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-config" .name }}
+data:
+  {{- range $key, $val := .configMapData }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- if .secretData }}
+{{- if gt (len .secretData) 0 }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "%s-secret" .name }}
+type: Opaque
+data:
+  {{- range $key, $val := .secretData }}
+  {{ $key }}: {{ $val }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
+{{ if .ports }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+spec:
+  selector:
+    {{- include "olympe.selectorLabels" $ | nindent 4 }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  ports:
+    {{- toYaml .ports | nindent 4 }}
+---
+{{ end }}
+{{ end }}
+
