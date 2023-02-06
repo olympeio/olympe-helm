@@ -1,0 +1,68 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
+    # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      
+      - name: Add yq
+        uses: supplypike/setup-bin@v1
+        with:
+          uri: 'https://github.com/mikefarah/yq/releases/download/v4.27.5/yq_linux_amd64.tar.gz'
+          name: 'yq'
+          version: 'v4.27.5'
+
+      - name: Get release version
+        run: |
+          echo "release=$(yq -r .version charts/olympe/Chart.yaml)" >> $GITHUB_ENV
+
+      - uses: craicoverflow/install-git-chglog@v1.0.0
+
+      - name: Generate Changelog
+        run: git-chglog --config charts/olympe/.chglog/config.yml --next-tag $(yq -r .version charts/olympe/Chart.yaml) -o charts/olympe/CHANGELOG.md
+      
+      - name: Push Changelog
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'charts/olympe/CHANGELOG.md'
+          message: "[skip ci] update changelog for ${{ env.release }}"
+          push: true
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.1
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.4.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Push release to s3
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          helm plugin install https://github.com/hypnoglow/helm-s3.git
+          helm repo add olympe s3://olympe-helm-repository/stable/olympe
+          helm s3 push .cr-release-packages/olympe-${{ env.release }}.tgz olympe
+
