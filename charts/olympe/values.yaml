@@ -67,8 +67,8 @@ frontend:
   replicas: 1
   # -- frontend image
   image:
-    registry: olympeio
-    repository: olympe-frontend
+    repository: olympeio
+    name: olympe-frontend
   # -- frontend environment variables
   env: {}
   resources:
