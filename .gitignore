@@ -1,0 +1,4 @@
+.DS_Store
+**/*.tgz
+**/Chart.lock
+**/package-snapshot.sh
