@@ -11,7 +11,7 @@
 
 ## Basic Installation
 
-- Add the repository222
+- Add the repository
 ```
 helm repo add olympe https://olympeio.github.io/olympe-helm/
 ```
