@@ -102,7 +102,9 @@ businessData:
 
 olympeTools:
   action: resetdb
-  image: olympeio/olympe-tools:latest
+  image:
+    repository: olympeio
+    name: olympe-tools
 
 orchestrator:
   # -- Number of orchestrator replicas
