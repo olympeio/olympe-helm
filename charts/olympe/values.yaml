@@ -4,7 +4,7 @@ appRepository: olympeio/olympe-composer
 neo4j:
   enabled: true
   image: olympeio/olympe-database
-  imageTag: 2.3.1
+  imageTag: v2.3.1
   plugins: []
   fullnameOverride: neo4j
   neo4jPassword: olympe
@@ -14,7 +14,7 @@ neo4j:
     initContainers:
       - name: copy-plugins
         # -- Init container which is used to copy the plugins. This should be the set as <neo4j.image>:<neo4j.imageTag>
-        image: olympeio/olympe-database:2.3.1
+        image: olympeio/olympe-database:v2.3.1
         command: ["/bin/sh", "-c", "cp /var/lib/neo4j/plugins/* /plugins"]
         volumeMounts:
           - name: plugins
