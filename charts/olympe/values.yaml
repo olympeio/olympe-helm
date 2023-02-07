@@ -11,6 +11,8 @@ neo4j:
   acceptLicenseAgreement: "yes"
   core:
     standalone: true
+    persistentVolume:
+      size: 10Gi
     initContainers:
       - name: copy-plugins
         # -- Init container which is used to copy the plugins. This should be the set as <neo4j.image>:<neo4j.imageTag>
