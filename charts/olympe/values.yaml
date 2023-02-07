@@ -112,7 +112,7 @@ orchestrator:
   # -- Orchestrator image
   image:
     repository: olympeio
-    registry: olympe-orchestrator
+    name: olympe-orchestrator
   # -- Orchestrator image
   nfsFixerImage: 470752198308.dkr.ecr.eu-central-1.amazonaws.com/alpine
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
