@@ -95,10 +95,7 @@ kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetdb
 
 - Execute the new job
 ```
-helm dependency build && helm template <namespace> stable-composer/composer-helm \
- --set orchestrator.image=olympeio/awesome-project-orchestrator:latest \
- --set frontend.image=olympeio/awesome-project-frontend:latest \
- --set olympeTools.image=olympeio/vanilla-draw-olympe-tools:latest \
+helm dependency build && helm template <namespace> olympe/olympe \
   -s templates/olympe-tools.yml | kubectl apply -n <namespace> -f -
 ```
 
@@ -167,10 +164,7 @@ kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetcr
 
 - Execute the new job
 ```
-helm dependency build && helm template <namespace> stable-composer/composer-helm \
- --set orchestrator.image=olympeio/awesome-project-orchestrator:latest \
- --set frontend.image=olympeio/awesome-project-frontend:latest \
- --set olympeTools.image=olympeio/vanilla-draw-olympe-tools:latest \
+helm dependency build && helm template <namespace> olympe/olympe \
  --set olympeTools.action=resetCredentials \
   -s templates/olympe-tools.yml
 ```
