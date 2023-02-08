@@ -95,10 +95,7 @@ kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetdb
 
 - Execute the new job
 ```
-helm dependency build && helm template <namespace> stable-composer/composer-helm \
- --set orchestrator.image=olympeio/awesome-project-orchestrator:latest \
- --set frontend.image=olympeio/awesome-project-frontend:latest \
- --set olympeTools.image=olympeio/vanilla-draw-olympe-tools:latest \
+helm dependency build && helm template <namespace> olympe/olympe \
   -s templates/olympe-tools.yml | kubectl apply -n <namespace> -f -
 ```
 
@@ -167,10 +164,7 @@ kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetcr
 
 - Execute the new job
 ```
-helm dependency build && helm template <namespace> stable-composer/composer-helm \
- --set orchestrator.image=olympeio/awesome-project-orchestrator:latest \
- --set frontend.image=olympeio/awesome-project-frontend:latest \
- --set olympeTools.image=olympeio/vanilla-draw-olympe-tools:latest \
+helm dependency build && helm template <namespace> olympe/olympe \
  --set olympeTools.action=resetCredentials \
   -s templates/olympe-tools.yml
 ```
@@ -196,7 +190,7 @@ helm dependency build && helm template <namespace> stable-composer/composer-helm
 | frontend.affinity | object | `{}` |  |
 | frontend.dataVolume.storageClassName | string | `"standard"` |  |
 | frontend.env | object | `{}` | frontend environment variables |
-| frontend.image | object | `{"registry":"olympeio","repository":"olympe-frontend"}` | frontend image |
+| frontend.image | object | `{"name":"olympe-frontend","repository":"olympeio"}` | frontend image |
 | frontend.nodeSelector | object | `{}` |  |
 | frontend.podSecurityContext.runAsUser | int | `0` |  |
 | frontend.replicas | int | `1` | Number of frontend replicas |
@@ -222,20 +216,22 @@ helm dependency build && helm template <namespace> stable-composer/composer-helm
 | neo4j.core.initContainers[0].command[0] | string | `"/bin/sh"` |  |
 | neo4j.core.initContainers[0].command[1] | string | `"-c"` |  |
 | neo4j.core.initContainers[0].command[2] | string | `"cp /var/lib/neo4j/plugins/* /plugins"` |  |
-| neo4j.core.initContainers[0].image | string | `"olympeio/olympe-database:2.3.1"` | Init container which is used to copy the plugins. This should be the set as <neo4j.image>:<neo4j.imageTag> |
+| neo4j.core.initContainers[0].image | string | `"olympeio/olympe-database:v2.3.1"` | Init container which is used to copy the plugins. This should be the set as <neo4j.image>:<neo4j.imageTag> |
 | neo4j.core.initContainers[0].name | string | `"copy-plugins"` |  |
 | neo4j.core.initContainers[0].volumeMounts[0].mountPath | string | `"/plugins"` |  |
 | neo4j.core.initContainers[0].volumeMounts[0].name | string | `"plugins"` |  |
+| neo4j.core.persistentVolume.size | string | `"10Gi"` |  |
 | neo4j.core.standalone | bool | `true` |  |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
 | neo4j.image | string | `"olympeio/olympe-database"` |  |
-| neo4j.imageTag | string | `"2.3.1"` |  |
+| neo4j.imageTag | string | `"v2.3.1"` |  |
 | neo4j.neo4jPassword | string | `"olympe"` |  |
 | neo4j.plugins | list | `[]` |  |
 | nodes.dataVolume.storageClassName | string | `"efs-storage-class"` |  |
 | olympeTools.action | string | `"resetdb"` |  |
-| olympeTools.image | string | `"olympeio/olympe-tools:latest"` |  |
+| olympeTools.image.name | string | `"olympe-tools"` |  |
+| olympeTools.image.repository | string | `"olympeio"` |  |
 | orchestrator.affinity | object | `{}` |  |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
 | orchestrator.configMapEnv | object | `{"ACTIVITY_TIMEOUT":"70000000","ALLOWED_WS_ORIGINS":"|.*","JAVA_PROCESS_XMX":"1g","PERMISSION_CHECK_ENABLED":"false","RABBITMQ_CLIENT_PREFETCH_SIZE":200,"WAIT_FOR_NEO4J":"120"}` | Orchestrator environment variables (in separated configMap) |
@@ -246,7 +242,7 @@ helm dependency build && helm template <namespace> stable-composer/composer-helm
 | orchestrator.env | string | `nil` | Orchestrator environment variables (in statefulset) |
 | orchestrator.existingSecret | string | `""` |  |
 | orchestrator.haEnabled | bool | `false` | Orchestrator HA setup |
-| orchestrator.image | object | `{"registry":"olympe-orchestrator","repository":"olympeio"}` | Orchestrator image |
+| orchestrator.image | object | `{"name":"olympe-orchestrator","repository":"olympeio"}` | Orchestrator image |
 | orchestrator.livenessProbe.failureThreshold | int | `10` |  |
 | orchestrator.livenessProbe.httpGet.path | string | `"/readiness"` |  |
 | orchestrator.livenessProbe.httpGet.port | int | `8082` |  |
