@@ -3,7 +3,7 @@ entries:
   olympe:
   - apiVersion: v2
     appVersion: v2.3.1
-    created: "2023-03-01T14:52:04.631088213+01:00"
+    created: "2023-03-01T15:16:04.632556616+01:00"
     dependencies:
     - condition: neo4j.enabled
       name: neo4j
@@ -14,7 +14,7 @@ entries:
       repository: https://charts.bitnami.com/bitnami
       version: 11.6.0
     description: Helm chart for a Kubernetes implementation of an Olympe project
-    digest: 14a844f46b65abc84da8ba8c380c1a1c4155bc3861205d103f39e7f93fdf14af
+    digest: b0e00340046dfd103b352471c0d84bbc82d07d4f8f66921fcf4184effb23d603
     icon: https://d4i4w3v4.rocketcdn.me/wp-content/uploads/2020/01/Olympe_white.svg
     name: olympe
     type: application
