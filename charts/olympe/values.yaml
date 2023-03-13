@@ -196,7 +196,7 @@ orchestrator:
 
 # -- Service Apps configuration. Please see the example folders for more details
 serviceApps: []
-serviceAppsImage: node:14.21.2-slim
+serviceAppsImage: node:14.21.3-slim
 
 serviceAccount:
   # -- Specifies whether a service account should be created

@@ -25,3 +25,6 @@
 #WIP files
 ams.yaml
 neo4j-*.yml
+
+#Other
+package-snapshot.sh

@@ -53,4 +53,5 @@ spec:
       restartPolicy: OnFailure
       securityContext:
         runAsUser: 0
+  backoffLimit: 1
 {{- end }}
