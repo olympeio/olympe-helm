@@ -24,7 +24,7 @@ appVersion: v2.3.1
 dependencies:
   - condition: neo4j.enabled
     name: neo4j
-    version: 4.4.9
+    version: 4.4.10
     repository: https://neo4j-contrib.github.io/neo4j-helm
   - condition: rabbitmq.enabled
     name: rabbitmq
