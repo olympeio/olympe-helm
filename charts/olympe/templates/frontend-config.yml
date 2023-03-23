@@ -185,3 +185,25 @@ data:
           alias /usr/share/nginx/html;
         }
       }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-frontend-subconf" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+data:
+  backend.conf: |
+{{- $defaultBackend := "" }}
+{{- range .Values.serviceApps }}
+    location /{{ .name }}/runtime {
+      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace .name }}:3141/runtime;
+    }
+  {{- if and (.defaultBackend) (eq $defaultBackend "") }}
+  {{ $defaultBackend = .name }}
+    location /runtime {
+      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace .name }}:3141/runtime;
+    }
+  {{- end }}
+{{ end }}
