@@ -4,7 +4,7 @@ appRepository: olympeio/olympe-composer
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/olympe-database:v2.4.0-SNAPSHOT
+    customImage: olympeio/olympe-database:v2.3.1
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -65,7 +65,6 @@ frontend:
   image:
     repository: olympeio
     name: olympe-frontend
-    tag: v2.3.1
   # -- frontend environment variables
   env: {}
   port: 80
@@ -103,7 +102,6 @@ olympeTools:
   image:
     repository: olympeio
     name: olympe-tools
-    tag: v2.3.1-SNAPSHOT
   securityContext:
     runAsUser: 0
 
@@ -114,7 +112,6 @@ orchestrator:
   image:
     repository: olympeio
     name: olympe-orchestrator
-    tag: v2.3.1-SNAPSHOT
   # -- Orchestrator image
   nfsFixerImage: 470752198308.dkr.ecr.eu-central-1.amazonaws.com/alpine
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
