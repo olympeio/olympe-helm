@@ -3,24 +3,18 @@ appRepository: olympeio/olympe-composer
 
 neo4j:
   enabled: true
-  image: olympeio/olympe-database
-  imageTag: v2.3.1
-  plugins: []
+  image:
+    customImage: olympeio/olympe-database:v2.4.0-SNAPSHOT
   fullnameOverride: neo4j
-  neo4jPassword: olympe
-  acceptLicenseAgreement: "yes"
-  core:
-    standalone: true
-    persistentVolume:
-      size: 10Gi
-    initContainers:
-      - name: copy-plugins
-        # -- Init container which is used to copy the plugins. This should be the set as <neo4j.image>:<neo4j.imageTag>
-        image: olympeio/olympe-database:v2.3.1
-        command: ["/bin/sh", "-c", "cp /var/lib/neo4j/plugins/* /plugins"]
-        volumeMounts:
-          - name: plugins
-            mountPath: /plugins
+  neo4j:
+    password: olympe
+    acceptLicenseAgreement: "yes"
+  volumes:
+    data:
+      mode: defaultStorageClass
+      defaultStorageClass:
+        requests:
+          storage: 20Gi
 
 rabbitmq:
   enabled: true
@@ -71,8 +65,10 @@ frontend:
   image:
     repository: olympeio
     name: olympe-frontend
+    tag: v2.3.1
   # -- frontend environment variables
   env: {}
+  port: 80
   resources:
     requests:
       # -- frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
@@ -85,7 +81,7 @@ frontend:
       # -- frontend CPU limit. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
       # cpu: "100m"
   podSecurityContext:
-    runAsUser: 0
+    runAsUser: 101
   securityContext:
     allowPrivilegeEscalation: false
   nodeSelector: {}
@@ -107,6 +103,9 @@ olympeTools:
   image:
     repository: olympeio
     name: olympe-tools
+    tag: v2.3.1-SNAPSHOT
+  securityContext:
+    runAsUser: 0
 
 orchestrator:
   # -- Number of orchestrator replicas
@@ -115,6 +114,7 @@ orchestrator:
   image:
     repository: olympeio
     name: olympe-orchestrator
+    tag: v2.3.1-SNAPSHOT
   # -- Orchestrator image
   nfsFixerImage: 470752198308.dkr.ecr.eu-central-1.amazonaws.com/alpine
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
