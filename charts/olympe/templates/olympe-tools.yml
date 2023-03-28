@@ -52,6 +52,6 @@ spec:
             {{- end }}
       restartPolicy: OnFailure
       securityContext:
-        runAsUser: 0
+        {{- toYaml .Values.olympeTools.securityContext | nindent 8 }}
   backoffLimit: 1
 {{- end }}
