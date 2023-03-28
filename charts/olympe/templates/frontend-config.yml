@@ -166,8 +166,8 @@ data:
 
       server {
         proxy_cache nginxcache;
-        listen 80;
-        listen [::]:80;
+        listen {{ .Values.frontend.port }};
+        listen [::]:{{ .Values.frontend.port }};
         {{- with (first .Values.ingress.hosts) }}
         server_name {{ . }};
         {{- end }}

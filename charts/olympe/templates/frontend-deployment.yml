@@ -35,7 +35,7 @@ spec:
           image: "{{ default .Values.appRepository .Values.frontend.image.repository }}/{{ .Values.frontend.image.name }}:{{ default .Chart.AppVersion .Values.frontend.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.frontend.port }}
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
           envFrom:
