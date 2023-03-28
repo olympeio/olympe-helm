@@ -2,16 +2,22 @@
 ## [Unreleased]
 
 
-<a name="1.3.1"></a>
-## [1.3.1] - 2023-03-13
+<a name="1.4.0"></a>
+## [1.4.0] - 2023-03-28
 ### Chore
+- **deps:** update helm release rabbitmq to v11.12.0
+- **deps:** update helm release rabbitmq to v11.11.0
 - **deps:** update helm release rabbitmq to v11.10.3
 - **deps:** update node docker tag to v14.21.3
 
 ### Feat
+- allow changing userID on olmype-tools
+- allow frontend port change
+- implemenent default runtime exposure + neo4j 4.4
 - add nginx cache for graphDef
 
 ### Fix
+- remove snapshot references
 - set backofflimit to 1 for initial resetdb
 
 
@@ -45,8 +51,8 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/1.3.1...HEAD
-[1.3.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT-SNAPSHOT...1.3.1
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/1.4.0...HEAD
+[1.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT-SNAPSHOT...1.4.0
 [olympe-1.3.1-SNAPSHOT-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT...olympe-1.3.1-SNAPSHOT-SNAPSHOT
 [olympe-1.3.1-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.7...olympe-1.3.1-SNAPSHOT
 [olympe-1.3.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.6...olympe-1.3.7
