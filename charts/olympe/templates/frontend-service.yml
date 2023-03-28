@@ -12,7 +12,7 @@ spec:
     - port: {{ .Values.service.port }}
       name: http
       protocol: TCP
-      targetPort: 80
+      targetPort: {{ .Values.frontend.port }}
   selector:
     {{- include "olympe.selectorLabels" . | nindent 4 }}
     name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}

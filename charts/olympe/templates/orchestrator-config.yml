@@ -14,7 +14,7 @@ data:
   {{- else }}
   CLUSTERING_ENABLED: "false"
   {{- end }}
-  DB_HOSTNAME: {{ default "neo4j" .Values.orchestrator.neo4j.hostname }}
+  DB_HOSTNAME: {{ default (printf "%s-neo4j" .Release.Name) .Values.orchestrator.neo4j.hostname }}
   DB_NAME: {{ default "neo4j" .Values.orchestrator.neo4j.dbName }}
   KUBERNETES_NAMESPACE: {{ .Release.Namespace }}
   RABBITMQ_HOST: {{ .Values.orchestrator.rabbitmq.host }}

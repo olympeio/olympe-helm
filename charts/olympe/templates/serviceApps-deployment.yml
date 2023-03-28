@@ -154,7 +154,6 @@ data:
 ---
 {{- end }}
 {{- end }}
-{{ if .ports }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -164,8 +163,13 @@ spec:
     {{- include "olympe.selectorLabels" $ | nindent 4 }}
     name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
   ports:
+    - name: runtime
+      protocol: TCP
+      port: 3141
+      targetPort: 3141
+    {{- if .ports }}
     {{- toYaml .ports | nindent 4 }}
+    {{- end }}
 ---
-{{ end }}
 {{ end }}
 
