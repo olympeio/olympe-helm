@@ -15,13 +15,8 @@
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "olympe.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
   echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{ else if contains "ClusterIP" .Values.service.type }}
-  On one shell, execute the following commands:
-  export FRONTEND_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "olympe.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}")
-  kubectl --namespace {{ .Release.Namespace }} port-forward $FRONTEND_POD_NAME 8081:80
-  
-  On another shell, execute the following commands:
-  export ORCHESTRATOR_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "olympe.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=orchestrator" -o jsonpath="{.items[0].metadata.name}")
-  kubectl --namespace {{ .Release.Namespace }} port-forward $ORCHESTRATOR_POD_NAME 8080
+  On one shell, execute the following command:
+  kubectl --namespace {{ .Release.Namespace }} port-forward $(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "olympe.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}") 8080:80
   
   Visit http://localhost:8081 to use your application
     username: admin

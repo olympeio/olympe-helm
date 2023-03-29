@@ -7,6 +7,9 @@
 - Nodes.js 14
 - Yeoman 4.1.0 or greater
 
+# About Neo4j
+Olympe is using Neo4j as database engine. Be aware that **Neo4j Enterprise is a licensed product**. Please read the [official license documentation](https://neo4j.com/licensing)
+
 # Installation
 
 ## Basic Installation
@@ -25,6 +28,17 @@ helm install <name> olympe/olympe \
 
 - Follow the process described on the outputed notes
 
+## Upgrade
+- Update the repositories
+```
+helm repo update
+```
+- Use the `helm upgrade` command:
+```
+helm upgrade <name> olympe/olympe \
+  --namespace <name> \
+  --version <version>
+```
 ## Build your own images
 
 - Install project generator globally and generate a project.
@@ -173,8 +187,8 @@ helm dependency build && helm template <namespace> olympe/olympe \
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | rabbitmq | 11.6.0 |
-| https://neo4j-contrib.github.io/neo4j-helm | neo4j | 4.4.9 |
+| https://charts.bitnami.com/bitnami | rabbitmq | 11.12.0 |
+| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.18 |
 
 ## Values
 **Keys without a description are not meant to be changed**
@@ -192,7 +206,8 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | frontend.env | object | `{}` | frontend environment variables |
 | frontend.image | object | `{"name":"olympe-frontend","repository":"olympeio"}` | frontend image |
 | frontend.nodeSelector | object | `{}` |  |
-| frontend.podSecurityContext.runAsUser | int | `0` |  |
+| frontend.podSecurityContext.runAsUser | int | `101` |  |
+| frontend.port | int | `80` |  |
 | frontend.replicas | int | `1` | Number of frontend replicas |
 | frontend.resources.limits | string | `nil` | frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) memory: "100Mi" -- frontend CPU request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) cpu: "50m" |
 | frontend.resources.requests | string | `nil` |  |
@@ -212,26 +227,18 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | ingress.tls[0].hosts | list | `[]` |  |
 | ingress.tls[0].secretName | string | `nil` |  |
 | nameOverride | string | `""` |  |
-| neo4j.acceptLicenseAgreement | string | `"yes"` |  |
-| neo4j.core.initContainers[0].command[0] | string | `"/bin/sh"` |  |
-| neo4j.core.initContainers[0].command[1] | string | `"-c"` |  |
-| neo4j.core.initContainers[0].command[2] | string | `"cp /var/lib/neo4j/plugins/* /plugins"` |  |
-| neo4j.core.initContainers[0].image | string | `"olympeio/olympe-database:v2.3.1"` | Init container which is used to copy the plugins. This should be the set as <neo4j.image>:<neo4j.imageTag> |
-| neo4j.core.initContainers[0].name | string | `"copy-plugins"` |  |
-| neo4j.core.initContainers[0].volumeMounts[0].mountPath | string | `"/plugins"` |  |
-| neo4j.core.initContainers[0].volumeMounts[0].name | string | `"plugins"` |  |
-| neo4j.core.persistentVolume.size | string | `"10Gi"` |  |
-| neo4j.core.standalone | bool | `true` |  |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image | string | `"olympeio/olympe-database"` |  |
-| neo4j.imageTag | string | `"v2.3.1"` |  |
-| neo4j.neo4jPassword | string | `"olympe"` |  |
-| neo4j.plugins | list | `[]` |  |
+| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.3.1"` |  |
+| neo4j.neo4j.acceptLicenseAgreement | string | `"yes"` |  |
+| neo4j.neo4j.password | string | `"olympe"` |  |
+| neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
+| neo4j.volumes.data.mode | string | `"defaultStorageClass"` |  |
 | nodes.dataVolume.storageClassName | string | `"efs-storage-class"` |  |
 | olympeTools.action | string | `"resetdb"` |  |
 | olympeTools.image.name | string | `"olympe-tools"` |  |
 | olympeTools.image.repository | string | `"olympeio"` |  |
+| olympeTools.securityContext.runAsUser | int | `0` |  |
 | orchestrator.affinity | object | `{}` |  |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
 | orchestrator.configMapEnv | object | `{"ACTIVITY_TIMEOUT":"70000000","ALLOWED_WS_ORIGINS":"|.*","JAVA_PROCESS_XMX":"1g","PERMISSION_CHECK_ENABLED":"false","RABBITMQ_CLIENT_PREFETCH_SIZE":200,"WAIT_FOR_NEO4J":"120"}` | Orchestrator environment variables (in separated configMap) |
@@ -290,6 +297,6 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `nil` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | serviceApps | list | `[]` | Service Apps configuration. Please see the example folders for more details |
-| serviceAppsImage | string | `"node:14.21.2-slim"` |  |
+| serviceAppsImage | string | `"node:14.21.3-slim"` |  |
 | snapshooters | list | `[]` | Snapshooters configuration, You can have multiple of them, each with the following values:<br /> - name: string, mandatory - Name of the snapshooter <br />    schedule: string, mandatory - schedule (cron format) <br />    secretName: string, mandatory - name of the secret containing the configuration <br />    resources <br />      requests: <br />        memory: string, default "200Mi" <br />        cpu: string, default "100m" <br />      limits: <br />        memory: string, default "1000Mi" <br />        cpu: string, default "200m" <br /> |
 | vaultTemplate | bool | `false` |  |

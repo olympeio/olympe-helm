@@ -51,6 +51,7 @@ spec:
               mountPath: /nodes
             {{- end }}
       restartPolicy: OnFailure
+      serviceAccountName: {{ include "olympe.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.olympeTools.securityContext | nindent 8 }}
   backoffLimit: 1
