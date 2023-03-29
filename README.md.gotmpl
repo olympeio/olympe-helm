@@ -7,6 +7,9 @@
 - Nodes.js 14
 - Yeoman 4.1.0 or greater
 
+# About Neo4j
+Olympe is using Neo4j as database engine. Be aware that **Neo4j Enterprise is a licensed product**. Please read the [official license documentation](https://neo4j.com/licensing)
+
 # Installation
 
 ## Basic Installation
@@ -25,6 +28,18 @@ helm install <name> olympe/olympe \
 
 - Follow the process described on the outputed notes
 
+
+## Upgrade
+- Update the repositories
+```
+helm repo update
+```
+- Use the `helm upgrade` command:
+```
+helm upgrade <name> olympe/olympe \
+  --namespace <name> \
+  --version <version>
+```
 ## Build your own images
 
 - Install project generator globally and generate a project.
