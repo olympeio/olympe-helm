@@ -1,0 +1,15 @@
+{{- range $k, $v := .Values.serviceApps }}
+{{- if $v.oConfig }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "%s-%s-oconfig" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: backend
+type: Opaque
+stringData:
+  oConfig.json: {{- $v.oConfig | toYaml | indent 1 }}
+---
+{{- end }}
+{{- end }}

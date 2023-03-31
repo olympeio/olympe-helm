@@ -1,4 +1,4 @@
-{{- if ne (len .Values.serviceApps) 0}}
+{{- if .Values.serviceApps }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

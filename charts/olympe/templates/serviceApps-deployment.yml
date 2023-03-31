@@ -1,14 +1,14 @@
 {{ $accountName := (include "olympe.serviceAccountName" .) }}
-{{ $v := .Values}}
+{{ $values := .Values}}
 {{ $c := .Chart}}
-{{ range .Values.serviceApps }}
+{{- range $k, $v := .Values.serviceApps }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}
-    name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: backend
 spec:
   {{- if eq $.Values.enabled true }}
@@ -19,15 +19,15 @@ spec:
   selector:
     matchLabels:
       {{- include "olympe.selectorLabels" $ | nindent 6 }}
-      name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+      name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
   template:
     metadata:
       labels:
         {{- include "olympe.selectorLabels" $ | nindent 8 }}
-        name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+        name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
         app.kubernetes.io/component: backend
     spec:
-    {{- with $v.imagePullSecrets }}
+    {{- with $values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -35,20 +35,20 @@ spec:
       securityContext:
         runAsUser: 1000
       containers:
-        - name: {{ .name }}
+        - name: {{ $k }}
           workingDir: /home/node/app/
           securityContext:
             allowPrivilegeEscalation: false
-          image: {{ default $v.serviceAppsImage .image }}
-          imagePullPolicy: {{ $v.image.pullPolicy }}
-          {{ if .ports }}
+          image: {{ default $values.serviceAppsImage .image }}
+          imagePullPolicy: {{ $values.image.pullPolicy }}
+          {{ if $v.ports }}
           ports:
-            {{ range .ports }}
-            - containerPort: {{ .targetPort }}
+            {{ range $v.ports }}
+            - containerPort: {{ $v.targetPort }}
             {{ end }}
           {{ end }}
           resources:
-            {{- toYaml .resources | nindent 12 }}
+            {{- toYaml $v.resources | nindent 12 }}
           env:
             - name: ORCHESTRATOR_HOST
               value: orchestrator
@@ -62,93 +62,102 @@ spec:
             {{- end }}
             - name: JS_SCRIPT
               value: /home/node/app/main.js
-          {{- if .env }}
-            {{- toYaml .env | nindent 12 }}
+          {{- if $v.env }}
+            {{- toYaml $v.env | nindent 12 }}
           {{ end }}
           envFrom:
-            {{- if .configMapData }}
-            {{- if gt (len .configMapData) 0 }}
+            {{- if $v.configMapData }}
+            {{- if gt (len $v.configMapData) 0 }}
             - configMapRef:
-                name: {{ printf "%s-config" .name }}
+                name: {{ printf "%s-config" $k }}
             {{- end }}
             {{- end }}
-            {{- if .secretData }}
-            {{- if gt (len .secretData) 0 }}
+            {{- if $v.secretData }}
+            {{- if gt (len $v.secretData) 0 }}
             - secretRef:
-                name: {{ printf "%s-secret" .name }}
+                name: {{ printf "%s-secret" $k }}
             {{- end }}
             {{- end }}
           volumeMounts:
             - mountPath: /test
               name: test-volume
-            {{ if .volumeMounts }}
-              {{- toYaml .volumeMounts | nindent 12 }}
+            {{- if $v.oConfig }}
+            - name: backend-oconfig
+              mountPath: /home/node/app/conf.d
+            {{- end }}
+            {{ if $v.volumeMounts }}
+              {{- toYaml $v.volumeMounts | nindent 12 }}
             {{- end }}
           livenessProbe:
-            {{- if .enableDefaultProbe }}
+            {{- if $v.enableDefaultProbe }}
             httpGet:
               path: /readiness
               port: 3141
             timeoutSeconds: 5
             initialDelaySeconds: 5
             {{- else }}
-            {{- toYaml .livenessProbe | nindent 12 }}
+            {{- toYaml $v.livenessProbe | nindent 12 }}
             {{- end }}
           readinessProbe:
-            {{- toYaml .readinessProbe | nindent 12 }}
+            {{- toYaml $v.readinessProbe | nindent 12 }}
           startupProbe:
-            {{- if .enableDefaultProbe }}
+            {{- if $v.enableDefaultProbe }}
             httpGet:
               path: /readiness
               port: 3141
             timeoutSeconds: 5
             initialDelaySeconds: 5
             {{- else }}
-            {{- toYaml .startupProbe | nindent 12 }}
+            {{- toYaml $v.startupProbe | nindent 12 }}
             {{- end }}
       volumes:
         - name: test-volume
           emptyDir: {}
-        {{ if .volumes }}
-        {{- toYaml .volumes | nindent 8 }}
+        {{- if $v.oConfig }}
+        - name: backend-oconfig
+          secret:
+            secretName: {{ printf "%s-%s-oconfig" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
         {{- end }}
-    {{- if .nodeSelector }}
-    {{- with .nodeSelector }}
+        {{ if $v.volumes }}
+        {{- toYaml $v.volumes | nindent 8 }}
+        {{- end }}
+    {{- if $v.nodeSelector }}
+    {{- with $v.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- end }}
-    {{- with .affinity }}
+    {{- with $v.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .tolerations }}
+    {{- with $v.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
 ---
-{{- if .configMapData }}
-{{- if gt (len .configMapData) 0 }}
+{{- if $v.configMapData }}
+{{- if gt (len $v.configMapData) 0 }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ printf "%s-config" .name }}
+  name: {{ printf "%s-config" $k }}
 data:
-  {{- range $key, $val := .configMapData }}
+  {{- range $key, $val := $v.configMapData }}
   {{ $key }}: {{ $val | quote }}
   {{- end }}
 ---
 {{- end }}
 {{- end }}
-{{- if .secretData }}
-{{- if gt (len .secretData) 0 }}
+{{- if $v.secretData }}
+{{- if gt (len $v.secretData) 0 }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ printf "%s-secret" .name }}
+  name: {{ printf "%s-secret" $k }}
 type: Opaque
 data:
-  {{- range $key, $val := .secretData }}
+  {{- range $key, $val := $v.secretData }}
   {{ $key }}: {{ $val }}
   {{- end }}
 ---
@@ -157,18 +166,22 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
 spec:
   selector:
     {{- include "olympe.selectorLabels" $ | nindent 4 }}
-    name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
   ports:
     - name: runtime
       protocol: TCP
       port: 3141
       targetPort: 3141
-    {{- if .ports }}
-    {{- toYaml .ports | nindent 4 }}
+    - name: webservice
+      protocol: TCP
+      port: 80
+      targetPort: {{ $.Values.serviceAppsDefaultPort }}
+    {{- if $v.ports }}
+    {{- toYaml $v.ports | nindent 4 }}
     {{- end }}
 ---
 {{ end }}

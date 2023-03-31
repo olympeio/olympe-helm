@@ -1,3 +1,4 @@
+{{- template "olympe.checkLicenseAgreement" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -194,16 +195,36 @@ metadata:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
+  additional.conf: {{- .Values.frontend.additionalConfig | toYaml | indent 1 }}
   backend.conf: |
 {{- $defaultBackend := "" }}
-{{- range .Values.serviceApps }}
-    location /{{ .name }}/runtime {
-      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace .name }}:3141/runtime;
+{{- range $k, $v := .Values.serviceApps }}
+    location /{{ $k }}/runtime {
+      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
     }
   {{- if and (.defaultBackend) (eq $defaultBackend "") }}
-  {{ $defaultBackend = .name }}
+  {{ $defaultBackend = $k }}
     location /runtime {
-      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace .name }}:3141/runtime;
+      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
     }
   {{- end }}
+  {{- if .webservices }}
+  {{- range .webservices }}
+    location {{ .uri }} {
+      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:{{ default $.Values.serviceAppsDefaultPort .targetPort }}{{ .targetUri }};
+    }
+  {{- end }}
+  {{- end }}
+{{ end }}
+---
+{{- if .Values.frontend.oConfig }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-frontend-oconfig" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+data:
+  oConfig.json: {{- .Values.frontend.oConfig | toYaml | indent 1 }}
 {{ end }}
