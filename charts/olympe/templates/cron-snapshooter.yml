@@ -59,7 +59,19 @@ spec:
           volumes:
             - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
               secret:
-                secretName: {{ .secretName }}
+                secretName: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- $labels | nindent 4 }}
+    name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: snapshooter
+type: Opaque
+stringData:
+  config.json: {{- .config | toYaml | indent 1 }}
 ---
 {{- end }}
 {{- end }}
