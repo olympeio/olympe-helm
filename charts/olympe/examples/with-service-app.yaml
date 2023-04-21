@@ -1,0 +1,3 @@
+serviceApps:
+  node:
+    replicas: 1
