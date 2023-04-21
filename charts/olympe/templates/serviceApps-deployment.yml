@@ -41,12 +41,18 @@ spec:
             allowPrivilegeEscalation: false
           image: {{ default $values.serviceAppsImage .image }}
           imagePullPolicy: {{ $values.image.pullPolicy }}
-          {{ if $v.ports }}
           ports:
+            - protocol: TCP
+              containerPort: 3141
+          {{- if .webservices }}
+            - protocol: TCP
+              containerPort: {{ $.Values.serviceAppsDefaultPort }}
+          {{- end }}
+          {{ if $v.ports }}
             {{ range $v.ports }}
             - containerPort: {{ $v.targetPort }}
-            {{ end }}
-          {{ end }}
+            {{- end }}
+          {{- end }}
           resources:
             {{- toYaml $v.resources | nindent 12 }}
           env:
@@ -176,10 +182,12 @@ spec:
       protocol: TCP
       port: 3141
       targetPort: 3141
+    {{- if .webservices }}
     - name: webservice
       protocol: TCP
       port: 80
       targetPort: {{ $.Values.serviceAppsDefaultPort }}
+    {{- end }}
     {{- if $v.ports }}
     {{- toYaml $v.ports | nindent 4 }}
     {{- end }}
