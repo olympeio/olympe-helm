@@ -8,7 +8,7 @@
 - Yeoman 4.1.0 or greater
 
 # About Neo4j
-Olympe is using Neo4j as database engine. Be aware that **Neo4j Enterprise is a licensed product**. Please read the [official license documentation](https://neo4j.com/licensing)
+Default Olympe installation is using Neo4j Community as database engine. Be aware that **Neo4j Enterprise is a licensed product**. Please read the [official license documentation](https://neo4j.com/licensing)
 
 # Installation
 
@@ -27,7 +27,6 @@ helm install <name> olympe/olympe \
 ```
 
 - Follow the process described on the outputed notes
-
 
 ## Upgrade
 - Update the repositories
@@ -115,6 +114,33 @@ helm dependency build && helm template <namespace> olympe/olympe \
 ```
 
 ## Snapshooter
+### With config key
+- Enable the snapshooter in values.yaml
+```
+[...]
+snapshooters:
+  - name: <name>
+    schedule: "45 12 * * *" # cron syntax
+    secretName: snapshooter-secret
+    config |-
+      [{
+        "name": "<name>",
+        "rootTags": [<list of root tags>],
+        "path": "snapshot",
+        "server": {
+          "user": "admin",
+          "password": "***",
+          "host": "<namespace>-orchestrator",
+          "port": 8080
+        },
+        "git":{
+          "repo": "https://",
+          "branch": "<branch>",
+          "commitMessage": "Snapshot at {date} in {folder}\n\n"
+        }
+      }]
+```
+### With custom secret
 - Create a secret with the following configuration:
 ```
 cat <<EOF | kubectl apply -f -
