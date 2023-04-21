@@ -1,4 +1,3 @@
-{{- template "olympe.checkLicenseAgreement" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -211,7 +210,7 @@ data:
   {{- if .webservices }}
   {{- range .webservices }}
     location {{ .uri }} {
-      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:{{ default $.Values.serviceAppsDefaultPort .targetPort }}{{ .targetUri }};
+      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:80{{ default .uri .targetUri }};
     }
   {{- end }}
   {{- end }}
