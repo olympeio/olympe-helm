@@ -8,7 +8,10 @@ neo4j:
   fullnameOverride: neo4j
   neo4j:
     password: olympe
-    acceptLicenseAgreement: "yes"
+  services:
+    neo4j:
+      spec:
+        type: ClusterIP
   volumes:
     data:
       mode: defaultStorageClass
@@ -40,23 +43,22 @@ rabbitmq:
     auth_http.resource_path = http://orchestrator:8080/auth/resource
     auth_http.topic_path    = http://orchestrator:8080/auth/topic
 
+
+# -- Please check the license agreement: https://
+acceptLicenseAgreement: "no"
+
 image:
   # -- Image pull policy
   pullPolicy: Always
 
-imagePullSecrets:
-  - name: gitlab-docker-cfg
+# -- partially override realease name
 nameOverride: ""
-fullnameOverride: ""
 
-# -- Olympe admin password. This parameter is passed to resetdb command.
-drawPassword:
+# -- fully override release name
+fullnameOverride: ""
 
 # -- Define if a project is enabled or not. If not, replicas will be set to 0 but data will be kept
 enabled: true
-
-# -- Define if a project HTTP check is enabled on Grafana
-httpProbe: true
 
 frontend:
   # -- Number of frontend replicas
@@ -67,7 +69,12 @@ frontend:
     name: olympe-frontend
   # -- frontend environment variables
   env: {}
+  # -- frontend port
   port: 80
+  # -- additional frontend configuration
+  additionalConfig: ""
+  # -- frontend oConfig content
+  oConfig: ""
   resources:
     requests:
       # -- frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
@@ -79,30 +86,32 @@ frontend:
       # memory: "150Mi"
       # -- frontend CPU limit. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
       # cpu: "100m"
+  # -- defines privilege and access control settings for the frontend on Pod level.
   podSecurityContext:
     runAsUser: 101
-  securityContext:
+  # -- defines privilege and access control settings for the frontend on Container level.
+  containerSecurityContext:
     allowPrivilegeEscalation: false
+  
+  # -- setup nodeSelector for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)
   nodeSelector: {}
+  # -- setup tolerations for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   tolerations: []
+  # -- setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   affinity: {}
+  # -- setup dataVolume for the frontend
   dataVolume:
     storageClassName: standard
 
-businessData:
-  postgres:
-    enabled: "false"
-    # -- endpoint of postgres RDS cluster
-    endpoint: 
-    # -- user password of the project's postgres database (defaults to a 12 characters randomly generated string)
-    postgresPassword:
-
 olympeTools:
+  # -- available values are resetdb, resetCredentials
   action: resetdb
+  # -- Olympe Tools image
   image:
     repository: olympeio
     name: olympe-tools
-  securityContext:
+  # -- defines privilege and access control settings for the Olympe Tools on Pod level.
+  podSecurityContext:
     runAsUser: 0
 
 orchestrator:
@@ -112,8 +121,6 @@ orchestrator:
   image:
     repository: olympeio
     name: olympe-orchestrator
-  # -- Orchestrator image
-  nfsFixerImage: 470752198308.dkr.ecr.eu-central-1.amazonaws.com/alpine
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
   clusterType: none
   # -- Orchestrator HA setup
@@ -149,11 +156,17 @@ orchestrator:
     # -- Toggle createdb execution at project creation only
     createDB: true
   rabbitmq:
+    # -- rabbitMQ host
     host: rabbitmq
+    # -- rabbitMQ port
     port: 5672
+    # -- rabbitMQ username
     username: guest
+    # -- rabbitMQ orchestrator username
     orchestratorUsername: guest
+    # -- rabbitMQ password
     password: guest
+    # -- rabbitMQ orchestrator password
     orchestratorPassword: guest
   resources:
     requests:
@@ -166,25 +179,33 @@ orchestrator:
       # memory: "800Mi"
       # -- Orchestrator CPU limit. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
       # cpu: "300m"
+  # -- setup nodeSelector for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)
   nodeSelector: {}
+  # -- setup tolerations for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   tolerations: []
+  # -- setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   affinity: {}
+  # -- setup dataVolume for the frontend
   dataVolume:
     storageClassName: standard
     fileService: {}
     backupData: {}
-    patches: {}
+  # -- defines privilege and access control settings for the Orchestrator on Pod level.
   podSecurityContext:
     runAsUser: 1000
-  securityContext:
+  # -- defines privilege and access control settings for the Orchestrator on Container level.
+  containerSecurityContext:
     allowPrivilegeEscalation: false
+  # -- enable Prometheus metrics
   prometheus:
     enabled: false
+  # Orchestrator liveness probe
   livenessProbe:
     httpGet:
       path: /readiness
       port: 8082
     failureThreshold: 10
+  # Orchestrator startup probe
   startupProbe:
     httpGet:
       path: /readiness
@@ -192,8 +213,15 @@ orchestrator:
     failureThreshold: 10
 
 # -- Service Apps configuration. Please see the example folders for more details
-serviceApps: []
+serviceApps: {}
+#  node
+#    replicas: 1
+#    ports:
+#      - 80
+
+# -- Default Service Apps image
 serviceAppsImage: node:14.21.3-slim
+serviceAppsDefaultPort: 2015
 
 serviceAccount:
   # -- Specifies whether a service account should be created
@@ -207,7 +235,8 @@ serviceAccount:
 # -- Snapshooters configuration, You can have multiple of them, each with the following values:<br />
 # - name: string, mandatory - Name of the snapshooter <br />
 #    schedule: string, mandatory - schedule (cron format) <br />
-#    secretName: string, mandatory - name of the secret containing the configuration <br />
+#    config: string, json configuration. Please read documentation for examples (can't be used with secretName key below) <br />
+#    secretName: string, name of the secret containing the configuration (can't be used with config key above) <br />
 #    resources <br />
 #      requests: <br />
 #        memory: string, default "200Mi" <br />
@@ -217,14 +246,12 @@ serviceAccount:
 #        cpu: string, default "200m" <br />
 snapshooters: []
 
-podSecurityContext: {}
-
-securityContext: {}
-
+# -- Frontend service configuration
 service:
   type: ClusterIP
   port: 80
 
+# -- Ingress configuration
 ingress:
   enabled: false
   annotations:
@@ -240,12 +267,3 @@ ingress:
   tls:
     - secretName:
       hosts: []
-
-# -- Kubernetes cluster name
-clusterName: "eks-ci"
-
-
-vaultTemplate: false
-nodes:
-  dataVolume:
-    storageClassName: efs-storage-class
