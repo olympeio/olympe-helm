@@ -1,11 +1,21 @@
-appRepository: 470752198308.dkr.ecr.eu-central-1.amazonaws.com/my-project-slug
-
-orchestrator:
-  image: olympeio/orchestrator:6.1.1
-
-cronSnapshooters:
-  - name: folder-x
-    # https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
+snapshooters:
+  - name: snapshooter
     schedule: "@hourly"
     image: olympeio/dev-tools:1.0.2
-    secretName: snapshooter-secret
+    config: |-
+        [{
+          "name": "snapshooter",
+          "rootTags": ["0000000000"],
+          "path": "snapshot",
+          "server": {
+            "user": "admin",
+            "password": "******",
+            "host": "my-olympe-instance.example.com",
+            "port": 443
+          },
+          "git":{
+            "repo": "https://***",
+            "branch": "snapshooter",
+            "commitMessage": "Snapshoted at {date} in {folder}"
+          }
+        }]
