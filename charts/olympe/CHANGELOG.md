@@ -2,8 +2,27 @@
 ## [Unreleased]
 
 
-<a name="1.4.1"></a>
-## [1.4.1] - 2023-03-29
+<a name="2.0.0"></a>
+## [2.0.0] - 2023-04-24
+### Chore
+- Update appVersion to v2.4.0
+- **deps:** update helm release rabbitmq to v11.13.0
+- **deps:** update helm release neo4j-standalone to v4.4.19
+
+### Feat
+- enable default ports + webservices on service apps
+- enable frontend custom port
+- enable inline snapshooter configuration
+- add licence check
+- oConfig frontend and backend automatically injected
+- snapshooter secret automatically injected
+
+### Fix
+- service app container port typo
+
+
+<a name="olympe-1.4.1"></a>
+## [olympe-1.4.1] - 2023-03-29
 ### Fix
 - add specific role for resetDB
 
@@ -57,8 +76,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/1.4.1...HEAD
-[1.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.0...1.4.1
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.1...2.0.0
+[olympe-1.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.0...olympe-1.4.1
 [olympe-1.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT-SNAPSHOT...olympe-1.4.0
 [olympe-1.3.1-SNAPSHOT-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT...olympe-1.3.1-SNAPSHOT-SNAPSHOT
 [olympe-1.3.1-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.7...olympe-1.3.1-SNAPSHOT
