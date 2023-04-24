@@ -50,7 +50,7 @@ spec:
           {{- end }}
           {{ if $v.ports }}
             {{ range $v.ports }}
-            - containerPort: {{ $v.targetPort }}
+            - containerPort: {{ .targetPort }}
             {{- end }}
           {{- end }}
           resources:
