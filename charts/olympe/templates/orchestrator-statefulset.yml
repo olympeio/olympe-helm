@@ -42,7 +42,7 @@ spec:
       containers:
         - name: orchestrator
           securityContext:
-            {{- toYaml .Values.orchestrator.securityContext | nindent 12 }}
+            {{- toYaml .Values.orchestrator.containerSecurityContext | nindent 12 }}
           image: "{{ default .Values.appRepository .Values.orchestrator.image.repository }}/{{ .Values.orchestrator.image.name }}:{{ default .Chart.AppVersion .Values.orchestrator.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           tty: true

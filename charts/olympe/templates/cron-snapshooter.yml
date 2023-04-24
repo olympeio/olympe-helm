@@ -57,9 +57,29 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
           volumes:
+            {{- if or (hasKey . "config") (hasKey . "secretName") }}
             - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
               secret:
+                {{- if hasKey . "config" }}
+                secretName: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+                {{- else }}
                 secretName: {{ .secretName }}
+                {{- end }}
+            {{- end }}
 ---
+{{- if hasKey . "config" }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- $labels | nindent 4 }}
+    name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: snapshooter
+type: Opaque
+stringData:
+  config.json: {{- .config | toYaml | indent 1 }}
+---
+{{- end }}
 {{- end }}
 {{- end }}

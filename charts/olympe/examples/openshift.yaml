@@ -1,0 +1,21 @@
+---
+frontend:
+  port: 8080
+  podSecurityContext:
+    runAsUser: 1000670000
+orchestrator:
+  podSecurityContext:
+    runAsUser: 1000670000
+  dataVolume:
+    storageClassName: crc-csi-hostpath-provisioner
+olympeTools:
+  podSecurityContext:
+    runAsUser: 1000670000
+neo4j:
+  securityContext:
+    runAsUser: 1000670000
+    fsGroup: 1000670000
+    containerSecurityContext: 1000670000
+rabbitmq:
+  containerSecurityContext: 1000670000
+  podSecurityContext: 1000670000

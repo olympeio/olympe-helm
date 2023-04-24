@@ -31,7 +31,7 @@ spec:
       containers:
         - name: frontend
           securityContext:
-            {{- toYaml .Values.frontend.securityContext | nindent 12 }}
+            {{- toYaml .Values.frontend.containerSecurityContext | nindent 12 }}
           image: "{{ default .Values.appRepository .Values.frontend.image.repository }}/{{ .Values.frontend.image.name }}:{{ default .Chart.AppVersion .Values.frontend.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -52,6 +52,10 @@ spec:
               mountPath: /etc/nginx/server/
             - name: frontend-subconf
               mountPath: /etc/nginx/subconf.d/
+            {{- if .Values.frontend.oConfig }}
+            - name: frontend-oconfig
+              mountPath: /usr/share/nginx/html/conf.d
+            {{- end }}
             {{- if .Values.frontend.volumeMounts }}
               {{- toYaml .Values.frontend.volumeMounts | nindent 12 }}
             {{ end }}
@@ -65,6 +69,11 @@ spec:
       - name: frontend-subconf
         configMap:
           name: {{ printf "%s-frontend-subconf" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      {{- if .Values.frontend.oConfig }}
+      - name: frontend-oconfig
+        configMap:
+          name: {{ printf "%s-frontend-oconfig" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      {{- end }}
       {{- if .Values.frontend.volumes }}
         {{- toYaml .Values.frontend.volumes | nindent 6 }}
       {{ end }}
