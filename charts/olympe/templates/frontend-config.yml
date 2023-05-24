@@ -210,7 +210,7 @@ data:
   {{- if .webservices }}
   {{- range .webservices }}
     location {{ .uri }} {
-      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:80{{ default .uri .targetUri }};
+      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:{{ default 80 .port }}{{ default .uri .targetUri }};
     }
   {{- end }}
   {{- end }}
