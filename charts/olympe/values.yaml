@@ -4,7 +4,7 @@ appRepository: olympeio/olympe-composer
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/olympe-database:v2.4.1
+    customImage: olympeio/olympe-database:v2.4.2
   fullnameOverride: neo4j
   neo4j:
     password: olympe
