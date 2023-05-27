@@ -29,5 +29,5 @@ dependencies:
     repository: https://helm.neo4j.com/neo4j
   - condition: rabbitmq.enabled
     name: rabbitmq
-    version: 11.15.2
+    version: 11.15.3
     repository: https://charts.bitnami.com/bitnami
