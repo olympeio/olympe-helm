@@ -2,8 +2,19 @@
 ## [Unreleased]
 
 
-<a name="2.0.1"></a>
-## [2.0.1] - 2023-05-24
+<a name="2.1.0"></a>
+## [2.1.0] - 2023-06-01
+### Chore
+- Update appVersion to v2.4.3
+- Update appVersion to v2.4.2
+- **deps:** update helm release rabbitmq to v11.15.3
+
+### Feat
+- move orchestrator from statefulset to deployment
+
+
+<a name="olympe-2.0.1"></a>
+## [olympe-2.0.1] - 2023-05-24
 ### Chore
 - Update appVersion to v2.4.1
 - **deps:** update helm release rabbitmq to v11.15.2
@@ -87,8 +98,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.0.1...HEAD
-[2.0.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.0.0...2.0.1
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.0.1...2.1.0
+[olympe-2.0.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.0.0...olympe-2.0.1
 [olympe-2.0.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.1...olympe-2.0.0
 [olympe-1.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.0...olympe-1.4.1
 [olympe-1.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT-SNAPSHOT...olympe-1.4.0
