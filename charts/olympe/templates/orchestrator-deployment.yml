@@ -7,9 +7,6 @@ metadata:
     name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: orchestrator
 spec:
-  {{- if not .Values.orchestrator.haEnabled }}
-  serviceName: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-  {{- end }}
   {{- if eq .Values.enabled true }}
   replicas: {{ .Values.orchestrator.replicas }}
   {{- else }}
