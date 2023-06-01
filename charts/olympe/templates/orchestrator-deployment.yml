@@ -1,9 +1,5 @@
 apiVersion: apps/v1
-{{- if .Values.orchestrator.haEnabled }}
 kind: Deployment
-{{- else }}
-kind: StatefulSet
-{{- end }}
 metadata:
   name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
   labels:
