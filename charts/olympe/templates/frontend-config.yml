@@ -77,7 +77,7 @@ data:
       proxy_read_timeout 900;
       send_timeout 900;
       
-      proxy_cache_key "$scheme$host$uri$is_args$arg_query";
+      proxy_cache_key "$scheme$host$uri$is_args$arg_query$arg_v";
       proxy_cache graphDef_cache;
       proxy_cache_methods GET;
       proxy_ignore_headers Cache-Control;
@@ -194,7 +194,7 @@ metadata:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
-  additional.conf: {{- .Values.frontend.additionalConfig | toYaml | indent 1 }}
+  additional.conf: {{ default "" .Values.frontend.additionalConfig | quote }}
   backend.conf: |
 {{- $defaultBackend := "" }}
 {{- range $k, $v := .Values.serviceApps }}
@@ -225,5 +225,5 @@ metadata:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
-  oConfig.json: {{- .Values.frontend.oConfig | toYaml | indent 1 }}
+  oConfig.json: {{ default "" .Values.frontend.oConfig | quote }}
 {{ end }}
