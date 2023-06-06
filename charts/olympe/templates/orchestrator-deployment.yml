@@ -2,6 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  {{- if .Values.orchestrator.annotations }}
+  annotations:
+{{ toYaml .Values.orchestrator.annotations | indent 4 }}
+  {{- end }}
   labels:
     {{- include "olympe.labels" . | nindent 4 }}
     name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
@@ -19,6 +23,10 @@ spec:
       app.kubernetes.io/component: orchestrator
   template:
     metadata:
+    {{- if .Values.orchestrator.podAnnotations }}
+      annotations:
+{{ toYaml .Values.orchestrator.podAnnotations | indent 8 }}
+    {{- end }}
       labels:
         {{- include "olympe.selectorLabels" . | nindent 8 }}
         name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}

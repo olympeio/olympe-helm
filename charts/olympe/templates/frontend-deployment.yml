@@ -2,6 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    {{- if .Values.frontend.annotations }}
+  annotations:
+{{ toYaml .Values.frontend.annotations | indent 4 }}
+  {{- end }}
   labels:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
@@ -16,6 +20,10 @@ spec:
       name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
   template:
     metadata:
+    {{- if .Values.frontend.podAnnotations }}
+      annotations:
+{{ toYaml .Values.frontend.podAnnotations | indent 8 }}
+    {{- end }}
       labels:
         {{- include "olympe.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: frontend
