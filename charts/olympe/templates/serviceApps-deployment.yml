@@ -6,6 +6,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+  {{- if .annotations }}
+  annotations:
+{{ toYaml .annotations | indent 4 }}
+  {{- end }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}
     name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
@@ -22,6 +26,10 @@ spec:
       name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
   template:
     metadata:
+    {{- if .podAnnotations }}
+      annotations:
+{{ toYaml .podAnnotations | indent 8 }}
+    {{- end }}
       labels:
         {{- include "olympe.selectorLabels" $ | nindent 8 }}
         name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
