@@ -199,11 +199,13 @@ data:
 {{- $defaultBackend := "" }}
 {{- range $k, $v := .Values.serviceApps }}
     location /{{ $k }}/runtime {
+      client_max_body_size 100M;
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
     }
   {{- if and (.defaultBackend) (eq $defaultBackend "") }}
   {{ $defaultBackend = $k }}
     location /runtime {
+      client_max_body_size 100M;
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
     }
   {{- end }}
