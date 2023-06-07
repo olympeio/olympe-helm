@@ -2,8 +2,14 @@
 ## [Unreleased]
 
 
-<a name="2.1.3"></a>
-## [2.1.3] - 2023-06-06
+<a name="2.1.4"></a>
+## [2.1.4] - 2023-06-07
+### Fix
+- set default client_max_body_size to 100M for runtime
+
+
+<a name="olympe-2.1.3"></a>
+## [olympe-2.1.3] - 2023-06-06
 ### Feat
 - add annotations and podAnnotations for deployments
 
@@ -119,8 +125,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.3...HEAD
-[2.1.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.2...2.1.3
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.4...HEAD
+[2.1.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.3...2.1.4
+[olympe-2.1.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.2...olympe-2.1.3
 [olympe-2.1.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.1...olympe-2.1.2
 [olympe-2.1.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.0...olympe-2.1.1
 [olympe-2.1.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.0.1...olympe-2.1.0
