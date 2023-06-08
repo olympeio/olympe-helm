@@ -180,7 +180,7 @@ data:
         proxy_busy_buffers_size    256k;
         large_client_header_buffers 4 64k;
 
-        location /olympe-admin {
+        location ^~ /olympe-admin {
           gunzip on;
           alias /usr/share/nginx/html;
         }
