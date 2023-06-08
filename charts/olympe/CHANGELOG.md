@@ -2,8 +2,14 @@
 ## [Unreleased]
 
 
-<a name="2.1.4"></a>
-## [2.1.4] - 2023-06-07
+<a name="2.1.5"></a>
+## [2.1.5] - 2023-06-08
+### Fix
+- fix maintenance mode frontend configuration
+
+
+<a name="olympe-2.1.4"></a>
+## [olympe-2.1.4] - 2023-06-07
 ### Fix
 - set default client_max_body_size to 100M for runtime
 
@@ -125,8 +131,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.4...HEAD
-[2.1.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.3...2.1.4
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.5...HEAD
+[2.1.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.4...2.1.5
+[olympe-2.1.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.3...olympe-2.1.4
 [olympe-2.1.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.2...olympe-2.1.3
 [olympe-2.1.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.1...olympe-2.1.2
 [olympe-2.1.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.0...olympe-2.1.1
