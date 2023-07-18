@@ -84,6 +84,16 @@ data:
       proxy_cache_valid 200 1M;
       add_header X-Cache-Status $upstream_cache_status;
     }
+
+    location /mqtt/ws {
+      proxy_pass http://rabbitmq/ws;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_connect_timeout 7d;
+      proxy_send_timeout 7d;
+      proxy_read_timeout 7d;
+    }
     
     include /etc/nginx/subconf.d/*.conf;
 
@@ -164,6 +174,10 @@ data:
         server {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:8081;
       }
 
+      upstream rabbitmq {
+        server {{ printf "%s:%d" .Values.frontend.rabbitmq.host (.Values.frontend.rabbitmq.mqttPort | int) }};
+      }
+
       server {
         proxy_cache nginxcache;
         listen {{ .Values.frontend.port }};
@@ -201,18 +215,30 @@ data:
     location /{{ $k }}/runtime {
       client_max_body_size 100M;
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
+      proxy_pass_request_headers      on;
+      {{- if .additionalDirectives }}
+      {{ .additionalDirectives | nindent 6 }}
+      {{- end }}
     }
   {{- if and (.defaultBackend) (eq $defaultBackend "") }}
   {{ $defaultBackend = $k }}
     location /runtime {
       client_max_body_size 100M;
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
+      proxy_pass_request_headers      on;
+      {{- if .additionalDirectives }}
+      {{ .additionalDirectives | nindent 6 }}
+      {{- end }}
     }
   {{- end }}
   {{- if .webservices }}
   {{- range .webservices }}
     location {{ .uri }} {
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:{{ default 80 .port }}{{ default .uri .targetUri }};
+      proxy_pass_request_headers      on;
+      {{- if .additionalDirectives }}
+      {{ .additionalDirectives | nindent 6 }}
+      {{- end }}
     }
   {{- end }}
   {{- end }}

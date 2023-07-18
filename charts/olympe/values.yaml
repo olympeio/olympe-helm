@@ -42,7 +42,11 @@ rabbitmq:
     auth_http.vhost_path    = http://orchestrator:8080/auth/vhost
     auth_http.resource_path = http://orchestrator:8080/auth/resource
     auth_http.topic_path    = http://orchestrator:8080/auth/topic
-
+  service:
+    extraPorts:
+      - name: mqtt
+        port: 15675
+        targetPort: 15675
 
 # -- Please check the license agreement: https://
 acceptLicenseAgreement: "no"
@@ -75,6 +79,9 @@ frontend:
   additionalConfig: ""
   # -- frontend oConfig content
   oConfig: ""
+  rabbitmq:
+    host: rabbitmq
+    mqttPort: 15675
   resources:
     requests:
       # -- frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
