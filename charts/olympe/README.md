@@ -234,6 +234,8 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | frontend.oConfig | string | `""` | frontend oConfig content |
 | frontend.podSecurityContext | object | `{"runAsUser":101}` | defines privilege and access control settings for the frontend on Pod level. |
 | frontend.port | int | `80` | frontend port |
+| frontend.rabbitmq.host | string | `"rabbitmq"` |  |
+| frontend.rabbitmq.mqttPort | int | `15` |  |
 | frontend.replicas | int | `1` | Number of frontend replicas |
 | frontend.resources.limits | string | `nil` | frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) memory: "100Mi" -- frontend CPU request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) cpu: "50m" |
 | frontend.resources.requests | string | `nil` |  |
@@ -244,7 +246,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.4.3"` |  |
+| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.4.4"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -298,6 +300,9 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | rabbitmq.extraPlugins[2] | string | `"rabbitmq_auth_backend_cache"` |  |
 | rabbitmq.extraPlugins[3] | string | `"rabbitmq_auth_backend_http"` |  |
 | rabbitmq.fullnameOverride | string | `"rabbitmq"` |  |
+| rabbitmq.service.extraPorts[0].name | string | `"mqtt"` |  |
+| rabbitmq.service.extraPorts[0].port | int | `15675` |  |
+| rabbitmq.service.extraPorts[0].targetPort | int | `15675` |  |
 | service | object | `{"port":80,"type":"ClusterIP"}` | Frontend service configuration |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
