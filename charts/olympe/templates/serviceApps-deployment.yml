@@ -107,8 +107,9 @@ spec:
             httpGet:
               path: /readiness
               port: 3141
-            timeoutSeconds: {{ default 5 (($v.livenessProbe).timeoutSeconds) }}
-            initialDelaySeconds: {{ default 25 (($v.livenessProbe).initialDelaySeconds) }}
+            timeoutSeconds: {{ default 7 (($v.livenessProbe).timeoutSeconds) }}
+            initialDelaySeconds: {{ default 45 (($v.livenessProbe).initialDelaySeconds) }}
+            failureThreshold: {{ default 3 (($v.startupProbe).failureThreshold) }}
             {{- else }}
             {{- toYaml $v.livenessProbe | nindent 12 }}
             {{- end }}
@@ -119,8 +120,9 @@ spec:
             httpGet:
               path: /readiness
               port: 3141
-            timeoutSeconds: {{ default 5 (($v.startupProbe).timeoutSeconds) }}
+            timeoutSeconds: {{ default 7 (($v.startupProbe).timeoutSeconds) }}
             initialDelaySeconds: {{ default 5 (($v.startupProbe).initialDelaySeconds) }}
+            failureThreshold: {{ default 10 (($v.startupProbe).failureThreshold) }}
             {{- else }}
             {{- toYaml $v.startupProbe | nindent 12 }}
             {{- end }}
