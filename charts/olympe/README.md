@@ -214,8 +214,8 @@ helm dependency build && helm template <namespace> olympe/olympe \
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | rabbitmq | 11.16.1 |
-| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.19 |
+| https://charts.bitnami.com/bitnami | rabbitmq | 11.16.2 |
+| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.21 |
 
 ## Values
 **Keys without a description are not meant to be changed**
@@ -235,7 +235,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | frontend.podSecurityContext | object | `{"runAsUser":101}` | defines privilege and access control settings for the frontend on Pod level. |
 | frontend.port | int | `80` | frontend port |
 | frontend.rabbitmq.host | string | `"rabbitmq"` |  |
-| frontend.rabbitmq.mqttPort | int | `15` |  |
+| frontend.rabbitmq.mqttPort | int | `15675` |  |
 | frontend.replicas | int | `1` | Number of frontend replicas |
 | frontend.resources.limits | string | `nil` | frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) memory: "100Mi" -- frontend CPU request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) cpu: "50m" |
 | frontend.resources.requests | string | `nil` |  |
