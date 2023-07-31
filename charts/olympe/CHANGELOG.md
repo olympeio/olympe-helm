@@ -2,8 +2,17 @@
 ## [Unreleased]
 
 
-<a name="2.1.6"></a>
-## [2.1.6] - 2023-07-18
+<a name="2.1.7"></a>
+## [2.1.7] - 2023-07-31
+### Chore
+- **deps:** update helm release neo4j-standalone to v4.4.22
+
+### Fix
+- increase backend livenessProbe initialDelay and FailureThreshold
+
+
+<a name="olympe-2.1.6"></a>
+## [olympe-2.1.6] - 2023-07-18
 ### Chore
 - Update appVersion to v2.4.4
 - **deps:** update helm release neo4j-standalone to v4.4.21
@@ -142,8 +151,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.6...HEAD
-[2.1.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.5...2.1.6
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.7...HEAD
+[2.1.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.6...2.1.7
+[olympe-2.1.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.5...olympe-2.1.6
 [olympe-2.1.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.4...olympe-2.1.5
 [olympe-2.1.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.3...olympe-2.1.4
 [olympe-2.1.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.2...olympe-2.1.3
