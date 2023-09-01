@@ -29,7 +29,7 @@ spec:
             runAsUser: 0
           containers:
           - name: snapshooter
-            image: {{ default "olympeio/resource-feeder:stable" .image }}
+            image: "{{ .Values.olympeToolkit.image.repository }}/{{ .Values.olympeToolkit.image.name }}:{{ default .Chart.AppVersion .Values.olympeToolkit.image.tag }}"
             resources:
               requests:
                 memory: {{ if .resources }}{{ if .resources.requests -}} {{ default "200Mi" .resources.requests.memory }} {{- else -}} "100Mi" {{- end }}{{- else -}} "100Mi" {{- end }}

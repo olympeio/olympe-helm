@@ -215,7 +215,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | rabbitmq | 11.16.2 |
-| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.21 |
+| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.22 |
 
 ## Values
 **Keys without a description are not meant to be changed**
@@ -246,14 +246,14 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.4.4"` |  |
+| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.4.5"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
 | neo4j.volumes.data.mode | string | `"defaultStorageClass"` |  |
-| olympeTools.action | string | `"resetdb"` | available values are resetdb, resetCredentials |
-| olympeTools.image | object | `{"name":"olympe-tools","repository":"olympeio"}` | Olympe Tools image |
-| olympeTools.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
+| olympeToolkit.cronJobs | object | `{"garbageCollector":{"command":"startGC","name":"garbage-collector","spec":{"resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"100m","memory":"100Mi"}},"schedule":"5 1 * * 0"}}}` | available values are:     - help     - snapshot     - snapshotUsers     - snapshotBusinessData     - restoreUsers     - restoreBusinessData     - reset     - checkDB     - startGC     - statsDB     - maintenance     - updateUser      |
+| olympeToolkit.image | object | `{"name":"olympe-toolkit","repository":"olympeio","tag":"latest"}` | Olympe Toolkit image |
+| olympeToolkit.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | orchestrator.affinity | object | `{}` | setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
 | orchestrator.configMapEnv | object | `{"ACTIVITY_TIMEOUT":"70000000","ALLOWED_WS_ORIGINS":"|.*","JAVA_PROCESS_XMX":"1g","PERMISSION_CHECK_ENABLED":"false","RABBITMQ_CLIENT_PREFETCH_SIZE":200,"WAIT_FOR_NEO4J":"120"}` | Orchestrator environment variables (in separated configMap) |

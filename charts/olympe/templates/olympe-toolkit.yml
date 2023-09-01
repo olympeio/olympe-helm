@@ -1,0 +1,111 @@
+{{- if .Values.orchestrator.neo4j.resetDB -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.olympeToolkit.action) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reset
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.olympeToolkit.action) | trunc 63 | trimSuffix "-" }}
+    spec:
+      volumes:
+        - name: backup-data
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      containers:
+        - name: reset
+          image: "{{ default .Values.appRepository .Values.olympeToolkit.image.repository }}/{{ .Values.olympeToolkit.image.name }}:{{ default .Chart.AppVersion .Values.olympeToolkit.image.tag }}"
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: orchestrator-default-secret
+                optional: true
+          env:
+            - name: COMMAND
+              value: reset
+            - name: BACKUP_USERS
+              value: "false"
+            - name: BACKUP_DATA
+              value: "false"
+            - name: RABBITMQ_PATCHES_DIR
+              value: /patches
+          resources:
+            limits:
+              cpu: 200m
+              memory: 500Mi
+          volumeMounts:
+            - name: backup-data
+              mountPath: /backupData
+            {{- if .Values.serviceApps }}
+            - name: nodes
+              mountPath: /nodes
+            {{- end }}
+      restartPolicy: Never
+      serviceAccountName: {{ include "olympe.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.olympeToolkit.podSecurityContext | nindent 8 }}
+  backoffLimit: 4
+{{- end }}
+{{- range .Values.olympeToolkit.cronJobs }}
+---
+{{- if semverCompare ">=1.20.x" $.Capabilities.KubeVersion.Version -}}
+apiVersion: batch/v1
+{{- else -}}
+apiVersion: batch/v1beta1
+{{- end }}
+kind: CronJob
+metadata:
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower .name) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: toolkit
+spec:
+  suspend: {{ default false .spec.suspend }}
+  schedule: {{ .spec.schedule | quote }}
+  successfulJobsHistoryLimit: {{ default 1 .spec.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ default 2 .spec.failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ default 360 .spec.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ default 0 .spec.backoffLimit }}
+      template:
+        metadata:
+          name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower .name) | trunc 63 | trimSuffix "-" }}
+          labels:
+            {{- include "olympe.selectorLabels" $ | nindent 12 }}
+            app.kubernetes.io/component: toolkit
+        spec:
+          serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
+          containers:
+            - name: {{ (lower .name) }}
+              image: "{{ $.Values.olympeToolkit.image.repository }}/{{ $.Values.olympeToolkit.image.name }}:{{ default $.Chart.AppVersion $.Values.olympeToolkit.image.tag }}"
+              imagePullPolicy: {{ default "IfNotPresent" .spec.imagePullPolicy }}
+              {{ if .spec.resources }}
+              resources:
+                {{- toYaml .spec.resources | nindent 16 }}
+              {{- end }}
+              envFrom:
+              - configMapRef:
+                  name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+              - secretRef:
+                  name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+              - secretRef:
+                  name: orchestrator-default-secret
+                  optional: true
+              env:
+              - name: COMMAND
+                value: {{ .command }}
+              - name: ORCHESTRATOR_HOST
+                value: orchestrator
+          restartPolicy: {{ default "Never" .spec.restartPolicy }}
+{{- end }}

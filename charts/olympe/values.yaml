@@ -110,13 +110,40 @@ frontend:
   dataVolume:
     storageClassName: standard
 
-olympeTools:
-  # -- available values are resetdb, resetCredentials
-  action: resetdb
-  # -- Olympe Tools image
+olympeToolkit:
+  # -- available values are:
+  #     - help
+  #     - snapshot
+  #     - snapshotUsers
+  #     - snapshotBusinessData
+  #     - restoreUsers
+  #     - restoreBusinessData
+  #     - reset
+  #     - checkDB
+  #     - startGC
+  #     - statsDB
+  #     - maintenance
+  #     - updateUser
+  #     
+  cronJobs:
+    garbageCollector:
+      name: garbage-collector
+      command: startGC
+      spec:
+        schedule: 5 1 * * 0
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+          limits:
+            memory: "100Mi"
+            cpu: "100m"
+
+  # -- Olympe Toolkit image
   image:
     repository: olympeio
-    name: olympe-tools
+    name: olympe-toolkit
+    tag: latest
   # -- defines privilege and access control settings for the Olympe Tools on Pod level.
   podSecurityContext:
     runAsUser: 0
