@@ -107,5 +107,12 @@ spec:
                 value: {{ .command }}
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
+              volumeMounts:
+              - name: backup-data
+                mountPath: /backupData
           restartPolicy: {{ default "Never" .spec.restartPolicy }}
+          volumes:
+          - name: backup-data
+            persistentVolumeClaim:
+              claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
 {{- end }}
