@@ -94,6 +94,14 @@ spec:
               resources:
                 {{- toYaml .spec.resources | nindent 16 }}
               {{- end }}
+              {{ if .spec.command }}
+              command:
+                {{- toYaml .spec.command | nindent 16 }}
+              {{- end }}
+              {{ if .spec.args }}
+              args:
+                {{- toYaml .spec.args | nindent 16 }}
+              {{- end }}
               envFrom:
               - configMapRef:
                   name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
@@ -107,6 +115,9 @@ spec:
                 value: {{ .command }}
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
+              {{ if .spec.env }}
+                {{- toYaml .spec.env | nindent 14 }}
+              {{- end }}
               volumeMounts:
               - name: backup-data
                 mountPath: /backupData
