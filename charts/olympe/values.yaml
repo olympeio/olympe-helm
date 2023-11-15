@@ -246,6 +246,12 @@ orchestrator:
       port: 8082
     failureThreshold: 10
 
+networkPolicies:
+  # -- Define if network policies are enabled globally (including service apps) 
+  enabled: false
+  defaultRules: []
+  additionalRules: []
+
 # -- Service Apps configuration. Please see the example folders for more details
 serviceApps: {}
 #  node

@@ -246,7 +246,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.4.5"` |  |
+| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.5.0"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -254,6 +254,12 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | olympeToolkit.cronJobs | object | `{"garbageCollector":{"command":"startGC","name":"garbage-collector","spec":{"resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"100m","memory":"100Mi"}},"schedule":"5 1 * * 0"}},"get-upgrade-config":{"command":"getUpgradeConfig","name":"getUpgradeConfig","spec":{"imagePullPolicy":"Always","resources":{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"150Mi"}},"schedule":"0 0 1 1 1","suspend":true}},"is-db-initialized":{"command":"isDbInitialized","name":"isDbInitialized","spec":{"imagePullPolicy":"Always","resources":{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"150Mi"}},"schedule":"0 0 1 1 1","suspend":true}},"resetDB":{"command":"reset","name":"resetDB","spec":{"imagePullPolicy":"Always","resources":{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"150Mi"}},"schedule":"0 0 1 1 1","suspend":true}}}` | available values are:     - help     - snapshot     - snapshotUsers     - snapshotBusinessData     - restoreUsers     - restoreBusinessData     - reset     - checkDB     - startGC     - statsDB     - maintenance     - updateUser      |
 | olympeToolkit.image | object | `{"name":"olympe-toolkit","repository":"olympeio","tag":"2.5.0-dev-b789b22a"}` | Olympe Toolkit image |
 | olympeToolkit.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
+| networkPolicies.additionalRules | list | `[]` |  |
+| networkPolicies.defaultRules | list | `[]` |  |
+| networkPolicies.enabled | bool | `false` | Define if network policies are enabled globally (including service apps)  |
+| olympeTools.action | string | `"resetdb"` | available values are resetdb, resetCredentials |
+| olympeTools.image | object | `{"name":"olympe-tools","repository":"olympeio"}` | Olympe Tools image |
+| olympeTools.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | orchestrator.affinity | object | `{}` | setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
 | orchestrator.configMapEnv | object | `{"ACTIVITY_TIMEOUT":"70000000","ALLOWED_WS_ORIGINS":"|.*","JAVA_PROCESS_XMX":"1g","PERMISSION_CHECK_ENABLED":"false","RABBITMQ_CLIENT_PREFETCH_SIZE":200,"WAIT_FOR_NEO4J":"120"}` | Orchestrator environment variables (in separated configMap) |
