@@ -8,6 +8,7 @@ metadata:
 spec:
   selector:
     name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: orchestrator
   ports:
     - name: app
       port: 8080
@@ -26,6 +27,7 @@ metadata:
 spec:
   selector:
     name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: orchestrator
   ports:
     - name: app
       port: 8080
@@ -46,6 +48,7 @@ metadata:
 spec:
   selector:
     name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: orchestrator
   ports:
     - name: hazelcast
       protocol: TCP
@@ -71,6 +74,7 @@ spec:
       targetPort: 8081
   selector:
     statefulset.kubernetes.io/pod-name: {{ printf "%s-orchestrator-%d" (include "olympe.fullname" $) $i | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: orchestrator
   clusterIP: None
   type: ClusterIP
 {{- end }}
