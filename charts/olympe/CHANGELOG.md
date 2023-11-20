@@ -2,8 +2,20 @@
 ## [Unreleased]
 
 
-<a name="2.1.7"></a>
-## [2.1.7] - 2023-07-31
+<a name="2.1.8"></a>
+## [2.1.8] - 2023-11-20
+### Chore
+- Update appVersion to v2.5.0
+- Update appVersion to v2.4.5
+- **deps:** update helm release rabbitmq to v12
+- **deps:** update helm release neo4j-standalone to v4.4.27
+
+### Feat
+- add missing labels on services for network policies + add network policies
+
+
+<a name="olympe-2.1.7"></a>
+## [olympe-2.1.7] - 2023-07-31
 ### Chore
 - **deps:** update helm release neo4j-standalone to v4.4.22
 
@@ -151,8 +163,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.7...HEAD
-[2.1.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.6...2.1.7
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.8...HEAD
+[2.1.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.7...2.1.8
+[olympe-2.1.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.6...olympe-2.1.7
 [olympe-2.1.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.5...olympe-2.1.6
 [olympe-2.1.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.4...olympe-2.1.5
 [olympe-2.1.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.3...olympe-2.1.4
