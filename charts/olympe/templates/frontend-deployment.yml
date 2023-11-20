@@ -18,6 +18,7 @@ spec:
     matchLabels:
       {{- include "olympe.selectorLabels" . | nindent 6 }}
       name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      app.kubernetes.io/component: frontend
   template:
     metadata:
     {{- if .Values.frontend.podAnnotations }}

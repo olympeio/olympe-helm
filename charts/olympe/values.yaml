@@ -4,7 +4,7 @@ appRepository: olympeio/olympe-composer
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/olympe-database:v2.4.4
+    customImage: olympeio/olympe-database:v2.5.0
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -218,6 +218,12 @@ orchestrator:
       path: /readiness
       port: 8082
     failureThreshold: 10
+
+networkPolicies:
+  # -- Define if network policies are enabled globally (including service apps) 
+  enabled: false
+  defaultRules: []
+  additionalRules: []
 
 # -- Service Apps configuration. Please see the example folders for more details
 serviceApps: {}

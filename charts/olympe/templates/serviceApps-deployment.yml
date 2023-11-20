@@ -24,6 +24,7 @@ spec:
     matchLabels:
       {{- include "olympe.selectorLabels" $ | nindent 6 }}
       name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+      app.kubernetes.io/component: backend
   template:
     metadata:
     {{- if .podAnnotations }}
@@ -187,6 +188,7 @@ spec:
   selector:
     {{- include "olympe.selectorLabels" $ | nindent 4 }}
     name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: backend
   ports:
     - name: runtime
       protocol: TCP

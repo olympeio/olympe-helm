@@ -15,4 +15,5 @@ spec:
       targetPort: {{ .Values.frontend.port }}
   selector:
     {{- include "olympe.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
     name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
