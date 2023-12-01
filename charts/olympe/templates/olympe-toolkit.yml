@@ -75,6 +75,7 @@ spec:
   successfulJobsHistoryLimit: {{ default 1 .spec.successfulJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ default 2 .spec.failedJobsHistoryLimit }}
   startingDeadlineSeconds: {{ default 360 .spec.failedJobsHistoryLimit }}
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
       backoffLimit: {{ default 0 .spec.backoffLimit }}
