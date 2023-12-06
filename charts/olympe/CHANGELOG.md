@@ -2,429 +2,200 @@
 ## [Unreleased]
 
 
-<a name="1.0.12"></a>
-## [1.0.12] - 2022-09-29
-
-<a name="olympe-1.0.11"></a>
-## [olympe-1.0.11] - 2022-09-29
+<a name="2.2.0"></a>
+## [2.2.0] - 2023-12-06
+### Feat
+- add missing labels on services for network policies + add network policies
+- olympe-toolkit add command and args
+- migrate feeder to olympe-toolkit
 
 ### Fix
-- typo service
-- added vars for ha mode and fixed snap script
-- disable caching for status endpoint
+- forbid concurrency on toolkit jobs
+- fix olympe-toolkit mount + snapshooter
 
 
-<a name="1.0.6"></a>
-## [1.0.6] - 2022-11-01
-### Fix
-- back to neo4j 4.4.9 to fix release
-- remove default service apps resources
-- frontend config for compression
-
-
-<a name="1.0.5"></a>
-## [1.0.5] - 2022-10-28
-### Fix
-- add missing environment variables to snapshooter
-
-
-<a name="1.0.4"></a>
-## [1.0.4] - 2022-10-25
+<a name="olympe-2.1.8"></a>
+## [olympe-2.1.8] - 2023-11-20
 ### Chore
-- **deps:** update helm release rabbitmq to v10.3.9
-- **deps:** update olympeio/orchestrator docker tag to v6.4.0
-- **deps:** update registry.caas.olympe.io/infra/docker/sandman docker tag to v3.16.2
-- **deps:** update node docker tag to v14.20.1
-- **deps:** update helm release neo4j to v4.4.10
-
-### Fix
-- back to neo4j 4.4.9 to fix release
-- remove default service apps resources
-- frontend config for compression
-
-
-<a name="1.0.3"></a>
-## [1.0.3] - 2022-10-05
-### Fix
-- orchestrator prometheus endpoint
-
-
-<a name="1.0.2"></a>
-## [1.0.2] - 2022-10-03
-### Fix
-- mount a fake module to nodeapp until kustomize issue found
-
-
-<a name="1.0.1"></a>
-## [1.0.1] - 2022-10-03
-### Fix
-- service app volume mounts
-- orchestrator ha configuration
-
-
-<a name="1.0.0"></a>
-## [1.0.0] - 2022-09-27
-### Fix
-- improve resources calculation for service apps
-
-
-<a name="0.9.1"></a>
-## [0.9.1] - 2022-08-16
-### Chore
-- **deps:** update helm values registry.caas.olympe.io/infra/docker/sandman to v3.16.2
+- Update appVersion to v2.5.0
+- Update appVersion to v2.4.5
+- **deps:** update helm release rabbitmq to v12
+- **deps:** update helm release neo4j-standalone to v4.4.27
 
 ### Feat
-- add reset-credentials job
+- add missing labels on services for network policies + add network policies
+
+
+<a name="olympe-2.1.7"></a>
+## [olympe-2.1.7] - 2023-07-31
+### Chore
+- **deps:** update helm release neo4j-standalone to v4.4.22
 
 ### Fix
-- update role create-secret
-- set feeder and sandman resources requests
+- increase backend livenessProbe initialDelay and FailureThreshold
 
 
-<a name="0.9.0"></a>
-## [0.9.0] - 2022-08-05
+<a name="olympe-2.1.6"></a>
+## [olympe-2.1.6] - 2023-07-18
 ### Chore
-- **deps:** update helm values registry.caas.olympe.io/infra/docker/sandman to v3.16.1
-- **deps:** update helm values registry.caas.olympe.io/devops-group/ci-cd/watcher/nginx-watcher to v1.23.1
+- Update appVersion to v2.4.4
+- **deps:** update helm release neo4j-standalone to v4.4.21
+- **deps:** update helm release rabbitmq to v11.16.2
 
 ### Feat
-- add resource quota
-- remove orchestrator init container (bug has been fixed by AWS)
+- add additionalDirectives for frontend + request headers + rabbitmq upstream setup
 
+
+<a name="olympe-2.1.5"></a>
+## [olympe-2.1.5] - 2023-06-08
 ### Fix
-- default values for orchestrator garbage collector
-- remove deprecated ingressClassName
+- fix maintenance mode frontend configuration
 
 
-<a name="0.8.23"></a>
-## [0.8.23] - 2022-07-27
+<a name="olympe-2.1.4"></a>
+## [olympe-2.1.4] - 2023-06-07
+### Fix
+- set default client_max_body_size to 100M for runtime
+
+
+<a name="olympe-2.1.3"></a>
+## [olympe-2.1.3] - 2023-06-06
 ### Feat
-- add garbage collector
-
-### Fix
-- reduce orchestrator and service apps default CPU
-- add sandman resources limits
+- add annotations and podAnnotations for deployments
 
 
-<a name="0.8.22"></a>
-## [0.8.22] - 2022-07-18
-### Fix
-- fix node-watcher image version
-
-
-<a name="0.8.20"></a>
-## [0.8.20] - 2022-07-18
-### Fix
-- add missing pod labels
-
-
-<a name="0.8.19"></a>
-## [0.8.19] - 2022-07-08
+<a name="olympe-2.1.2"></a>
+## [olympe-2.1.2] - 2023-06-05
 ### Chore
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v3
-
-### Feat
-- add owner labels + suspend ability to snapshooter + sandman update
+- **deps:** update helm release rabbitmq to v11.16.1
 
 ### Fix
-- only add sandman server authorization if enabled
+- frontend config fix
 
 
-<a name="0.8.18"></a>
-## [0.8.18] - 2022-06-20
+<a name="olympe-2.1.1"></a>
+## [olympe-2.1.1] - 2023-06-01
+### Fix
+- remove orchestrator serviceName
+
+
+<a name="olympe-2.1.0"></a>
+## [olympe-2.1.0] - 2023-06-01
 ### Chore
-- **deps:** update registry.caas.olympe.cloud/devops-group/ci-cd/watcher/nginx-watcher docker tag to v1.22.0
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.3.4
-- **deps:** update registry.caas.olympe.cloud/devops-group/ci-cd/watcher/node-watcher docker tag to v14.19.3
+- Update appVersion to v2.4.3
+- Update appVersion to v2.4.2
+- **deps:** update helm release rabbitmq to v11.15.3
 
 ### Feat
-- sandman re-enabled for future update
-- add client label
-- remove sandman
-
-### Fix
-- remove unused configuration
-- remove default value for orchestrator replicas
-- add default resources limits for resource-feeder
+- move orchestrator from statefulset to deployment
 
 
-<a name="0.8.17"></a>
-## [0.8.17] - 2022-05-04
-### Fix
-- update nfs-fixer image
-- snapshooter not retro compatible
-
-
-<a name="0.8.16"></a>
-## [0.8.16] - 2022-05-04
-### Fix
-- remove nginx HPA to mitigate websocket reconnections
-
-
-<a name="0.8.15"></a>
-## [0.8.15] - 2022-04-28
+<a name="olympe-2.0.1"></a>
+## [olympe-2.0.1] - 2023-05-24
 ### Chore
-- update ci
-- update ci
-- update ci
-- update ci
-- **deps:** update registry.caas.olympe.cloud/infra/docker/terraform-tools docker tag to v1.1.9
+- Update appVersion to v2.4.1
+- **deps:** update helm release rabbitmq to v11.15.2
 
 ### Fix
-- snapshooter custom image configuration
+- update liveness default initialDelaySeconds + ability to set custom values
+- ability to define custom source port for webservices
 
 
-<a name="0.8.14"></a>
-## [0.8.14] - 2022-04-22
+<a name="olympe-2.0.0"></a>
+## [olympe-2.0.0] - 2023-04-24
 ### Chore
-- **deps:** update registry.caas.olympe.cloud/infra/docker/terraform-tools docker tag to v1.1.8
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.3.3
-
-
-<a name="0.8.13"></a>
-## [0.8.13] - 2022-03-30
-### Chore
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.3.2
-- **deps:** update registry.caas.olympe.cloud/devops-group/ci-cd/watcher/node-watcher docker tag to v14.19.1
+- Update appVersion to v2.4.0
+- **deps:** update helm release rabbitmq to v11.13.0
+- **deps:** update helm release neo4j-standalone to v4.4.19
 
 ### Feat
-- access to instance from internal users if maintenance mode is on
+- enable default ports + webservices on service apps
+- enable frontend custom port
+- enable inline snapshooter configuration
+- add licence check
+- oConfig frontend and backend automatically injected
+- snapshooter secret automatically injected
+
+### Fix
+- service app container port typo
 
 
-<a name="0.8.12"></a>
-## [0.8.12] - 2022-03-21
+<a name="olympe-1.4.1"></a>
+## [olympe-1.4.1] - 2023-03-29
+### Fix
+- add specific role for resetDB
+
+
+<a name="olympe-1.4.0"></a>
+## [olympe-1.4.0] - 2023-03-28
 ### Chore
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.3.1
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.3.0
+- **deps:** update helm release rabbitmq to v11.12.0
+- **deps:** update helm release rabbitmq to v11.11.0
+- **deps:** update helm release rabbitmq to v11.10.3
+- **deps:** update node docker tag to v14.21.3
 
-
-<a name="0.8.10"></a>
-## [0.8.10] - 2022-03-08
-### Chore
-- **deps:** update registry.caas.olympe.cloud/infra/docker/terraform-tools docker tag to v1.1.7
-- **deps:** update registry.caas.olympe.cloud/infra/docker/terraform-tools docker tag to v1.1.6
-
-### Fix
-- disable velero backup for efs-based volumes
-
-
-<a name="0.8.9"></a>
-## [0.8.9] - 2022-02-17
-### Fix
-- snapshooter runAsUser issue
-
-
-<a name="0.8.8"></a>
-## [0.8.8] - 2022-02-10
-### Chore
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.2.5
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.2.4
-- **deps:** update registry.caas.olympe.cloud/infra/docker/terraform-tools docker tag to v1.1.5
-- **deps:** update registry.caas.olympe.cloud/infra/docker/sandman docker tag to v2.2.3
-- **deps:** update registry.caas.olympe.cloud/devops-group/ci-cd/watcher/node-watcher docker tag to v14.19.0
+### Feat
+- allow changing userID on olmype-tools
+- allow frontend port change
+- implemenent default runtime exposure + neo4j 4.4
+- add nginx cache for graphDef
 
 ### Fix
-- add securityContext
-- feeder default patches dir
-- disable sandman if project is disabled
-- security issue by adding securityContext
-- add security context for deployments + sandman image in values.yaml
+- remove snapshot references
+- set backofflimit to 1 for initial resetdb
 
 
-<a name="0.8.7"></a>
-## [0.8.7] - 2022-01-27
-### Chore
-- **deps:** update registry.caas.olympe.cloud/devops-group/ci-cd/watcher/nginx-watcher docker tag to v1.21.6
-- **deps:** update registry.caas.olympe.cloud/infra/docker/terraform-tools docker tag to v1.1.4
-- **deps:** add renovate.json
+<a name="olympe-1.3.1-SNAPSHOT"></a>
+## [olympe-1.3.1-SNAPSHOT] - 2023-02-08
 
-### Fix
-- add gitlab-docker-secret
-- use image from private repo to avoid pull limit
+<a name="olympe-1.3.1-SNAPSHOT-SNAPSHOT"></a>
+## [olympe-1.3.1-SNAPSHOT-SNAPSHOT] - 2023-02-08
 
+<a name="olympe-1.3.7"></a>
+## [olympe-1.3.7] - 2023-02-06
 
-<a name="0.8.6"></a>
-## [0.8.6] - 2022-01-24
-### Fix
-- remove vault synchronization configuration
-- update default nginx and node images
+<a name="olympe-1.3.6"></a>
+## [olympe-1.3.6] - 2023-02-06
 
+<a name="olympe-1.3.5"></a>
+## [olympe-1.3.5] - 2023-02-06
 
-<a name="0.8.5"></a>
-## [0.8.5] - 2022-01-24
+<a name="olympe-1.3.4"></a>
+## [olympe-1.3.4] - 2023-02-06
 
-<a name="0.8.4"></a>
-## [0.8.4] - 2022-01-21
+<a name="olympe-1.3.3"></a>
+## [olympe-1.3.3] - 2023-02-06
 
-<a name="0.8.3"></a>
-## [0.8.3] - 2022-01-14
+<a name="olympe-1.3.2"></a>
+## [olympe-1.3.2] - 2023-02-06
 
-<a name="0.8.2"></a>
-## [0.8.2] - 2022-01-13
+<a name="olympe-1.3.1"></a>
+## [olympe-1.3.1] - 2023-02-06
 
-<a name="0.8.1"></a>
-## [0.8.1] - 2022-01-12
+<a name="olympe-1.3.0"></a>
+## olympe-1.3.0 - 2023-02-06
 
-<a name="0.8.0"></a>
-## [0.8.0] - 2022-01-04
-
-<a name="0.7.13"></a>
-## [0.7.13] - 2021-12-17
-
-<a name="0.7.12"></a>
-## [0.7.12] - 2021-12-17
-
-<a name="0.7.11"></a>
-## [0.7.11] - 2021-12-17
-
-<a name="0.7.10"></a>
-## [0.7.10] - 2021-12-13
-
-<a name="0.7.9"></a>
-## [0.7.9] - 2021-12-13
-
-<a name="0.7.8"></a>
-## [0.7.8] - 2021-12-13
-
-<a name="0.7.7"></a>
-## [0.7.7] - 2021-12-13
-
-<a name="0.7.6"></a>
-## [0.7.6] - 2021-12-08
-
-<a name="0.7.5"></a>
-## [0.7.5] - 2021-11-24
-
-<a name="0.7.4"></a>
-## [0.7.4] - 2021-11-01
-
-<a name="0.7.3"></a>
-## [0.7.3] - 2021-11-01
-
-<a name="0.5.13"></a>
-## [0.5.13] - 2021-10-22
-
-<a name="0.7.2"></a>
-## [0.7.2] - 2021-10-21
-
-<a name="0.7.1"></a>
-## [0.7.1] - 2021-10-15
-
-<a name="0.7.0"></a>
-## [0.7.0] - 2021-10-15
-
-<a name="0.6.10"></a>
-## [0.6.10] - 2021-10-08
-
-<a name="0.5.12"></a>
-## [0.5.12] - 2021-10-04
-
-<a name="0.6.9"></a>
-## [0.6.9] - 2021-10-04
-
-<a name="0.6.8"></a>
-## [0.6.8] - 2021-09-29
-
-<a name="0.5.11"></a>
-## [0.5.11] - 2021-09-29
-
-<a name="0.6.7"></a>
-## [0.6.7] - 2021-09-16
-
-<a name="0.6.6"></a>
-## [0.6.6] - 2021-09-14
-
-<a name="0.5.10"></a>
-## [0.5.10] - 2021-09-14
-
-<a name="0.6.5"></a>
-## [0.6.5] - 2021-09-06
-
-<a name="0.6.4"></a>
-## [0.6.4] - 2021-08-31
-
-<a name="0.6.3"></a>
-## [0.6.3] - 2021-08-26
-
-<a name="0.6.2"></a>
-## [0.6.2] - 2021-08-25
-
-<a name="0.6.1"></a>
-## [0.6.1] - 2021-08-24
-
-<a name="0.6.0"></a>
-## [0.6.0] - 2021-08-06
-
-<a name="0.5.9"></a>
-## [0.5.9] - 2021-07-26
-
-<a name="0.5.8"></a>
-## [0.5.8] - 2021-07-26
-
-<a name="0.5.7"></a>
-## [0.5.7] - 2021-07-09
-
-<a name="0.5.6"></a>
-## [0.5.6] - 2021-07-08
-
-<a name="0.5.5"></a>
-## [0.5.5] - 2021-07-08
-
-<a name="0.5.4"></a>
-## [0.5.4] - 2021-07-05
-
-<a name="0.5.3"></a>
-## [0.5.3] - 2021-06-24
-
-<a name="0.5.2"></a>
-## [0.5.2] - 2021-06-17
-
-<a name="0.5.1"></a>
-## [0.5.1] - 2021-06-15
-
-<a name="0.5.0"></a>
-## [0.5.0] - 2021-06-07
-
-<a name="0.4.8"></a>
-## [0.4.8] - 2021-05-27
-
-<a name="0.4.7"></a>
-## [0.4.7] - 2021-05-26
-
-<a name="0.4.6"></a>
-## [0.4.6] - 2021-05-05
-
-<a name="0.4.5"></a>
-## [0.4.5] - 2021-04-30
-
-<a name="0.4.4"></a>
-## [0.4.4] - 2021-04-20
-
-<a name="0.4.3"></a>
-## [0.4.3] - 2021-04-14
-
-<a name="0.4.2"></a>
-## [0.4.2] - 2021-03-23
-
-<a name="0.4.1"></a>
-## [0.4.1] - 2021-03-08
-
-<a name="0.4.0"></a>
-## [0.4.0] - 2021-02-22
-
-<a name="0.3.6"></a>
-## 0.3.6 - 2021-02-22
-
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/1.0.12...HEAD
-[1.0.12]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.11...1.0.12
-[olympe-1.0.11]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.10...olympe-1.0.11
-[olympe-1.0.10]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.9...olympe-1.0.10
-[olympe-1.0.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.8...olympe-1.0.9
-[olympe-1.0.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.7...olympe-1.0.8
-[olympe-1.0.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.6...olympe-1.0.7
-[olympe-1.0.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.5...olympe-1.0.6
-[olympe-1.0.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.4...olympe-1.0.5
-[olympe-1.0.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.3...olympe-1.0.4
-[olympe-1.0.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.2...olympe-1.0.3
-[olympe-1.0.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.1...olympe-1.0.2
-[olympe-1.0.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.0.0-SNAPSHOT...olympe-1.0.1
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.0...HEAD
+[2.2.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.8...2.2.0
+[olympe-2.1.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.7...olympe-2.1.8
+[olympe-2.1.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.6...olympe-2.1.7
+[olympe-2.1.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.5...olympe-2.1.6
+[olympe-2.1.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.4...olympe-2.1.5
+[olympe-2.1.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.3...olympe-2.1.4
+[olympe-2.1.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.2...olympe-2.1.3
+[olympe-2.1.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.1...olympe-2.1.2
+[olympe-2.1.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.0...olympe-2.1.1
+[olympe-2.1.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.0.1...olympe-2.1.0
+[olympe-2.0.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.0.0...olympe-2.0.1
+[olympe-2.0.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.1...olympe-2.0.0
+[olympe-1.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.0...olympe-1.4.1
+[olympe-1.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT...olympe-1.4.0
+[olympe-1.3.1-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT-SNAPSHOT...olympe-1.3.1-SNAPSHOT
+[olympe-1.3.1-SNAPSHOT-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.7...olympe-1.3.1-SNAPSHOT-SNAPSHOT
+[olympe-1.3.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.6...olympe-1.3.7
+[olympe-1.3.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.5...olympe-1.3.6
+[olympe-1.3.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.4...olympe-1.3.5
+[olympe-1.3.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.3...olympe-1.3.4
+[olympe-1.3.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.2...olympe-1.3.3
+[olympe-1.3.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1...olympe-1.3.2
+[olympe-1.3.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.0...olympe-1.3.1
