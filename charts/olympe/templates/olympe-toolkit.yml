@@ -86,10 +86,14 @@ spec:
             {{- include "olympe.selectorLabels" $ | nindent 12 }}
             app.kubernetes.io/component: toolkit
         spec:
+          {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
           containers:
             - name: {{ (lower .name) }}
-              image: "{{ $.Values.olympeToolkit.image.repository }}/{{ $.Values.olympeToolkit.image.name }}:{{ default $.Chart.AppVersion $.Values.olympeToolkit.image.tag }}"
+              image: "{{ default $.Values.olympeToolkit.image.repository ((.image).repository) }}/{{ default $.Values.olympeToolkit.image.name ((.image).name) }}:{{ default $.Values.olympeToolkit.image.tag ((.image).tag) }}"
               imagePullPolicy: {{ default "IfNotPresent" .spec.imagePullPolicy }}
               {{ if .spec.resources }}
               resources:
