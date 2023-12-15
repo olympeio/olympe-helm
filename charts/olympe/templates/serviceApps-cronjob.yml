@@ -14,9 +14,11 @@ metadata:
     name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: backend
 spec:
+  suspend: {{ .suspend }}
   schedule: {{ .schedule }}
   successfulJobsHistoryLimit: {{ .successfulJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ .failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ .startingDeadlineSeconds }}
   jobTemplate:
     spec:
       activeDeadlineSeconds: {{ .activeDeadlineSeconds }}
