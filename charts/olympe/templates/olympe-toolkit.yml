@@ -58,7 +58,7 @@ spec:
 {{- end }}
 {{- range .Values.olympeToolkit.cronJobs }}
 ---
-{{- if semverCompare ">=1.20.x" $.Capabilities.KubeVersion.Version -}}
+{{- if semverCompare ">=1.20.x" $.Capabilities.KubeVersion.Version }}
 apiVersion: batch/v1
 {{- else -}}
 apiVersion: batch/v1beta1
