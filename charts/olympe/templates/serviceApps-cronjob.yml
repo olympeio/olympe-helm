@@ -22,7 +22,7 @@ spec:
   jobTemplate:
     spec:
       activeDeadlineSeconds: {{ .activeDeadlineSeconds }}
-      backoffLimit: {{ .backoffLimit }}
+      backoffLimit: {{ default 0 .backoffLimit }}
       template:
         metadata:
           labels:
