@@ -212,6 +212,7 @@ data:
   backend.conf: |
 {{- $defaultBackend := "" }}
 {{- range $k, $v := .Values.serviceApps }}
+  {{- if ne (.type) "cronJob" }}
     location /{{ $k }}/runtime {
       client_max_body_size 100M;
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
@@ -220,8 +221,8 @@ data:
       {{ .additionalDirectives | nindent 6 }}
       {{- end }}
     }
-  {{- if and (.defaultBackend) (eq $defaultBackend "") }}
-  {{ $defaultBackend = $k }}
+    {{- if and (.defaultBackend) (eq $defaultBackend "") }}
+    {{ $defaultBackend = $k }}
     location /runtime {
       client_max_body_size 100M;
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
@@ -230,9 +231,9 @@ data:
       {{ .additionalDirectives | nindent 6 }}
       {{- end }}
     }
-  {{- end }}
-  {{- if .webservices }}
-  {{- range .webservices }}
+    {{- end }}
+    {{- if .webservices }}
+    {{- range .webservices }}
     location {{ .uri }} {
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:{{ default 80 .port }}{{ default .uri .targetUri }};
       proxy_pass_request_headers      on;
@@ -240,7 +241,8 @@ data:
       {{ .additionalDirectives | nindent 6 }}
       {{- end }}
     }
-  {{- end }}
+    {{- end }}
+    {{- end }}
   {{- end }}
 {{ end }}
 ---

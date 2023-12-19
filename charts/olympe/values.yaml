@@ -148,6 +148,9 @@ olympeToolkit:
   podSecurityContext:
     runAsUser: 0
 
+upgradeScript:
+  schedule: 5 1 * * 0
+
 orchestrator:
   # -- Number of orchestrator replicas
   replicas: 1
