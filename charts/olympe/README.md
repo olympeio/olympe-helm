@@ -214,8 +214,8 @@ helm dependency build && helm template <namespace> olympe/olympe \
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | rabbitmq | 11.16.2 |
-| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.22 |
+| https://charts.bitnami.com/bitnami | rabbitmq | 12.5.1 |
+| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.27 |
 
 ## Values
 **Keys without a description are not meant to be changed**

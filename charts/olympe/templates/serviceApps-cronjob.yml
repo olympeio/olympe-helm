@@ -1,0 +1,43 @@
+{{- range $k, $v := .Values.serviceApps }}
+{{- if eq (.type) "cronJob" }}
+{{$data := dict "root" $ "serviceAppName" $k "serviceApp" $v "defaultImage" $.Values.serviceAppsImage "pullPolicy" $.Values.image.pullPolicy "defaultPort" $.Values.serviceAppsDefaultPort "hosts" $.Values.ingress.hosts }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+  {{- if .annotations }}
+  annotations:
+{{ toYaml .annotations | indent 4 }}
+  {{- end }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: backend
+spec:
+  suspend: {{ .suspend }}
+  schedule: {{ .schedule }}
+  successfulJobsHistoryLimit: {{ .successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ .startingDeadlineSeconds }}
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: {{ .activeDeadlineSeconds }}
+      backoffLimit: {{ default 0 .backoffLimit }}
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/component: backend
+        spec:
+        {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+          serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
+          securityContext:
+            runAsUser: 1000
+          {{- include "olympe.serviceApps.containers" $data | nindent 10 }}
+          {{- include "olympe.serviceApps.volumes" $data | nindent 10 }}
+          restartPolicy: {{ default "Never" .restartPolicy }}
+---
+{{- end }}
+{{- end }}

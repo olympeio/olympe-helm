@@ -1,7 +1,6 @@
-{{ $accountName := (include "olympe.serviceAccountName" .) }}
-{{ $values := .Values}}
-{{ $c := .Chart}}
 {{- range $k, $v := .Values.serviceApps }}
+{{- if ne (.type) "cronJob" }}
+{{ $data := dict "root" $ "serviceAppName" $k "serviceApp" $v "defaultImage" $.Values.serviceAppsImage "pullPolicy" $.Values.image.pullPolicy "defaultPort" $.Values.serviceAppsDefaultPort "hosts" $.Values.ingress.hosts }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,108 +35,15 @@ spec:
         name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
         app.kubernetes.io/component: backend
     spec:
-    {{- with $values.imagePullSecrets }}
+    {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ $accountName }}
+      serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
       securityContext:
         runAsUser: 1000
-      containers:
-        - name: {{ $k }}
-          workingDir: /home/node/app/
-          securityContext:
-            allowPrivilegeEscalation: false
-          image: {{ default $values.serviceAppsImage .image }}
-          imagePullPolicy: {{ $values.image.pullPolicy }}
-          ports:
-            - protocol: TCP
-              containerPort: 3141
-          {{- if .webservices }}
-            - protocol: TCP
-              containerPort: {{ $.Values.serviceAppsDefaultPort }}
-          {{- end }}
-          {{ if $v.ports }}
-            {{ range $v.ports }}
-            - containerPort: {{ .targetPort }}
-            {{- end }}
-          {{- end }}
-          resources:
-            {{- toYaml $v.resources | nindent 12 }}
-          env:
-            - name: ORCHESTRATOR_HOST
-              value: orchestrator
-            - name: ORCHESTRATOR_PORT
-              value: "8080"
-            - name: ORCHESTRATOR_SSL
-              value: "false"
-            {{- with (first $.Values.ingress.hosts) }}
-            - name: APP_HOSTNAME
-              value: {{ . }}
-            {{- end }}
-            - name: JS_SCRIPT
-              value: /home/node/app/main.js
-          {{- if $v.env }}
-            {{- toYaml $v.env | nindent 12 }}
-          {{ end }}
-          envFrom:
-            {{- if $v.configMapData }}
-            {{- if gt (len $v.configMapData) 0 }}
-            - configMapRef:
-                name: {{ printf "%s-config" $k }}
-            {{- end }}
-            {{- end }}
-            {{- if $v.secretData }}
-            {{- if gt (len $v.secretData) 0 }}
-            - secretRef:
-                name: {{ printf "%s-secret" $k }}
-            {{- end }}
-            {{- end }}
-          volumeMounts:
-            - mountPath: /test
-              name: test-volume
-            {{- if $v.oConfig }}
-            - name: backend-oconfig
-              mountPath: /home/node/app/conf.d
-            {{- end }}
-            {{ if $v.volumeMounts }}
-              {{- toYaml $v.volumeMounts | nindent 12 }}
-            {{- end }}
-          livenessProbe:
-            {{- if $v.enableDefaultProbe }}
-            httpGet:
-              path: /readiness
-              port: 3141
-            timeoutSeconds: {{ default 7 (($v.livenessProbe).timeoutSeconds) }}
-            initialDelaySeconds: {{ default 45 (($v.livenessProbe).initialDelaySeconds) }}
-            failureThreshold: {{ default 3 (($v.startupProbe).failureThreshold) }}
-            {{- else }}
-            {{- toYaml $v.livenessProbe | nindent 12 }}
-            {{- end }}
-          readinessProbe:
-            {{- toYaml $v.readinessProbe | nindent 12 }}
-          startupProbe:
-            {{- if $v.enableDefaultProbe }}
-            httpGet:
-              path: /readiness
-              port: 3141
-            timeoutSeconds: {{ default 7 (($v.startupProbe).timeoutSeconds) }}
-            initialDelaySeconds: {{ default 5 (($v.startupProbe).initialDelaySeconds) }}
-            failureThreshold: {{ default 10 (($v.startupProbe).failureThreshold) }}
-            {{- else }}
-            {{- toYaml $v.startupProbe | nindent 12 }}
-            {{- end }}
-      volumes:
-        - name: test-volume
-          emptyDir: {}
-        {{- if $v.oConfig }}
-        - name: backend-oconfig
-          secret:
-            secretName: {{ printf "%s-%s-oconfig" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
-        {{- end }}
-        {{ if $v.volumes }}
-        {{- toYaml $v.volumes | nindent 8 }}
-        {{- end }}
+      {{- include "olympe.serviceApps.containers" $data | nindent 6 }}
+      {{- include "olympe.serviceApps.volumes" $data | nindent 6 }}
     {{- if $v.nodeSelector }}
     {{- with $v.nodeSelector }}
       nodeSelector:
@@ -204,5 +110,5 @@ spec:
     {{- toYaml $v.ports | nindent 4 }}
     {{- end }}
 ---
-{{ end }}
-
+{{- end }}
+{{- end }}
