@@ -2,8 +2,37 @@
 ## [Unreleased]
 
 
-<a name="2.1.8"></a>
-## [2.1.8] - 2023-11-20
+<a name="2.1.9"></a>
+## [2.1.9] - 2023-12-19
+### Chore
+- Update appVersion to v2.5.0
+- **deps:** update helm release neo4j-standalone to v4.4.28
+- **deps:** update helm release rabbitmq to v12
+- **deps:** update helm release neo4j-standalone to v4.4.27
+
+### Feat
+- define service apps as cronjobs
+- add missing labels on services for network policies + add network policies
+
+### Fix
+- backend as cronjob: set default backoffLimit to 0
+- backend as cronjob: remove generated conf in backend + add suspend and startingDeadlineSeconds options
+
+
+<a name="olympe-2.2.0"></a>
+## [olympe-2.2.0] - 2023-12-06
+### Feat
+- add missing labels on services for network policies + add network policies
+- olympe-toolkit add command and args
+- migrate feeder to olympe-toolkit
+
+### Fix
+- forbid concurrency on toolkit jobs
+- fix olympe-toolkit mount + snapshooter
+
+
+<a name="olympe-2.1.8"></a>
+## [olympe-2.1.8] - 2023-11-20
 ### Chore
 - Update appVersion to v2.5.0
 - Update appVersion to v2.4.5
@@ -163,8 +192,10 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.8...HEAD
-[2.1.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.7...2.1.8
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.1.9...HEAD
+[2.1.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.0...2.1.9
+[olympe-2.2.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.8...olympe-2.2.0
+[olympe-2.1.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.7...olympe-2.1.8
 [olympe-2.1.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.6...olympe-2.1.7
 [olympe-2.1.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.5...olympe-2.1.6
 [olympe-2.1.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.4...olympe-2.1.5
