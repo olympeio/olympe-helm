@@ -19,7 +19,7 @@ version: 2.1.9
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: v2.5.0
+appVersion: v2.5.1
 
 dependencies:
   - condition: neo4j.enabled
