@@ -4,9 +4,6 @@
 
 <a name="2.2.2"></a>
 ## [2.2.2] - 2024-01-09
-
-<a name="olympe-2.2.2"></a>
-## [olympe-2.2.2] - 2024-01-09
 ### Feat
 - add service apps volume
 - define service apps as cronjobs
@@ -256,8 +253,7 @@
 ## olympe-1.3.0 - 2023-02-06
 
 [Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.2...HEAD
-[2.2.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.2...2.2.2
-[olympe-2.2.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.10...olympe-2.2.2
+[2.2.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.10...2.2.2
 [olympe-2.1.10]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.1...olympe-2.1.10
 [olympe-2.2.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.9...olympe-2.2.1
 [olympe-2.1.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.0...olympe-2.1.9
