@@ -25,7 +25,6 @@ metadata:
     app.kubernetes.io/component: frontend
 data:
   app.conf: |
-
     root /usr/share/nginx/html;
 
     location / {
@@ -76,7 +75,7 @@ data:
       proxy_send_timeout 900;
       proxy_read_timeout 900;
       send_timeout 900;
-      
+
       proxy_cache_key "$scheme$host$uri$is_args$arg_query$arg_v";
       proxy_cache graphDef_cache;
       proxy_cache_methods GET;
@@ -107,7 +106,6 @@ metadata:
     app.kubernetes.io/component: frontend
 data:
   http.conf: |
-
       tcp_nopush on;
       tcp_nodelay on;
       types_hash_max_size 2048;
@@ -185,7 +183,7 @@ data:
         {{- with (first .Values.ingress.hosts) }}
         server_name {{ . }};
         {{- end }}
-        
+
         include /etc/nginx/server/*.conf;
         include /etc/nginx/site[.]conf;
 
