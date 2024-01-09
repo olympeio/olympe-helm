@@ -129,8 +129,9 @@ containers:
       {{- end }}
       {{- end }}
     volumeMounts:
-      - mountPath: /test
-        name: test-volume
+      - name: file-service
+        mountPath: /home/node/file-service
+        subPath: {{ .serviceAppName }}
       {{- if .serviceApp.oConfig }}
       - name: backend-oconfig
         mountPath: /home/node/app/conf.d
@@ -166,8 +167,9 @@ containers:
 
 {{- define "olympe.serviceApps.volumes" }}
 volumes:
-  - name: test-volume
-    emptyDir: {}
+  - name: file-service
+    persistentVolumeClaim:
+      claimName: {{ printf "%s-nodes-file-service" (include "olympe.fullname" .root) | trunc 63 | trimSuffix "-" }}
   {{- if .serviceApp.oConfig }}
   - name: backend-oconfig
     secret:
