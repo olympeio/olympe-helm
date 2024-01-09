@@ -2,8 +2,18 @@
 ## [Unreleased]
 
 
-<a name="2.2.1"></a>
-## [2.2.1] - 2023-12-19
+<a name="2.2.2"></a>
+## [2.2.2] - 2024-01-09
+### Feat
+- add service apps volume
+
+### Fix
+- service app file-service pvc name
+- fix frontend configuration
+
+
+<a name="olympe-2.2.1"></a>
+## [olympe-2.2.1] - 2023-12-19
 ### Feat
 - define service apps as cronjobs
 - add upgrade-script
@@ -210,8 +220,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.1...HEAD
-[2.2.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.9...2.2.1
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.2...HEAD
+[2.2.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.1...2.2.2
+[olympe-2.2.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.9...olympe-2.2.1
 [olympe-2.1.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.0...olympe-2.1.9
 [olympe-2.2.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.8...olympe-2.2.0
 [olympe-2.1.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.7...olympe-2.1.8
