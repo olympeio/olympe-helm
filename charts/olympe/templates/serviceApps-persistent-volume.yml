@@ -17,7 +17,7 @@ metadata:
   name: {{ printf "%s-nodes-file-service" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
   labels:
     {{- include "olympe.labels" . | nindent 4 }}
-    name: {{ printf "%s-nodes" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-nodes-file-service" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
 spec:
   accessModes:
   - ReadWriteMany
