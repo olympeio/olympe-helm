@@ -215,7 +215,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | rabbitmq | 12.5.1 |
-| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.27 |
+| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.28 |
 
 ## Values
 **Keys without a description are not meant to be changed**
@@ -246,7 +246,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.5.0"` |  |
+| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.5.2"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
