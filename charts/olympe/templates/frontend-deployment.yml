@@ -50,6 +50,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-frontend-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            {{- if .Values.frontend.envFrom }}
+              {{- toYaml .Values.frontend.envFrom | nindent 12 }}
+            {{ end }}
           env:
           {{- if .Values.frontend.env }}
             {{- toYaml .Values.frontend.env | nindent 12 }}
