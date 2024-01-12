@@ -5,10 +5,10 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 52 | trimSuffix "-" }}
   labels:
     {{- $labels | nindent 4 }}
-    name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 52 | trimSuffix "-" }}
     app.kubernetes.io/component: snapshooter
 spec:
   suspend: {{ default false .suspend }}
@@ -43,10 +43,12 @@ spec:
               - secretRef:
                   name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
             env:
-              - name: CONFIG_FILE
+              - name: COMMAND
+                value: snapshot
+              - name: ORCHESTRATOR_HOST
+                value: orchestrator
+              - name: SNAPSHOT_CONFIG
                 value: "/config/config.json"
-              - name: ACTION
-                value: snapshooter
               {{- if .env }}
               {{- toYaml .env | nindent 14 }}
               {{- end }}
