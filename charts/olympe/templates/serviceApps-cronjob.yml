@@ -4,14 +4,14 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 52 | trimSuffix "-" }}
   {{- if .annotations }}
   annotations:
 {{ toYaml .annotations | indent 4 }}
   {{- end }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}
-    name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 52 | trimSuffix "-" }}
     app.kubernetes.io/component: backend
 spec:
   suspend: {{ .suspend }}
