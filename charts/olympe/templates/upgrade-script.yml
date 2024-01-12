@@ -5,7 +5,7 @@ apiVersion: batch/v1beta1
 {{- end }}
 kind: CronJob
 metadata:
-  name: {{ printf "%s-upgrade-script" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-upgrade-script" (include "olympe.fullname" $) | trunc 52 | trimSuffix "-" }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}
     app.kubernetes.io/component: upgrade-script
@@ -21,7 +21,7 @@ spec:
       backoffLimit: {{ default 0 .Values.upgradeScript.backoffLimit }}
       template:
         metadata:
-          name: {{ printf "%s-upgrade-script" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+          name: {{ printf "%s-upgrade-script" (include "olympe.fullname" $) | trunc 52 | trimSuffix "-" }}
           labels:
             {{- include "olympe.selectorLabels" $ | nindent 12 }}
             app.kubernetes.io/component: upgrade-script
