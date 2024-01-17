@@ -68,7 +68,8 @@ metadata:
   name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower .name) | trunc 52 | trimSuffix "-" }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}
-    app.kubernetes.io/component: toolkit
+    app.kubernetes.io/part-of: toolkit
+    app.kubernetes.io/component: {{ .name }}
 spec:
   suspend: {{ default false .spec.suspend }}
   schedule: {{ .spec.schedule | quote }}
@@ -77,6 +78,11 @@ spec:
   startingDeadlineSeconds: {{ default 360 .spec.failedJobsHistoryLimit }}
   concurrencyPolicy: Forbid
   jobTemplate:
+    metadata:
+      labels:
+        {{- include "olympe.labels" $ | nindent 8 }}
+        app.kubernetes.io/part-of: toolkit
+        app.kubernetes.io/component: {{ .name }}
     spec:
       backoffLimit: {{ default 0 .spec.backoffLimit }}
       template:
@@ -84,7 +90,8 @@ spec:
           name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower .name) | trunc 52 | trimSuffix "-" }}
           labels:
             {{- include "olympe.selectorLabels" $ | nindent 12 }}
-            app.kubernetes.io/component: toolkit
+            app.kubernetes.io/part-of: toolkit
+            app.kubernetes.io/component: {{ .name }}
         spec:
           {{- with $.Values.imagePullSecrets }}
           imagePullSecrets:
