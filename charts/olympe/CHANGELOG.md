@@ -2,8 +2,14 @@
 ## [Unreleased]
 
 
-<a name="2.2.3"></a>
-## [2.2.3] - 2024-01-12
+<a name="2.2.4"></a>
+## [2.2.4] - 2024-01-17
+### Fix
+- add missing labels in toolkit
+
+
+<a name="olympe-2.2.3"></a>
+## [olympe-2.2.3] - 2024-01-12
 ### Fix
 - cronjob truncate at 52 characters
 - fix snapshooter configuration
@@ -259,8 +265,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.3...HEAD
-[2.2.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.2...2.2.3
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.4...HEAD
+[2.2.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.3...2.2.4
+[olympe-2.2.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.2...olympe-2.2.3
 [olympe-2.2.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.10...olympe-2.2.2
 [olympe-2.1.10]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.1...olympe-2.1.10
 [olympe-2.2.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.9...olympe-2.2.1
