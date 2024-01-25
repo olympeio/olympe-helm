@@ -254,12 +254,8 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | networkPolicies.additionalRules | list | `[]` |  |
 | networkPolicies.defaultRules | list | `[]` |  |
 | networkPolicies.enabled | bool | `false` | Define if network policies are enabled globally (including service apps)  |
-| olympeToolkit.cronJobs | object | `{"garbageCollector":{"command":"startGC","name":"garbage-collector","spec":{"resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"100m","memory":"100Mi"}},"schedule":"5 1 * * 0"}}}` | available values are:     - help     - snapshot     - snapshotUsers     - snapshotBusinessData     - restoreUsers     - restoreBusinessData     - reset     - checkDB     - startGC     - statsDB     - maintenance     - updateUser      |
-| olympeToolkit.image | object | `{"name":"olympe-toolkit","repository":"olympeio","tag":"latest"}` | Olympe Toolkit image |
-| olympeToolkit.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | orchestrator.affinity | object | `{}` | setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
-| orchestrator.configMapEnv | object | `{"ACTIVITY_TIMEOUT":"70000000","ALLOWED_WS_ORIGINS":"|.*","JAVA_PROCESS_XMX":"1g","PERMISSION_CHECK_ENABLED":"false","RABBITMQ_CLIENT_PREFETCH_SIZE":200,"WAIT_FOR_NEO4J":"120"}` | Orchestrator environment variables (in separated configMap) |
 | orchestrator.containerSecurityContext | object | `{"allowPrivilegeEscalation":false}` | defines privilege and access control settings for the Orchestrator on Container level. |
 | orchestrator.dataVolume | object | `{"backupData":{},"fileService":{},"storageClassName":"standard"}` | setup dataVolume for the frontend |
 | orchestrator.env | string | `nil` | Orchestrator environment variables (in statefulset) |
@@ -314,4 +310,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | serviceAppsDefaultPort | int | `2015` |  |
 | serviceAppsImage | string | `"node:14.21.3-slim"` | Default Service Apps image |
 | snapshooters | list | `[]` | Snapshooters configuration, You can have multiple of them, each with the following values:<br /> - name: string, mandatory - Name of the snapshooter <br />    schedule: string, mandatory - schedule (cron format) <br />    config: string, json configuration. Please read documentation for examples (can't be used with secretName key below) <br />    secretName: string, name of the secret containing the configuration (can't be used with config key above) <br />    resources <br />      requests: <br />        memory: string, default "200Mi" <br />        cpu: string, default "100m" <br />      limits: <br />        memory: string, default "1000Mi" <br />        cpu: string, default "200m" <br /> |
+| toolkit.cronJobs | object | `{"garbageCollector":{"command":"startGC","name":"garbage-collector","resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"100m","memory":"100Mi"}},"schedule":"5 1 * * 0"}}` | available values are:     - help     - snapshot     - snapshotUsers     - snapshotBusinessData     - restoreUsers     - restoreBusinessData     - reset     - checkDB     - startGC     - statsDB     - maintenance     - updateUser      |
+| toolkit.image | object | `{"name":"olympe-toolkit","repository":"olympeio","tag":"latest"}` | Olympe Toolkit image |
+| toolkit.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | upgradeScript.schedule | string | `"5 1 * * 0"` |  |
