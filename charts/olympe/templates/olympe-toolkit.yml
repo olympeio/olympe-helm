@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.olympeToolkit.action) | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.toolkit.action) | trunc 63 | trimSuffix "-" }}
   labels:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: reset
@@ -13,7 +13,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.olympeToolkit.action) | trunc 63 | trimSuffix "-" }}
+      name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.toolkit.action) | trunc 63 | trimSuffix "-" }}
     spec:
       volumes:
         - name: backup-data
@@ -21,7 +21,7 @@ spec:
             claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
       containers:
         - name: reset
-          image: "{{ default .Values.appRepository .Values.olympeToolkit.image.repository }}/{{ .Values.olympeToolkit.image.name }}:{{ default .Chart.AppVersion .Values.olympeToolkit.image.tag }}"
+          image: "{{ default .Values.appRepository .Values.toolkit.image.repository }}/{{ .Values.toolkit.image.name }}:{{ default .Chart.AppVersion .Values.toolkit.image.tag }}"
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
@@ -53,10 +53,10 @@ spec:
       restartPolicy: Never
       serviceAccountName: {{ include "olympe.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.olympeToolkit.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.toolkit.podSecurityContext | nindent 8 }}
   backoffLimit: 4
 {{- end }}
-{{- range .Values.olympeToolkit.cronJobs }}
+{{- range .Values.toolkit.cronJobs }}
 ---
 {{- if semverCompare ">=1.20.x" $.Capabilities.KubeVersion.Version }}
 apiVersion: batch/v1
@@ -71,11 +71,11 @@ metadata:
     app.kubernetes.io/part-of: toolkit
     app.kubernetes.io/component: {{ .name }}
 spec:
-  suspend: {{ default false .spec.suspend }}
-  schedule: {{ .spec.schedule | quote }}
-  successfulJobsHistoryLimit: {{ default 1 .spec.successfulJobsHistoryLimit }}
-  failedJobsHistoryLimit: {{ default 2 .spec.failedJobsHistoryLimit }}
-  startingDeadlineSeconds: {{ default 360 .spec.failedJobsHistoryLimit }}
+  suspend: {{ default false .suspend }}
+  schedule: {{ .schedule | quote }}
+  successfulJobsHistoryLimit: {{ default 1 .successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ default 2 .failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ default 360 .failedJobsHistoryLimit }}
   concurrencyPolicy: Forbid
   jobTemplate:
     metadata:
@@ -84,7 +84,7 @@ spec:
         app.kubernetes.io/part-of: toolkit
         app.kubernetes.io/component: {{ .name }}
     spec:
-      backoffLimit: {{ default 0 .spec.backoffLimit }}
+      backoffLimit: {{ default 0 .backoffLimit }}
       template:
         metadata:
           name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower .name) | trunc 52 | trimSuffix "-" }}
@@ -100,19 +100,15 @@ spec:
           serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
           containers:
             - name: {{ (lower .name) }}
-              image: "{{ default $.Values.olympeToolkit.image.repository ((.image).repository) }}/{{ default $.Values.olympeToolkit.image.name ((.image).name) }}:{{ default $.Values.olympeToolkit.image.tag ((.image).tag) }}"
-              imagePullPolicy: {{ default "IfNotPresent" .spec.imagePullPolicy }}
-              {{ if .spec.resources }}
+              image: "{{ default $.Values.toolkit.image.repository ((.image).repository) }}/{{ default $.Values.toolkit.image.name ((.image).name) }}:{{ default $.Values.toolkit.image.tag ((.image).tag) }}"
+              imagePullPolicy: {{ default "IfNotPresent" .imagePullPolicy }}
+              {{ if .resources }}
               resources:
-                {{- toYaml .spec.resources | nindent 16 }}
+                {{- toYaml .resources | nindent 16 }}
               {{- end }}
-              {{ if .spec.command }}
-              command:
-                {{- toYaml .spec.command | nindent 16 }}
-              {{- end }}
-              {{ if .spec.args }}
+              {{ if .args }}
               args:
-                {{- toYaml .spec.args | nindent 16 }}
+                {{- toYaml .args | nindent 16 }}
               {{- end }}
               envFrom:
               - configMapRef:
@@ -127,13 +123,16 @@ spec:
                 value: {{ .command }}
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
-              {{ if .spec.env }}
-                {{- toYaml .spec.env | nindent 14 }}
+              {{ if .env }}
+                {{- toYaml .env | nindent 14 }}
+              {{- end }}
+              {{ if $.Values.toolkit.env }}
+                {{- toYaml $.Values.toolkit.env | nindent 14 }}
               {{- end }}
               volumeMounts:
               - name: backup-data
                 mountPath: /backupData
-          restartPolicy: {{ default "Never" .spec.restartPolicy }}
+          restartPolicy: {{ default "Never" .restartPolicy }}
           volumes:
           - name: backup-data
             persistentVolumeClaim:
