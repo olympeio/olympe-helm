@@ -110,7 +110,7 @@ frontend:
   dataVolume:
     storageClassName: standard
 
-olympeToolkit:
+toolkit:
   # -- available values are:
   #     - help
   #     - snapshot
@@ -129,15 +129,14 @@ olympeToolkit:
     garbageCollector:
       name: garbage-collector
       command: startGC
-      spec:
-        schedule: 5 1 * * 0
-        resources:
-          requests:
-            memory: "100Mi"
-            cpu: "100m"
-          limits:
-            memory: "100Mi"
-            cpu: "100m"
+      schedule: 5 1 * * 0
+      resources:
+        requests:
+          memory: "100Mi"
+          cpu: "100m"
+        limits:
+          memory: "100Mi"
+          cpu: "100m"
 
   # -- Olympe Toolkit image
   image:
