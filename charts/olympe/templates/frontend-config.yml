@@ -28,7 +28,9 @@ data:
     root /usr/share/nginx/html;
 
     location / {
-
+    {{- if .Values.frontend.additionalDirectives }}
+      {{ .Values.frontend.additionalDirectives | indent 6 | trim }}
+    {{- end }}
     }
 
     location /OlympeServer/websocket {
@@ -216,7 +218,7 @@ data:
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
-      {{ .additionalDirectives | nindent 6 }}
+      {{ .additionalDirectives | indent 6 | trim }}
       {{- end }}
     }
     {{- if and (.defaultBackend) (eq $defaultBackend "") }}
@@ -226,7 +228,7 @@ data:
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
-      {{ .additionalDirectives | nindent 6 }}
+      {{ .additionalDirectives | indent 6 | trim }}
       {{- end }}
     }
     {{- end }}
@@ -236,7 +238,7 @@ data:
       proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:{{ default 80 .port }}{{ default .uri .targetUri }};
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
-      {{ .additionalDirectives | nindent 6 }}
+      {{ .additionalDirectives | indent 6 | trim }}
       {{- end }}
     }
     {{- end }}
