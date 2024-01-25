@@ -164,14 +164,6 @@ orchestrator:
   haEnabled: false
   # -- Orchestrator environment variables (in statefulset)
   env:
-  # -- Orchestrator environment variables (in separated configMap)
-  configMapEnv:
-    PERMISSION_CHECK_ENABLED: "false"
-    WAIT_FOR_NEO4J: "120"
-    RABBITMQ_CLIENT_PREFETCH_SIZE: 200
-    JAVA_PROCESS_XMX: 1g
-    ALLOWED_WS_ORIGINS: "|.*"
-    ACTIVITY_TIMEOUT: "70000000"
   existingSecret: ""
   # -- secretRef value for orchestrator
   secretRef:
