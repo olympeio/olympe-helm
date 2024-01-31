@@ -2,8 +2,59 @@
 ## [Unreleased]
 
 
-<a name="2.2.5"></a>
-## [2.2.5] - 2024-01-25
+<a name="2.2.6"></a>
+## [2.2.6] - 2024-01-31
+### Feat
+- additional directives for frontend
+- add service apps volume
+- define service apps as cronjobs
+- add upgrade-script
+- add missing labels on services for network policies + add network policies
+- olympe-toolkit add command and args
+- migrate feeder to olympe-toolkit
+
+### Fix
+- add missing labels for jobs
+- add missing labels for jobs
+- olympe toolkit new structure
+- remove configMapEnv custom values
+- add missing labels in toolkit
+- cronjob truncate at 52 characters
+- fix snapshooter configuration
+- service app file-service pvc name
+- fix frontend configuration
+- backend as cronjob: set default backoffLimit to 0
+- backend as cronjob: remove generated conf in backend + add suspend and startingDeadlineSeconds options
+- toolkit template typo
+- olympe toolkit pullsecrets + default image
+- forbid concurrency on toolkit jobs
+- fix olympe-toolkit mount + snapshooter
+
+
+<a name="olympe-2.1.11"></a>
+## [olympe-2.1.11] - 2024-01-31
+### Chore
+- Update appVersion to v2.5.2
+- Update appVersion to v2.5.1
+- Update appVersion to v2.5.0
+- **deps:** update helm release neo4j-standalone to v4.4.28
+- **deps:** update helm release rabbitmq to v12
+- **deps:** update helm release neo4j-standalone to v4.4.27
+
+### Feat
+- add service apps volume
+- define service apps as cronjobs
+- add missing labels on services for network policies + add network policies
+
+### Fix
+- add missing labels for jobs
+- service app file-service pvc name
+- backend as cronjob: set default backoffLimit to 0
+- backend as cronjob: remove generated conf in backend + add suspend and startingDeadlineSeconds options
+
+
+<a name="olympe-2.2.5"></a>
+## [olympe-2.2.5] - 2024-01-25
 ### Feat
 - additional directives for frontend
 
@@ -275,8 +326,10 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.5...HEAD
-[2.2.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.4...2.2.5
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.6...HEAD
+[2.2.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.11...2.2.6
+[olympe-2.1.11]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.5...olympe-2.1.11
+[olympe-2.2.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.4...olympe-2.2.5
 [olympe-2.2.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.3...olympe-2.2.4
 [olympe-2.2.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.2...olympe-2.2.3
 [olympe-2.2.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.10...olympe-2.2.2
