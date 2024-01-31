@@ -20,12 +20,17 @@ spec:
   failedJobsHistoryLimit: {{ .failedJobsHistoryLimit }}
   startingDeadlineSeconds: {{ .startingDeadlineSeconds }}
   jobTemplate:
+    metadata:
+      labels:
+        {{- include "olympe.labels" $ | nindent 8 }}
+        app.kubernetes.io/component: backend
     spec:
       activeDeadlineSeconds: {{ .activeDeadlineSeconds }}
       backoffLimit: {{ default 0 .backoffLimit }}
       template:
         metadata:
           labels:
+            {{- include "olympe.labels" $ | nindent 12 }}
             app.kubernetes.io/component: backend
         spec:
         {{- with $.Values.imagePullSecrets }}
