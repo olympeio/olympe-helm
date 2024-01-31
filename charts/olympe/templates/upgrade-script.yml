@@ -17,6 +17,9 @@ spec:
   startingDeadlineSeconds: {{ default 360 .Values.upgradeScript.failedJobsHistoryLimit }}
   concurrencyPolicy: Forbid
   jobTemplate:
+    metadata:
+      labels:
+        {{- include "olympe.labels" $ | nindent 8 }}
     spec:
       backoffLimit: {{ default 0 .Values.upgradeScript.backoffLimit }}
       template:
