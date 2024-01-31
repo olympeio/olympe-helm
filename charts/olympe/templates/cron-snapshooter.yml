@@ -16,6 +16,10 @@ spec:
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
+    metadata:
+      labels:
+        {{- $labels | nindent 8 }}
+        app.kubernetes.io/component: backend
     spec:
       backoffLimit: 2
       template:
