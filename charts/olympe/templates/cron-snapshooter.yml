@@ -33,7 +33,7 @@ spec:
             runAsUser: 0
           containers:
           - name: snapshooter
-            image: "{{ default "olympeio" $.Values.olympeToolkit.image.repository }}/{{ default "olympe-toolkit" $.Values.olympeToolkit.image.name }}:{{ default "stable" $.Values.olympeToolkit.image.tag }}"
+            image: "{{ default "olympeio" $.Values.toolkit.image.repository }}/{{ default "olympe-toolkit" $.Values.toolkit.image.name }}:{{ default "stable" $.Values.toolkit.image.tag }}"
             resources:
               requests:
                 memory: {{ if .resources }}{{ if .resources.requests -}} {{ default "200Mi" .resources.requests.memory }} {{- else -}} "100Mi" {{- end }}{{- else -}} "100Mi" {{- end }}
@@ -46,9 +46,9 @@ spec:
                   name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               - secretRef:
                   name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            args:
+              - snapshot
             env:
-              - name: COMMAND
-                value: snapshot
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
               - name: SNAPSHOT_CONFIG

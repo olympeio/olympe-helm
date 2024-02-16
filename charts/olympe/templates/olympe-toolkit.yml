@@ -20,8 +20,10 @@ spec:
           persistentVolumeClaim:
             claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
       containers:
-        - name: reset
+        - name: install
           image: "{{ default .Values.appRepository .Values.toolkit.image.repository }}/{{ .Values.toolkit.image.name }}:{{ default .Chart.AppVersion .Values.toolkit.image.tag }}"
+          args:
+            - install
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
@@ -31,14 +33,11 @@ spec:
                 name: orchestrator-default-secret
                 optional: true
           env:
-            - name: COMMAND
-              value: reset
-            - name: BACKUP_USERS
-              value: "false"
-            - name: BACKUP_DATA
-              value: "false"
-            - name: RABBITMQ_PATCHES_DIR
-              value: /patches
+            - name: ORCHESTRATOR_HOST
+              value: orchestrator
+          {{ if $.Values.toolkit.env }}
+            {{- toYaml $.Values.toolkit.env | nindent 14 }}
+          {{- end }}
           resources:
             limits:
               cpu: 200m
@@ -46,17 +45,13 @@ spec:
           volumeMounts:
             - name: backup-data
               mountPath: /backupData
-            {{- if .Values.serviceApps }}
-            - name: nodes
-              mountPath: /nodes
-            {{- end }}
       restartPolicy: Never
       serviceAccountName: {{ include "olympe.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.toolkit.podSecurityContext | nindent 8 }}
   backoffLimit: 4
 {{- end }}
-{{- range .Values.toolkit.cronJobs }}
+{{- range $name, $values := .Values.toolkit.cronJobs }}
 ---
 {{- if semverCompare ">=1.20.x" $.Capabilities.KubeVersion.Version }}
 apiVersion: batch/v1
@@ -65,33 +60,33 @@ apiVersion: batch/v1beta1
 {{- end }}
 kind: CronJob
 metadata:
-  name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower .name) | trunc 52 | trimSuffix "-" }}
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower $name) | trunc 52 | trimSuffix "-" }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}
     app.kubernetes.io/part-of: toolkit
-    app.kubernetes.io/component: {{ .name }}
+    app.kubernetes.io/component: {{ $name }}
 spec:
-  suspend: {{ default false .suspend }}
-  schedule: {{ .schedule | quote }}
-  successfulJobsHistoryLimit: {{ default 1 .successfulJobsHistoryLimit }}
-  failedJobsHistoryLimit: {{ default 2 .failedJobsHistoryLimit }}
-  startingDeadlineSeconds: {{ default 360 .failedJobsHistoryLimit }}
+  suspend: {{ default true $values.suspend }}
+  schedule: {{ $values.schedule | quote }}
+  successfulJobsHistoryLimit: {{ default 1 $values.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ default 2 $values.failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ default 360 $values.startingDeadlineSeconds }}
   concurrencyPolicy: Forbid
   jobTemplate:
     metadata:
       labels:
         {{- include "olympe.labels" $ | nindent 8 }}
         app.kubernetes.io/part-of: toolkit
-        app.kubernetes.io/component: {{ .name }}
+        app.kubernetes.io/component: {{ $name }}
     spec:
       backoffLimit: {{ default 0 .backoffLimit }}
       template:
         metadata:
-          name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower .name) | trunc 52 | trimSuffix "-" }}
+          name: {{ printf "%s-%s" (include "olympe.fullname" $) (lower $name) | trunc 52 | trimSuffix "-" }}
           labels:
             {{- include "olympe.selectorLabels" $ | nindent 12 }}
             app.kubernetes.io/part-of: toolkit
-            app.kubernetes.io/component: {{ .name }}
+            app.kubernetes.io/component: {{ $name }}
         spec:
           {{- with $.Values.imagePullSecrets }}
           imagePullSecrets:
@@ -99,16 +94,16 @@ spec:
           {{- end }}
           serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
           containers:
-            - name: {{ (lower .name) }}
-              image: "{{ default $.Values.toolkit.image.repository ((.image).repository) }}/{{ default $.Values.toolkit.image.name ((.image).name) }}:{{ default $.Values.toolkit.image.tag ((.image).tag) }}"
-              imagePullPolicy: {{ default "IfNotPresent" .imagePullPolicy }}
-              {{ if .resources }}
+            - name: {{ (lower $name) }}
+              image: "{{ default $.Values.toolkit.image.repository (($values.image).repository) }}/{{ default $.Values.toolkit.image.name (($values.image).name) }}:{{ default $.Values.toolkit.image.tag (($values.image).tag) }}"
+              imagePullPolicy: {{ default "IfNotPresent" $values.imagePullPolicy }}
+              {{ if $values.resources }}
               resources:
-                {{- toYaml .resources | nindent 16 }}
+                {{- toYaml $values.resources | nindent 16 }}
               {{- end }}
-              {{ if .args }}
+              {{ if $values.args }}
               args:
-                {{- toYaml .args | nindent 16 }}
+                {{- toYaml $values.args | nindent 16 }}
               {{- end }}
               envFrom:
               - configMapRef:
@@ -119,12 +114,10 @@ spec:
                   name: orchestrator-default-secret
                   optional: true
               env:
-              - name: COMMAND
-                value: {{ .command }}
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
-              {{ if .env }}
-                {{- toYaml .env | nindent 14 }}
+              {{ if $values.env }}
+                {{- toYaml $values.env | nindent 14 }}
               {{- end }}
               {{ if $.Values.toolkit.env }}
                 {{- toYaml $.Values.toolkit.env | nindent 14 }}
