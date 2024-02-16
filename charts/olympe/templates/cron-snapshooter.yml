@@ -46,9 +46,9 @@ spec:
                   name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               - secretRef:
                   name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            args:
+              - snapshot
             env:
-              - name: COMMAND
-                value: snapshot
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
               - name: SNAPSHOT_CONFIG
