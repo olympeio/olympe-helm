@@ -131,6 +131,7 @@ toolkit:
         - startGC
       command: startGC
       schedule: 5 1 * * 0
+      suspend: false
       resources:
         requests:
           memory: "100Mi"
