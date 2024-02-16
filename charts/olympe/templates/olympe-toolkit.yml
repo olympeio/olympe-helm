@@ -35,6 +35,9 @@ spec:
           env:
             - name: ORCHESTRATOR_HOST
               value: orchestrator
+          {{ if $.Values.toolkit.env }}
+            {{- toYaml $.Values.toolkit.env | nindent 14 }}
+          {{- end }}
           resources:
             limits:
               cpu: 200m
@@ -113,8 +116,8 @@ spec:
               env:
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
-              {{ if .env }}
-                {{- toYaml .env | nindent 14 }}
+              {{ if $values.env }}
+                {{- toYaml $values.env | nindent 14 }}
               {{- end }}
               {{ if $.Values.toolkit.env }}
                 {{- toYaml $.Values.toolkit.env | nindent 14 }}
