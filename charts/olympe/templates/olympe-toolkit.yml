@@ -66,11 +66,11 @@ metadata:
     app.kubernetes.io/part-of: toolkit
     app.kubernetes.io/component: {{ $name }}
 spec:
-  suspend: {{ default false .suspend }}
+  suspend: {{ default true $values.suspend }}
   schedule: {{ $values.schedule | quote }}
   successfulJobsHistoryLimit: {{ default 1 $values.successfulJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ default 2 $values.failedJobsHistoryLimit }}
-  startingDeadlineSeconds: {{ default 360 $values.failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ default 360 $values.startingDeadlineSeconds }}
   concurrencyPolicy: Forbid
   jobTemplate:
     metadata:
