@@ -127,7 +127,8 @@ toolkit:
   #     
   cronJobs:
     garbageCollector:
-      name: garbage-collector
+      args:
+        - startGC
       command: startGC
       schedule: 5 1 * * 0
       resources:
