@@ -2,8 +2,17 @@
 ## [Unreleased]
 
 
-<a name="2.2.6"></a>
-## [2.2.6] - 2024-01-31
+<a name="2.2.7"></a>
+## [2.2.7] - 2024-02-16
+### Fix
+- fixing various default vlaues
+- fix env variables for toolkit
+- fix toolkit config for new version
+- olympe toolkit value reference for cron jobs
+
+
+<a name="olympe-2.2.6"></a>
+## [olympe-2.2.6] - 2024-01-31
 ### Feat
 - additional directives for frontend
 - add service apps volume
@@ -326,8 +335,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.6...HEAD
-[2.2.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.11...2.2.6
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.7...HEAD
+[2.2.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.6...2.2.7
+[olympe-2.2.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.11...olympe-2.2.6
 [olympe-2.1.11]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.5...olympe-2.1.11
 [olympe-2.2.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.4...olympe-2.2.5
 [olympe-2.2.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.3...olympe-2.2.4
