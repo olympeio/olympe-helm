@@ -2,8 +2,17 @@
 ## [Unreleased]
 
 
-<a name="2.2.7"></a>
-## [2.2.7] - 2024-02-16
+<a name="2.2.8"></a>
+## [2.2.8] - 2024-03-07
+### Fix
+- fix snapshooter
+- add snapshot configuration in olympe-toolkit + adapt format
+- set garbageCollector suspend to false
+- fix  garbageCollector command
+
+
+<a name="olympe-2.2.7"></a>
+## [olympe-2.2.7] - 2024-02-16
 ### Fix
 - fixing various default vlaues
 - fix env variables for toolkit
@@ -335,8 +344,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.7...HEAD
-[2.2.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.6...2.2.7
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.8...HEAD
+[2.2.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.7...2.2.8
+[olympe-2.2.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.6...olympe-2.2.7
 [olympe-2.2.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.11...olympe-2.2.6
 [olympe-2.1.11]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.5...olympe-2.1.11
 [olympe-2.2.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.4...olympe-2.2.5
