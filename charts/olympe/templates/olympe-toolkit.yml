@@ -116,6 +116,12 @@ spec:
               env:
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
+              {{- if gt (len $.Values.snapshooters) 0 }}
+              {{- with (index $.Values.snapshooters 0) }}
+              - name: SNAPSHOT_CONFIG
+                value: /config
+              {{- end }}
+              {{- end }}
               {{ if $values.env }}
                 {{- toYaml $values.env | nindent 14 }}
               {{- end }}
@@ -125,9 +131,18 @@ spec:
               volumeMounts:
               - name: backup-data
                 mountPath: /backupData
+              {{- if gt (len $.Values.snapshooters) 0 }}
+              - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+                mountPath: /config
+              {{- end }}
           restartPolicy: {{ default "Never" .restartPolicy }}
           volumes:
           - name: backup-data
             persistentVolumeClaim:
               claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+          {{- if gt (len $.Values.snapshooters) 0 }}
+          - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            secret:
+              secretName: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+          {{- end }}
 {{- end }}
