@@ -119,7 +119,7 @@ spec:
               {{- if gt (len $.Values.snapshooters) 0 }}
               {{- with (index $.Values.snapshooters 0) }}
               - name: SNAPSHOT_CONFIG
-                value: {{ printf "/config/%s.json" .name | trunc 63 | trimSuffix "-" }}
+                value: /config
               {{- end }}
               {{- end }}
               {{ if $values.env }}

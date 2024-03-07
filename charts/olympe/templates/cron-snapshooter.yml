@@ -83,7 +83,7 @@ stringData:
   {{- if hasKey . "config" }}
   {{ printf "%s.json" .name | trunc 63 | trimSuffix "-" }}: {{- .config | toYaml | indent 1 }}
   {{- end }}
+  {{- end }}
 ---
-{{- end }}
 {{- end }}
 {{- end }}
