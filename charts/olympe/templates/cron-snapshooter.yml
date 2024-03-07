@@ -52,39 +52,37 @@ spec:
               - name: ORCHESTRATOR_HOST
                 value: orchestrator
               - name: SNAPSHOT_CONFIG
-                value: "/config/config.json"
+                value: {{ printf "/config/%s.json" .name | trunc 63 | trimSuffix "-" }}
               {{- if .env }}
               {{- toYaml .env | nindent 14 }}
               {{- end }}
             volumeMounts:
-              - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+              - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
                 mountPath: /config
             imagePullPolicy: IfNotPresent
             securityContext:
               allowPrivilegeEscalation: false
           volumes:
-            {{- if or (hasKey . "config") (hasKey . "secretName") }}
-            - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+            - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               secret:
-                {{- if hasKey . "config" }}
-                secretName: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
-                {{- else }}
-                secretName: {{ .secretName }}
-                {{- end }}
-            {{- end }}
+                secretName: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
 ---
-{{- if hasKey . "config" }}
+{{- end }}
+{{- if gt (len .Values.snapshooters) 0 }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
   labels:
     {{- $labels | nindent 4 }}
-    name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: snapshooter
 type: Opaque
 stringData:
-  config.json: {{- .config | toYaml | indent 1 }}
+  {{- range .Values.snapshooters }}
+  {{- if hasKey . "config" }}
+  {{ printf "%s.json" .name | trunc 63 | trimSuffix "-" }}: {{- .config | toYaml | indent 1 }}
+  {{- end }}
 ---
 {{- end }}
 {{- end }}
