@@ -23,7 +23,6 @@ data:
   RABBITMQ_PORT: {{ .Values.orchestrator.rabbitmq.port | quote }}
   RABBITMQ_PROTO: {{ default "amqp" .Values.orchestrator.rabbitmq.proto }}
   DB_URI_SCHEME: {{ .Values.orchestrator.neo4j.protocol }}
-  PERMISSION_CHECK_ENABLED: {{ default "false" .Values.orchestrator.permissionCheckEnabled | quote }}
   WAIT_FOR_NEO4J: {{ default "120" .Values.orchestrator.waitForNeo4j | quote }}
   RABBITMQ_CLIENT_PREFETCH_SIZE: {{ default "200" .Values.orchestrator.rabbitmq.clientPrefetchSize | quote }}
   JAVA_PROCESS_XMX: {{ default "1g" .Values.orchestrator.javaProcessXmx | quote }}
