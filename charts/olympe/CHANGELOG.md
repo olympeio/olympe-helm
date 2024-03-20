@@ -2,8 +2,14 @@
 ## [Unreleased]
 
 
-<a name="2.2.8"></a>
-## [2.2.8] - 2024-03-07
+<a name="2.2.9"></a>
+## [2.2.9] - 2024-03-20
+### Fix
+- remove PERMISSION_CHECK_ENABLED override
+
+
+<a name="olympe-2.2.8"></a>
+## [olympe-2.2.8] - 2024-03-07
 ### Fix
 - fix snapshooter
 - add snapshot configuration in olympe-toolkit + adapt format
@@ -344,8 +350,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.8...HEAD
-[2.2.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.7...2.2.8
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.9...HEAD
+[2.2.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.8...2.2.9
+[olympe-2.2.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.7...olympe-2.2.8
 [olympe-2.2.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.6...olympe-2.2.7
 [olympe-2.2.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.11...olympe-2.2.6
 [olympe-2.1.11]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.5...olympe-2.1.11
