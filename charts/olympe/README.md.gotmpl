@@ -4,8 +4,8 @@
 
 # Prerequisites
 
-- Nodes.js 14
-- Yeoman 4.1.0 or greater
+- Kubernetes (k3d,k3s,minikube, etc) >= v1.24
+- Kubectl: https://kubernetes.io/docs/tasks/tools/#kubectl
 
 # About Neo4j
 Default Olympe installation is using Neo4j Community as database engine. Be aware that **Neo4j Enterprise is a licensed product**. Please read the [official license documentation](https://neo4j.com/licensing)
@@ -20,13 +20,14 @@ helm repo add olympe https://olympeio.github.io/olympe-helm/
 ```
 - Install this Helm chart
 ```
-helm install <name> olympe/olympe \
- --namespace <name> \
+name=<your project name>
+helm install $name olympe/olympe \
+ --namespace $name \
  --create-namespace \
  --wait
 ```
 
-- Follow the process described on the outputed notes
+This process will run the frontend and backend, as well as load the default patches required for Olympe to work. You can then access Draw by following the process described on the outputed notes
 
 ## Upgrade
 - Update the repositories
@@ -35,83 +36,70 @@ helm repo update
 ```
 - Use the `helm upgrade` command:
 ```
-helm upgrade <name> olympe/olympe \
-  --namespace <name> \
-  --version <version>
-```
-## Build your own images
-
-- Install project generator globally and generate a project.
-```
-npm install --global @olympeio/generator-project
-yo @olympeio/project
-```
-- Build and push the frontend image
-```
-npm run build:draw
-docker build -t <registry>/<frontend-image>:<tag> -f docker/olympe-frontend.Dockerfile .
-docker push <registry>/<frontend-image>:<tag>
+helm upgrade $name olympe/olympe \
+  --namespace $name
 ```
 
-- Build and push the orchestrator image
+# Build and deploy your own code
+
+## Olympe Project Template
+- Clone the [Olympe-Project-Template](https://github.com/olympeio/olympe-project-template) git repository
+- Follow the repository instructions to build your code
+
+## Deploy CodeAsData from your local computer
+Copy your built code as data to the orchestrator:
 ```
-npx gulp patches
-docker build -t <registry>/<orchestrator-image>:<tag> -f docker/olympe-orchestrator.Dockerfile .
-docker push <registry>/<orchestrator-image>:<ftag>
+kubectl cp --namespace $name dist/codeAsData/ \
+ $(kubectl get pod -n $name -l app.kubernetes.io/component=orchestrator \ 
+ --no-headers -o custom-columns=":metadata.name"):/tmp &&\
+kubectl exec --namespace $name deploy/$name-olympe-orchestrator -- \
+bash -c "rsync -aci --delete --exclude 'change_log.txt' \
+ /tmp/codeAsData/. /patches/ | (grep -E '^[^.c].*[^\/]$' || true) | tee -a /patches/change_log.txt"
+```
+- Once finished, run the update job:
+```
+kubectl delete job --namespace $name -l app.kubernetes.io/part-of=toolkit --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set orchestrator.initInstall.command=update \
+ -s templates/init-install.yml | kubectl apply -n $name -f -
 ```
 
-- Build and push the olympe-tools image
+## Deploy CodeAsData using a Docker image
+- Build and push the codeAsData image
 ```
-docker build -t <registry>/<olympe-tools-image>:<tag> -f docker/olympe-tools.Dockerfile .
-docker push <registry>/<olympe-tools-image>:<tag>
+docker_registry=<your docker registry>
+codeasdata_image=<your codeasdata image name>
+tag=<the tag of your codeasdata>
+docker build -t $docker_registry/$codeasdata_image:$tag --build-arg="SOURCES_PATH=runDraw/dist/codeAsData" -f docker/codeasdata.Dockerfile .
+docker push $docker_registry/$codeasdata_image:$tag
+```
+- Deploy CodeAsData
+```
+kubectl delete job --namespace $name $name-olympe-codeasdata --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set codeAsData.image.repository=$docker_registry \
+ --set codeAsData.image.name=$codeasdata_image \
+ --set codeAsData.image.tag=$tag \
+ -s templates/init-codeasdata.yml | kubectl apply -n $name -f -
+```
+- Once the job is finished, run the update job
+```
+kubectl delete job --namespace $name $name-olympe-install --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ -s templates/init-install.yml | kubectl apply -n $name -f -
 ```
 
-- Install this Helm chart using your images
-```
-helm dependency build && helm install <name> stable-composer/composer-helm \
- --namespace <name>
- --set orchestrator.image=<registry>/<orchestrator-image>:<tag> \
- --set frontend.image=<registry>/frontend-image>:<tag> \
- --set olympeTools.image=<registry>/<olympe-tools-image>:<tag> \
- --create-namespace
-```
+# Olympe Toolkit
 
-- Follow the process described on the outputed notes
+You can use the Olympe Toolkit image to execute multiple tasks:
 
-## Expose your application
-
-## External RabbitMQ
-- auth module
-- mqtt module
-
-## External Neo4j
- - licensing
- - protocol (bolt/neo4j)
-
-# Olympe Tools
-
-You can use the Olympe Tools image to execute multiple tasks:
-
-- ResetDB: Reset the database to its initial state or to the latest snapshot (if configured)
+- Install: Reset the database to its initial state or to the latest snapshot (if configured)
+- Update: Reset the database to its initial state or to the latest snapshot (if configured)
 - Snapshooter: Take a snapshot of your instance and backup it to a git repository
 - Change credentials: Change the admin user and/or password
-
-## ResetDB
-
-The resetDB is automatically executed at instance creation, but you can re-execute it manually if needed
-
-> :warning: **Executing it will wipe all the handmade data**: Except if you snaphooted them before!
-
-- Delete the remaining resetdb job
-```
-kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetdb --ignore-not-found
-```
-
-- Execute the new job
-```
-helm dependency build && helm template <namespace> olympe/olympe \
-  -s templates/olympe-tools.yml | kubectl apply -n <namespace> -f -
-```
 
 ## Snapshooter
 ### With config key
@@ -119,12 +107,12 @@ helm dependency build && helm template <namespace> olympe/olympe \
 ```
 [...]
 snapshooters:
-  - name: <name>
+  - name: $name
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
     config |-
       [{
-        "name": "<name>",
+        "name": "$name",
         "rootTags": [<list of root tags>],
         "path": "snapshot",
         "server": {
@@ -152,7 +140,7 @@ type: Opaque
 stringData:
   config.json: |-
     [{
-      "name": "<name>",
+      "name": "$name",
       "rootTags": [<list of root tags>],
       "path": "snapshot",
       "server": {
@@ -176,10 +164,10 @@ EOF
 ```
 [...]
 snapshooters:
-  - name: <name>
+  - name: $name
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
-    image: <registry>/<olympe-tools-image>:<tag>
+    image: $docker_registry/<olympe-tools-image>:$tag
 ```
 
 ## Change credentials
