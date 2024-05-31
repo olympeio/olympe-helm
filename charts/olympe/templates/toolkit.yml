@@ -1,56 +1,3 @@
-{{- if .Values.orchestrator.neo4j.resetDB -}}
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.toolkit.action) | trunc 63 | trimSuffix "-" }}
-  labels:
-    {{- include "olympe.labels" . | nindent 4 }}
-    app.kubernetes.io/component: reset
-  annotations:
-    "helm.sh/hook": post-install
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": hook-succeeded
-spec:
-  template:
-    metadata:
-      name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.toolkit.action) | trunc 63 | trimSuffix "-" }}
-    spec:
-      volumes:
-        - name: backup-data
-          persistentVolumeClaim:
-            claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-      containers:
-        - name: install
-          image: "{{ default .Values.appRepository .Values.toolkit.image.repository }}/{{ .Values.toolkit.image.name }}:{{ default .Chart.AppVersion .Values.toolkit.image.tag }}"
-          args:
-            - install
-          envFrom:
-            - configMapRef:
-                name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-            - secretRef:
-                name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-            - secretRef:
-                name: orchestrator-default-secret
-                optional: true
-          env:
-            - name: ORCHESTRATOR_HOST
-              value: orchestrator
-          {{ if $.Values.toolkit.env }}
-            {{- toYaml $.Values.toolkit.env | nindent 14 }}
-          {{- end }}
-          resources:
-            limits:
-              cpu: 200m
-              memory: 500Mi
-          volumeMounts:
-            - name: backup-data
-              mountPath: /backupData
-      restartPolicy: Never
-      serviceAccountName: {{ include "olympe.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.toolkit.podSecurityContext | nindent 8 }}
-  backoffLimit: 4
-{{- end }}
 {{- range $name, $values := .Values.toolkit.cronJobs }}
 ---
 {{- if semverCompare ">=1.20.x" $.Capabilities.KubeVersion.Version }}
@@ -95,7 +42,7 @@ spec:
           serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
           containers:
             - name: {{ (lower $name) }}
-              image: "{{ default $.Values.toolkit.image.repository (($values.image).repository) }}/{{ default $.Values.toolkit.image.name (($values.image).name) }}:{{ default $.Values.toolkit.image.tag (($values.image).tag) }}"
+              image: "{{ printf "%s/%s:%s" $.Values.toolkit.image.repository $.Values.toolkit.image.name $.Values.toolkit.image.tag }}"
               imagePullPolicy: {{ default "IfNotPresent" $values.imagePullPolicy }}
               {{ if $values.resources }}
               resources:

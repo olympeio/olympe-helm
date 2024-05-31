@@ -44,7 +44,7 @@ spec:
         - name: orchestrator
           securityContext:
             {{- toYaml .Values.orchestrator.containerSecurityContext | nindent 12 }}
-          image: "{{ default .Values.appRepository .Values.orchestrator.image.repository }}/{{ .Values.orchestrator.image.name }}:{{ default .Chart.AppVersion .Values.orchestrator.image.tag }}"
+          image: "{{ printf "%s/%s:%s" .Values.orchestrator.image.repository .Values.orchestrator.image.name .Values.orchestrator.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           tty: true
           ports:
@@ -104,6 +104,8 @@ spec:
               mountPath: /opt/orchestrator/file-service
             - name: backup-data
               mountPath: /backupData
+            - name: patches
+              mountPath: /patches
             {{ with .Values.orchestrator.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -114,6 +116,9 @@ spec:
         - name: backup-data
           persistentVolumeClaim:
             claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+        - name: patches
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-patches" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
         {{ with .Values.orchestrator.volumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

@@ -1,0 +1,66 @@
+{{- if .Values.orchestrator.initInstall.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-codeasdata" (include "olympe.fullname" $) | trunc 52 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: codeasdata
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ printf "%s-rsync" (include "olympe.fullname" $) | trunc 52 | trimSuffix "-" }}
+    spec:
+      volumes:
+        - name: patches
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-patches" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+      containers:
+        - name: deploy
+          image: "{{ printf "%s/%s:%s" .Values.codeAsData.image.repository .Values.codeAsData.image.name (default .Chart.AppVersion .Values.codeAsData.image.tag) }}"
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -e
+              set -o pipefail
+              echo "[INFO] Creating directory if not exists..."
+              mkdir -p $ORCHESTRATOR_CODE_AS_DATA_DIR
+              touch $ORCHESTRATOR_CODE_AS_DATA_DIR/change_log.txt
+              chown 1000:1000 $ORCHESTRATOR_CODE_AS_DATA_DIR/change_log.txt
+              echo "[INFO] Rsync files"
+              rsync -aci --delete --exclude 'change_log.txt' ~/patches/ $ORCHESTRATOR_CODE_AS_DATA_DIR/ | (grep -E '^[^.c].*[^\/]$' || true) | tee -a $ORCHESTRATOR_CODE_AS_DATA_DIR/change_log.txt
+              echo "[INFO] Done"
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: orchestrator-default-secret
+                optional: true
+          env:
+            - name: ACTION
+              value: deploy
+            - name: RABBITMQ_PATCHES_DIR
+              value: /patches
+            {{- if .Values.codeAsData.env }}
+            {{- toYaml .Values.codeAsData.env | nindent 14 }}
+            {{ end }}
+          volumeMounts:
+            - name: patches
+              mountPath: /patches
+          securityContext:
+            {{- toYaml .Values.codeAsData.securityContext | nindent 12 }}
+      restartPolicy: Never
+      serviceAccountName: {{ include "olympe.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.codeAsData.podSecurityContext | nindent 8 }}
+  backoffLimit: 4
+---
+{{- end }}
