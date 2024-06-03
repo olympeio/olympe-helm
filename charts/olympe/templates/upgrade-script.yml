@@ -1,0 +1,68 @@
+{{- if semverCompare ">=1.20.x" $.Capabilities.KubeVersion.Version -}}
+apiVersion: batch/v1
+{{- else -}}
+apiVersion: batch/v1beta1
+{{- end }}
+kind: CronJob
+metadata:
+  name: {{ printf "%s-upgrade-script" (include "olympe.fullname" $) | trunc 52 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: upgrade-script
+spec:
+  suspend: {{ default true .Values.upgradeScript.suspend }}
+  schedule: {{ .Values.upgradeScript.schedule | quote }}
+  successfulJobsHistoryLimit: {{ default 1 .Values.upgradeScript.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ default 2 .Values.upgradeScript.failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ default 360 .Values.upgradeScript.failedJobsHistoryLimit }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "olympe.labels" $ | nindent 8 }}
+    spec:
+      backoffLimit: {{ default 0 .Values.upgradeScript.backoffLimit }}
+      template:
+        metadata:
+          name: {{ printf "%s-upgrade-script" (include "olympe.fullname" $) | trunc 52 | trimSuffix "-" }}
+          labels:
+            {{- include "olympe.selectorLabels" $ | nindent 12 }}
+            app.kubernetes.io/component: upgrade-script
+        spec:
+          {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
+          containers:
+            - name: upgrade-script
+              image: {{ default "olympeio/upgrade-executor:latest" .Values.upgradeScript.image }}
+              imagePullPolicy: {{ default "IfNotPresent" .Values.upgradeScript.imagePullPolicy }}
+              {{ if .Values.upgradeScript.resources }}
+              resources:
+                {{- toYaml .Values.upgradeScript.resources | nindent 16 }}
+              {{- end }}
+              envFrom:
+              - configMapRef:
+                  name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+              - secretRef:
+                  name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+              - secretRef:
+                  name: orchestrator-default-secret
+                  optional: true
+              env:
+              - name: ORCHESTRATOR_HOST
+                value: orchestrator
+              - name: SCRIPT_TYPE
+                value: UPGRADE_AND_VALIDATION
+              {{ if .Values.upgradeScript.env }}
+                {{- toYaml .Values.upgradeScript.env | nindent 14 }}
+              {{- end }}
+              volumeMounts:
+              - name: backup-data
+                mountPath: /backupData
+          restartPolicy: {{ default "Never" .Values.upgradeScript.restartPolicy }}
+          volumes:
+          - name: backup-data
+            persistentVolumeClaim:
+              claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}

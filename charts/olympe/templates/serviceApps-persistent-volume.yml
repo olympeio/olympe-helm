@@ -1,15 +1,4 @@
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: {{ printf "%s-nodes-file-service-pv" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-spec:
-  capacity:
-    storage: {{ default "1Gi" .Values.nodes.dataVolume.storage }}
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Delete
-  storageClassName: {{ default "standard" .Values.nodes.dataVolume.storageClassName }}
+{{- if gt (len .Values.serviceApps) 0 }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -20,9 +9,14 @@ metadata:
     name: {{ printf "%s-nodes-file-service" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
 spec:
   accessModes:
-  - ReadWriteMany
+  {{- range .Values.nodes.dataVolume.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
   resources:
     requests:
       storage: {{ default "1Gi" (((((.Values).nodes).dataVolume).fileService).storage) }}
-  storageClassName: {{ default "standard" .Values.nodes.dataVolume.storageClassName }}
+  {{- with ((((.Values).nodes).dataVolume).storageClassName) }}
+  storageClassName: {{ . }}
+  {{- end }}
   volumeName: {{ printf "%s-nodes-file-service-pv" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
