@@ -18,5 +18,7 @@ spec:
   {{- with ((((.Values).nodes).dataVolume).storageClassName) }}
   storageClassName: {{ . }}
   {{- end }}
-  volumeName: {{ printf "%s-nodes-file-service-pv" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  {{- if (((((.Values).nodes).dataVolume).fileService).volumeName) }}
+  volumeName: {{ .Values.nodes.dataVolume.fileService.volumeName | trunc 63 | trimSuffix "-" }}
+  {{- end }}
 {{- end }}

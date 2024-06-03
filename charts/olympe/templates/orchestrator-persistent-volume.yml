@@ -17,7 +17,9 @@ spec:
   {{- with .Values.orchestrator.dataVolume.storageClassName }}
   storageClassName: {{ . }}
   {{- end }}
-  volumeName: {{ printf "%s-orchestrator-pv-file-service" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  {{- if (((((.Values).orchestrator).dataVolume).fileService).volumeName) }}
+  volumeName: {{ .Values.orchestrator.dataVolume.fileService.volumeName  | trunc 63 | trimSuffix "-" }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -38,7 +40,9 @@ spec:
   {{- with .Values.orchestrator.dataVolume.storageClassName }}
   storageClassName: {{ . }}
   {{- end }}
-  volumeName: {{ printf "%s-orchestrator-pv-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  {{- if (((((.Values).orchestrator).dataVolume).backupData).volumeName) }}
+  volumeName: {{ .Values.orchestrator.dataVolume.backupData.volumeName | trunc 63 | trimSuffix "-" }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -58,4 +62,6 @@ spec:
   {{- with .Values.orchestrator.dataVolume.storageClassName }}
   storageClassName: {{ . }}
   {{- end }}
-  volumeName: {{ printf "%s-orchestrator-pv-patches" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  {{- if (((((.Values).orchestrator).dataVolume).patches).volumeName) }}
+  volumeName: {{ .Values.orchestrator.dataVolume.patches.volumeName  | trunc 63 | trimSuffix "-" }}
+  {{- end }}
