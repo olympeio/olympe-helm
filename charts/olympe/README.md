@@ -4,8 +4,8 @@
 
 # Prerequisites
 
-- Nodes.js 14
-- Yeoman 4.1.0 or greater
+- Kubernetes (k3d,k3s,minikube, etc) >= v1.24
+- Kubectl: https://kubernetes.io/docs/tasks/tools/#kubectl
 
 # About Neo4j
 Default Olympe installation is using Neo4j Community as database engine. Be aware that **Neo4j Enterprise is a licensed product**. Please read the [official license documentation](https://neo4j.com/licensing)
@@ -20,13 +20,14 @@ helm repo add olympe https://olympeio.github.io/olympe-helm/
 ```
 - Install this Helm chart
 ```
-helm install <name> olympe/olympe \
- --namespace <name> \
+name=<your project name>
+helm install $name olympe/olympe \
+ --namespace $name \
  --create-namespace \
  --wait
 ```
 
-- Follow the process described on the outputed notes
+This process will run the frontend and backend, as well as load the default patches required for Olympe to work. You can then access Draw by following the process described on the outputed notes
 
 ## Upgrade
 - Update the repositories
@@ -35,83 +36,70 @@ helm repo update
 ```
 - Use the `helm upgrade` command:
 ```
-helm upgrade <name> olympe/olympe \
-  --namespace <name> \
-  --version <version>
-```
-## Build your own images
-
-- Install project generator globally and generate a project.
-```
-npm install --global @olympeio/generator-project
-yo @olympeio/project
-```
-- Build and push the frontend image
-```
-npm run build:draw
-docker build -t <registry>/<frontend-image>:<tag> -f docker/olympe-frontend.Dockerfile .
-docker push <registry>/<frontend-image>:<tag>
+helm upgrade $name olympe/olympe \
+  --namespace $name
 ```
 
-- Build and push the orchestrator image
+# Build and deploy your own code
+
+## Olympe Project Template
+- Clone the [Olympe-Project-Template](https://github.com/olympeio/olympe-project-template) git repository
+- Follow the repository instructions to build your code
+
+## Deploy CodeAsData from your local computer
+Copy your built code as data to the orchestrator:
 ```
-npx gulp patches
-docker build -t <registry>/<orchestrator-image>:<tag> -f docker/olympe-orchestrator.Dockerfile .
-docker push <registry>/<orchestrator-image>:<ftag>
+kubectl cp --namespace $name dist/codeAsData/ \
+ $(kubectl get pod -n $name -l app.kubernetes.io/component=orchestrator \
+ --no-headers -o custom-columns=":metadata.name"):/tmp &&\
+kubectl exec --namespace $name deploy/$name-olympe-orchestrator -- \
+bash -c "rsync -aci --delete --exclude 'change_log.txt' \
+ /tmp/codeAsData/. /patches/ | (grep -E '^[^.c].*[^\/]$' || true) | tee -a /patches/change_log.txt"
+```
+- Once finished, run the update job:
+```
+kubectl delete job --namespace $name -l app.kubernetes.io/part-of=toolkit --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set orchestrator.initInstall.command=update \
+ -s templates/init-install.yml | kubectl apply -n $name -f -
 ```
 
-- Build and push the olympe-tools image
+## Deploy CodeAsData using a Docker image
+- Build and push the codeAsData image
 ```
-docker build -t <registry>/<olympe-tools-image>:<tag> -f docker/olympe-tools.Dockerfile .
-docker push <registry>/<olympe-tools-image>:<tag>
+docker_registry=<your docker registry>
+codeasdata_image=<your codeasdata image name>
+tag=<the tag of your codeasdata>
+docker build -t $docker_registry/$codeasdata_image:$tag --build-arg="SOURCES_PATH=runDraw/dist/codeAsData" -f docker/codeasdata.Dockerfile .
+docker push $docker_registry/$codeasdata_image:$tag
+```
+- Deploy CodeAsData
+```
+kubectl delete job --namespace $name $name-olympe-codeasdata --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set codeAsData.image.repository=$docker_registry \
+ --set codeAsData.image.name=$codeasdata_image \
+ --set codeAsData.image.tag=$tag \
+ -s templates/init-codeasdata.yml | kubectl apply -n $name -f -
+```
+- Once the job is finished, run the update job
+```
+kubectl delete job --namespace $name $name-olympe-install --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ -s templates/init-install.yml | kubectl apply -n $name -f -
 ```
 
-- Install this Helm chart using your images
-```
-helm dependency build && helm install <name> stable-composer/composer-helm \
- --namespace <name>
- --set orchestrator.image=<registry>/<orchestrator-image>:<tag> \
- --set frontend.image=<registry>/frontend-image>:<tag> \
- --set olympeTools.image=<registry>/<olympe-tools-image>:<tag> \
- --create-namespace
-```
+# Olympe Toolkit
 
-- Follow the process described on the outputed notes
+You can use the Olympe Toolkit image to execute multiple tasks:
 
-## Expose your application
-
-## External RabbitMQ
-- auth module
-- mqtt module
-
-## External Neo4j
- - licensing
- - protocol (bolt/neo4j)
-
-# Olympe Tools
-
-You can use the Olympe Tools image to execute multiple tasks:
-
-- ResetDB: Reset the database to its initial state or to the latest snapshot (if configured)
+- Install: Reset the database to its initial state or to the latest snapshot (if configured)
+- Update: Reset the database to its initial state or to the latest snapshot (if configured)
 - Snapshooter: Take a snapshot of your instance and backup it to a git repository
 - Change credentials: Change the admin user and/or password
-
-## ResetDB
-
-The resetDB is automatically executed at instance creation, but you can re-execute it manually if needed
-
-> :warning: **Executing it will wipe all the handmade data**: Except if you snaphooted them before!
-
-- Delete the remaining resetdb job
-```
-kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetdb --ignore-not-found
-```
-
-- Execute the new job
-```
-helm dependency build && helm template <namespace> olympe/olympe \
-  -s templates/olympe-tools.yml | kubectl apply -n <namespace> -f -
-```
 
 ## Snapshooter
 ### With config key
@@ -119,12 +107,12 @@ helm dependency build && helm template <namespace> olympe/olympe \
 ```
 [...]
 snapshooters:
-  - name: <name>
+  - name: $name
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
     config |-
       [{
-        "name": "<name>",
+        "name": "$name",
         "rootTags": [<list of root tags>],
         "path": "snapshot",
         "server": {
@@ -152,7 +140,7 @@ type: Opaque
 stringData:
   config.json: |-
     [{
-      "name": "<name>",
+      "name": "$name",
       "rootTags": [<list of root tags>],
       "path": "snapshot",
       "server": {
@@ -176,10 +164,10 @@ EOF
 ```
 [...]
 snapshooters:
-  - name: <name>
+  - name: $name
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
-    image: <registry>/<olympe-tools-image>:<tag>
+    image: $docker_registry/<olympe-tools-image>:$tag
 ```
 
 ## Change credentials
@@ -222,14 +210,16 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | acceptLicenseAgreement | string | `"no"` | Please check the license agreement: https:// |
-| appRepository | string | `"olympeio/olympe-composer"` | Docker repository for the resource image |
+| codeAsData.image.name | string | `"codeasdata"` |  |
+| codeAsData.image.repository | string | `"olympeio"` |  |
+| codeAsData.podSecurityContext.runAsUser | int | `0` |  |
+| codeAsData.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | enabled | bool | `true` | Define if a project is enabled or not. If not, replicas will be set to 0 but data will be kept |
 | frontend.additionalConfig | string | `""` | additional frontend configuration |
 | frontend.affinity | object | `{}` | setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | frontend.containerSecurityContext | object | `{"allowPrivilegeEscalation":false}` | defines privilege and access control settings for the frontend on Container level. |
-| frontend.dataVolume | object | `{"storageClassName":"standard"}` | setup dataVolume for the frontend |
 | frontend.env | object | `{}` | frontend environment variables |
-| frontend.image | object | `{"name":"olympe-frontend","repository":"olympeio"}` | frontend image |
+| frontend.image | object | `{"name":"frontend","repository":"olympeio"}` | frontend image |
 | frontend.nodeSelector | object | `{}` | setup nodeSelector for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/) |
 | frontend.oConfig | string | `""` | frontend oConfig content |
 | frontend.podSecurityContext | object | `{"runAsUser":101}` | defines privilege and access control settings for the frontend on Pod level. |
@@ -254,18 +244,19 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | networkPolicies.additionalRules | list | `[]` |  |
 | networkPolicies.defaultRules | list | `[]` |  |
 | networkPolicies.enabled | bool | `false` | Define if network policies are enabled globally (including service apps)  |
+| nodes.dataVolume.accessModes[0] | string | `"ReadWriteOnce"` |  |
 | olympeTools.action | string | `"resetdb"` | available values are resetdb, resetCredentials |
 | olympeTools.image | object | `{"name":"olympe-tools","repository":"olympeio"}` | Olympe Tools image |
 | olympeTools.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | orchestrator.affinity | object | `{}` | setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
-| orchestrator.configMapEnv | object | `{"ACTIVITY_TIMEOUT":"70000000","ALLOWED_WS_ORIGINS":"|.*","JAVA_PROCESS_XMX":"1g","PERMISSION_CHECK_ENABLED":"false","RABBITMQ_CLIENT_PREFETCH_SIZE":200,"WAIT_FOR_NEO4J":"120"}` | Orchestrator environment variables (in separated configMap) |
 | orchestrator.containerSecurityContext | object | `{"allowPrivilegeEscalation":false}` | defines privilege and access control settings for the Orchestrator on Container level. |
-| orchestrator.dataVolume | object | `{"backupData":{},"fileService":{},"storageClassName":"standard"}` | setup dataVolume for the frontend |
+| orchestrator.dataVolume | object | `{"accessModes":["ReadWriteOnce"],"backupData":{},"fileService":{},"patches":{}}` | setup dataVolume for the frontend |
 | orchestrator.env | string | `nil` | Orchestrator environment variables (in statefulset) |
 | orchestrator.existingSecret | string | `""` |  |
 | orchestrator.haEnabled | bool | `false` | Orchestrator HA setup |
-| orchestrator.image | object | `{"name":"olympe-orchestrator","repository":"olympeio"}` | Orchestrator image |
+| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.2.2"}` | Orchestrator image |
+| orchestrator.initInstall | object | `{"command":"install","enabled":true}` | Toggle codeAsData install during chart installation (only executed at creation) |
 | orchestrator.livenessProbe.failureThreshold | int | `10` |  |
 | orchestrator.livenessProbe.httpGet.path | string | `"/readiness"` |  |
 | orchestrator.livenessProbe.httpGet.port | int | `8082` |  |
@@ -275,7 +266,6 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | orchestrator.neo4j.dbUsername | string | `"neo4j"` | database username of the project (defaults to project name without hyphen) |
 | orchestrator.neo4j.hostname | string | `nil` | hostname of Neo4j (default to project cluster) |
 | orchestrator.neo4j.protocol | string | `"bolt"` | protocol |
-| orchestrator.neo4j.resetDB | bool | `true` | Toggle resetdb execution at project creation only |
 | orchestrator.neo4j.rootPassword | string | `"password1"` | shared neo4j root password |
 | orchestrator.nodeSelector | object | `{}` | setup nodeSelector for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/) |
 | orchestrator.podSecurityContext | object | `{"runAsUser":1000}` | defines privilege and access control settings for the Orchestrator on Pod level. |
@@ -314,3 +304,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | serviceAppsDefaultPort | int | `2015` |  |
 | serviceAppsImage | string | `"node:14.21.3-slim"` | Default Service Apps image |
 | snapshooters | list | `[]` | Snapshooters configuration, You can have multiple of them, each with the following values:<br /> - name: string, mandatory - Name of the snapshooter <br />    schedule: string, mandatory - schedule (cron format) <br />    config: string, json configuration. Please read documentation for examples (can't be used with secretName key below) <br />    secretName: string, name of the secret containing the configuration (can't be used with config key above) <br />    resources <br />      requests: <br />        memory: string, default "200Mi" <br />        cpu: string, default "100m" <br />      limits: <br />        memory: string, default "1000Mi" <br />        cpu: string, default "200m" <br /> |
+| toolkit.cronJobs | object | `{"garbageCollector":{"args":["startGC"],"command":"startGC","resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"100m","memory":"100Mi"}},"schedule":"5 1 * * 0","suspend":false}}` | available values are:     - help     - snapshot     - snapshotUsers     - snapshotBusinessData     - restoreUsers     - restoreBusinessData     - reset     - checkDB     - startGC     - statsDB     - maintenance     - updateUser      |
+| toolkit.image | object | `{"name":"toolkit","repository":"olympeio","tag":"stable"}` | Olympe Toolkit image |
+| toolkit.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
+| upgradeScript.schedule | string | `"5 1 * * 0"` |  |

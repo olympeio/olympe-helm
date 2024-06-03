@@ -5,10 +5,10 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 52 | trimSuffix "-" }}
   labels:
     {{- $labels | nindent 4 }}
-    name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-snapshooter-%s" (include "olympe.fullname" $) .name | trunc 52 | trimSuffix "-" }}
     app.kubernetes.io/component: snapshooter
 spec:
   suspend: {{ default false .suspend }}
@@ -33,7 +33,7 @@ spec:
             runAsUser: 0
           containers:
           - name: snapshooter
-            image: {{ default "olympeio/resource-feeder:stable" .image }}
+            image: "{{ default "olympeio" $.Values.toolkit.image.repository }}/{{ default "olympe-toolkit" $.Values.toolkit.image.name }}:{{ default "stable" $.Values.toolkit.image.tag }}"
             resources:
               requests:
                 memory: {{ if .resources }}{{ if .resources.requests -}} {{ default "200Mi" .resources.requests.memory }} {{- else -}} "100Mi" {{- end }}{{- else -}} "100Mi" {{- end }}
@@ -46,44 +46,44 @@ spec:
                   name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               - secretRef:
                   name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            args:
+              - snapshot
             env:
-              - name: CONFIG_FILE
-                value: "/config/config.json"
-              - name: ACTION
-                value: snapshooter
+              - name: ORCHESTRATOR_HOST
+                value: orchestrator
+              - name: SNAPSHOT_CONFIG
+                value: {{ printf "/config/%s.json" .name | trunc 63 | trimSuffix "-" }}
               {{- if .env }}
               {{- toYaml .env | nindent 14 }}
               {{- end }}
             volumeMounts:
-              - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+              - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
                 mountPath: /config
             imagePullPolicy: IfNotPresent
             securityContext:
               allowPrivilegeEscalation: false
           volumes:
-            {{- if or (hasKey . "config") (hasKey . "secretName") }}
-            - name: {{ printf "%s-snapshooter-%s-config" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+            - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               secret:
-                {{- if hasKey . "config" }}
-                secretName: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
-                {{- else }}
-                secretName: {{ .secretName }}
-                {{- end }}
-            {{- end }}
+                secretName: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
 ---
-{{- if hasKey . "config" }}
+{{- end }}
+{{- if gt (len .Values.snapshooters) 0 }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
   labels:
     {{- $labels | nindent 4 }}
-    name: {{ printf "%s-snapshooter-%s-secret" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: snapshooter
 type: Opaque
 stringData:
-  config.json: {{- .config | toYaml | indent 1 }}
+  {{- range .Values.snapshooters }}
+  {{- if hasKey . "config" }}
+  {{ printf "%s.json" .name | trunc 63 | trimSuffix "-" }}: {{- .config | toYaml | indent 1 }}
+  {{- end }}
+  {{- end }}
 ---
-{{- end }}
 {{- end }}
 {{- end }}

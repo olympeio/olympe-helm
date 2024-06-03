@@ -8,14 +8,16 @@ metadata:
     app.kubernetes.io/component: orchestrator
 spec:
   accessModes:
-  - ReadWriteMany
+  {{- range .Values.orchestrator.dataVolume.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
   resources:
     requests:
       storage: {{ default "1Gi" .Values.orchestrator.dataVolume.fileService.storage }}
-  storageClassName: {{ default "standard" .Values.orchestrator.dataVolume.storageClassName }}
-  {{ if .Values.orchestrator.dataVolume.fileService.volumeName }}
-  volumeName: {{ .Values.orchestrator.dataVolume.fileService.volumeName }}
-  {{ end }}
+  {{- with .Values.orchestrator.dataVolume.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  volumeName: {{ printf "%s-orchestrator-pv-file-service" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -27,11 +29,33 @@ metadata:
     app.kubernetes.io/component: orchestrator
 spec:
   accessModes:
-  - ReadWriteMany
+  {{- range .Values.orchestrator.dataVolume.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
   resources:
     requests:
       storage: {{ default "1Gi" .Values.orchestrator.dataVolume.backupData.storage }}
-  storageClassName: {{ default "standard" .Values.orchestrator.dataVolume.storageClassName }}
-  {{ if .Values.orchestrator.dataVolume.backupData.volumeName }}
-  volumeName: {{ .Values.orchestrator.dataVolume.backupData.volumeName }}
-  {{ end }}
+  {{- with .Values.orchestrator.dataVolume.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  volumeName: {{ printf "%s-orchestrator-pv-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-orchestrator-patches" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    name: {{ printf "%s-orchestrator-patches" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+spec:
+  accessModes:
+  {{- range .Values.orchestrator.dataVolume.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ default "1Gi" .Values.orchestrator.dataVolume.patches.storage }}
+  {{- with .Values.orchestrator.dataVolume.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  volumeName: {{ printf "%s-orchestrator-pv-patches" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
