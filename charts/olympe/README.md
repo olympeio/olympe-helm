@@ -202,8 +202,8 @@ helm dependency build && helm template <namespace> olympe/olympe \
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | rabbitmq | 11.16.2 |
-| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.22 |
+| https://charts.bitnami.com/bitnami | rabbitmq | 12.5.1 |
+| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.28 |
 
 ## Values
 **Keys without a description are not meant to be changed**
@@ -236,7 +236,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/database:v2.7.2"` |  |
+| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.5.2"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -245,6 +245,9 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | networkPolicies.defaultRules | list | `[]` |  |
 | networkPolicies.enabled | bool | `false` | Define if network policies are enabled globally (including service apps)  |
 | nodes.dataVolume.accessModes[0] | string | `"ReadWriteOnce"` |  |
+| olympeTools.action | string | `"resetdb"` | available values are resetdb, resetCredentials |
+| olympeTools.image | object | `{"name":"olympe-tools","repository":"olympeio"}` | Olympe Tools image |
+| olympeTools.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | orchestrator.affinity | object | `{}` | setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
 | orchestrator.containerSecurityContext | object | `{"allowPrivilegeEscalation":false}` | defines privilege and access control settings for the Orchestrator on Container level. |

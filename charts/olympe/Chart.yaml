@@ -25,9 +25,9 @@ dependencies:
   - condition: neo4j.enabled
     name: neo4j-standalone
     alias: neo4j
-    version: 4.4.22
+    version: 4.4.28
     repository: https://helm.neo4j.com/neo4j
   - condition: rabbitmq.enabled
     name: rabbitmq
-    version: 11.16.2
+    version: 12.5.1
     repository: https://charts.bitnami.com/bitnami
