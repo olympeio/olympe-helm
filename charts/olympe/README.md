@@ -92,15 +92,6 @@ helm template $name olympe/olympe \
  -s templates/init-install.yml | kubectl apply -n $name -f -
 ```
 
-# Olympe Toolkit
-
-You can use the Olympe Toolkit image to execute multiple tasks:
-
-- Install: Reset the database to its initial state or to the latest snapshot (if configured)
-- Update: Reset the database to its initial state or to the latest snapshot (if configured)
-- Snapshooter: Take a snapshot of your instance and backup it to a git repository
-- Change credentials: Change the admin user and/or password
-
 ## Snapshooter
 ### With config key
 - Enable the snapshooter in values.yaml
@@ -111,50 +102,46 @@ snapshooters:
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
     config |-
-      [{
-        "name": "$name",
-        "rootTags": [<list of root tags>],
-        "path": "snapshot",
-        "server": {
-          "user": "admin",
-          "password": "***",
-          "host": "<namespace>-orchestrator",
-          "port": 8080
-        },
-        "git":{
-          "repo": "https://",
-          "branch": "<branch>",
-          "commitMessage": "Snapshot at {date} in {folder}\n\n"
+      [
+        {
+          "snapshooter": {
+            "name": "$name",
+            "rootTags": [<list of root tags>],
+            "outputDir": "snapshot"
+          },
+          "git": {
+            "repo": "<link to git repository>",
+            "branch": "<branch>",
+            "commitMessage": "Snapshoted at {date} in {folder}"
+          }
         }
-      }]
+      ]
 ```
 ### With custom secret
 - Create a secret with the following configuration:
 ```
-cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply -n $name -f -
 apiVersion: v1
 kind: Secret
 metadata:
   name: snapshooter-secret
 type: Opaque
 stringData:
-  config.json: |-
-    [{
-      "name": "$name",
-      "rootTags": [<list of root tags>],
-      "path": "snapshot",
-      "server": {
-        "user": "admin",
-        "password": "***",
-        "host": "<namespace>-orchestrator",
-        "port": 8080
-      },
-      "git":{
-        "repo": "https://",
-        "branch": "<branch>",
-        "commitMessage": "Snapshot at {date} in {folder}\n\n"
+  snapshooter.json: |-
+    [
+      {
+        "snapshooter": {
+          "name": "$name",
+          "rootTags": [<list of root tags>],
+          "outputDir": "snapshot"
+        },
+        "git": {
+          "repo": "<link to git repository>",
+          "branch": "<branch>",
+          "commitMessage": "Snapshoted at {date} in {folder}"
+        }
       }
-    }]
+    ]
 EOF
 ```
   **rootTags**: You can get the root tag of your application(s) by opening it in Draw. the tag will be in the URL\n
@@ -167,43 +154,39 @@ snapshooters:
   - name: $name
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
-    image: $docker_registry/<olympe-tools-image>:$tag
+    image: olympeio/toolkit:stable
 ```
 
 ## Change credentials
 - Create a secret named `orchestrator-default-secret` in the correct namespace with your new credentials. You can setup only `DRAW_PASSWORD`, `DRAW_USERNAME` or both of them.
 ```
-cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply -n $name -f -
 apiVersion: v1
 kind: Secret
 metadata:
   name: orchestrator-default-secret
-  namespace: <namespace>
 type: Opaque
 stringData:
   DRAW_USERNAME: <username>
   DRAW_PASSWORD: ****
 EOF
 ```
-
-- Delete the remaining resetCredentials job (if applicable)
+- Restart the orchestrator
+- Execute the resetCredentials new job
 ```
-kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetcredentials --ignore-not-found
-```
-
-- Execute the new job
-```
-helm dependency build && helm template <namespace> olympe/olympe \
- --set olympeTools.action=resetCredentials \
-  -s templates/olympe-tools.yml
+kubectl delete job --namespace $name -l app.kubernetes.io/part-of=toolkit --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set orchestrator.initInstall.command=resetCredentials \
+ -s templates/init-install.yml | kubectl apply -n $name -f -
 ```
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | rabbitmq | 12.5.1 |
-| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.28 |
+| https://charts.bitnami.com/bitnami | rabbitmq | 14.3.2 |
+| https://helm.neo4j.com/neo4j | neo4j(neo4j-standalone) | 4.4.33 |
 
 ## Values
 **Keys without a description are not meant to be changed**
@@ -236,7 +219,7 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/olympe-database:v2.5.2"` |  |
+| neo4j.image.customImage | string | `"olympeio/database:v2.7.2"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -245,9 +228,6 @@ helm dependency build && helm template <namespace> olympe/olympe \
 | networkPolicies.defaultRules | list | `[]` |  |
 | networkPolicies.enabled | bool | `false` | Define if network policies are enabled globally (including service apps)  |
 | nodes.dataVolume.accessModes[0] | string | `"ReadWriteOnce"` |  |
-| olympeTools.action | string | `"resetdb"` | available values are resetdb, resetCredentials |
-| olympeTools.image | object | `{"name":"olympe-tools","repository":"olympeio"}` | Olympe Tools image |
-| olympeTools.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | orchestrator.affinity | object | `{}` | setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
 | orchestrator.containerSecurityContext | object | `{"allowPrivilegeEscalation":false}` | defines privilege and access control settings for the Orchestrator on Container level. |
