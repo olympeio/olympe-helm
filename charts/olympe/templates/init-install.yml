@@ -2,11 +2,11 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ printf "%s-%s" (include "olympe.fullname" .) .Values.orchestrator.initInstall.command | trunc 52 | trimSuffix "-" }}
+  name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.orchestrator.initInstall.command) | trunc 52 | trimSuffix "-" }}
   labels:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/part-of: toolkit
-    app.kubernetes.io/component: {{ .Values.orchestrator.initInstall.command }}
+    app.kubernetes.io/component: {{ lower .Values.orchestrator.initInstall.command }}
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "2"
@@ -14,14 +14,14 @@ metadata:
 spec:
   template:
     metadata:
-      name: {{ printf "%s-%s" (include "olympe.fullname" .) .Values.orchestrator.initInstall.command | trunc 52 | trimSuffix "-" }}
+      name: {{ printf "%s-%s" (include "olympe.fullname" .) (lower .Values.orchestrator.initInstall.command) | trunc 52 | trimSuffix "-" }}
     spec:
       volumes:
         - name: backup-data
           persistentVolumeClaim:
             claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
       containers:
-        - name: {{ .Values.orchestrator.initInstall.command }}
+        - name: {{ lower .Values.orchestrator.initInstall.command }}
           image: "{{ printf "%s/%s:%s" .Values.toolkit.image.repository .Values.toolkit.image.name .Values.toolkit.image.tag }}"
           args:
             - {{ .Values.orchestrator.initInstall.command }}
