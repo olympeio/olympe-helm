@@ -47,14 +47,18 @@ helm upgrade $name olympe/olympe \
 - Follow the repository instructions to build your code
 
 ## Deploy CodeAsData from your local computer
-Copy your built code as data to the orchestrator:
+From your local olympe template directory, copy your built Code As Data to the orchestrator:
 ```
-kubectl cp --namespace $name dist/codeAsData/ \
- $(kubectl get pod -n $name -l app.kubernetes.io/component=orchestrator \ 
- --no-headers -o custom-columns=":metadata.name"):/tmp &&\
-kubectl exec --namespace $name deploy/$name-olympe-orchestrator -- \
-bash -c "rsync -aci --delete --exclude 'change_log.txt' \
- /tmp/codeAsData/. /patches/ | (grep -E '^[^.c].*[^\/]$' || true) | tee -a /patches/change_log.txt"
+kubectl exec \
+--namespace $name \
+$(kubectl get pod -n $name -l app.kubernetes.io/component=orchestrator \
+ --no-headers \
+ -o custom-columns=":metadata.name") \
+ -- rm -rf /patches/*
+
+kubectl cp --namespace $name dist/codeAsData/. \
+ $(kubectl get pod -n $name -l app.kubernetes.io/component=orchestrator \
+ --no-headers -o custom-columns=":metadata.name"):/patches
 ```
 - Once finished, run the update job:
 ```
@@ -71,7 +75,9 @@ helm template $name olympe/olympe \
 docker_registry=<your docker registry>
 codeasdata_image=<your codeasdata image name>
 tag=<the tag of your codeasdata>
-docker build -t $docker_registry/$codeasdata_image:$tag --build-arg="SOURCES_PATH=runDraw/dist/codeAsData" -f docker/codeasdata.Dockerfile .
+docker build -t $docker_registry/$codeasdata_image:$tag \
+ --build-arg="SOURCES_PATH=runDraw/dist/codeAsData" \
+ -f docker/codeasdata.Dockerfile .
 docker push $docker_registry/$codeasdata_image:$tag
 ```
 - Deploy CodeAsData
