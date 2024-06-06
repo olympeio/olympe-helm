@@ -1,10 +1,7 @@
-# -- Docker repository for the resource image
-appRepository: olympeio/olympe-composer
-
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/olympe-database:v2.4.5
+    customImage: olympeio/database:v2.7.2
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -70,7 +67,7 @@ frontend:
   # -- frontend image
   image:
     repository: olympeio
-    name: olympe-frontend
+    name: frontend
   # -- frontend environment variables
   env: {}
   # -- frontend port
@@ -106,10 +103,15 @@ frontend:
   tolerations: []
   # -- setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   affinity: {}
-  # -- setup dataVolume for the frontend
-  dataVolume:
-    storageClassName: standard
 
+codeAsData:
+  image:
+    repository: olympeio
+    name: codeasdata
+  podSecurityContext:
+    runAsUser: 0
+  securityContext:
+    allowPrivilegeEscalation: false
 toolkit:
   # -- available values are:
   #     - help
@@ -143,8 +145,8 @@ toolkit:
   # -- Olympe Toolkit image
   image:
     repository: olympeio
-    name: olympe-toolkit
-    tag: latest
+    name: toolkit
+    tag: stable
   # -- defines privilege and access control settings for the Olympe Tools on Pod level.
   podSecurityContext:
     runAsUser: 0
@@ -153,12 +155,17 @@ upgradeScript:
   schedule: 5 1 * * 0
 
 orchestrator:
+  # -- Toggle codeAsData install during chart installation (only executed at creation)
+  initInstall:
+    enabled: true
+    command: install
   # -- Number of orchestrator replicas
   replicas: 1
   # -- Orchestrator image
   image:
     repository: olympeio
-    name: olympe-orchestrator
+    name: orchestrator
+    tag: 7.2.2
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
   clusterType: none
   # -- Orchestrator HA setup
@@ -181,8 +188,6 @@ orchestrator:
     dbUsername: neo4j
     # -- database user password of the project (defaults to a 12 characters randomly generated string)
     dbUserPassword: olympe
-    # -- Toggle resetdb execution at project creation only
-    resetDB: true
     # -- Toggle createdb execution at project creation only
     createDB: true
   rabbitmq:
@@ -217,9 +222,11 @@ orchestrator:
   affinity: {}
   # -- setup dataVolume for the frontend
   dataVolume:
-    storageClassName: standard
+    accessModes:
+      - ReadWriteOnce
     fileService: {}
     backupData: {}
+    patches: {}
   # -- defines privilege and access control settings for the Orchestrator on Pod level.
   podSecurityContext:
     runAsUser: 1000
@@ -242,6 +249,10 @@ orchestrator:
       port: 8082
     failureThreshold: 10
 
+nodes:
+  dataVolume:
+    accessModes:
+      - ReadWriteOnce
 networkPolicies:
   # -- Define if network policies are enabled globally (including service apps) 
   enabled: false

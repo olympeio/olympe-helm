@@ -15,20 +15,19 @@ type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 2.2.9
-
+version: 2.3.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: v2.4.5
+appVersion: v2.7.2
 
 dependencies:
   - condition: neo4j.enabled
     name: neo4j-standalone
     alias: neo4j
-    version: 4.4.22
+    version: 4.4.33
     repository: https://helm.neo4j.com/neo4j
   - condition: rabbitmq.enabled
     name: rabbitmq
-    version: 11.16.2
+    version: 14.3.2
     repository: https://charts.bitnami.com/bitnami

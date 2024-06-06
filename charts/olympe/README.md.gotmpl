@@ -4,8 +4,8 @@
 
 # Prerequisites
 
-- Nodes.js 14
-- Yeoman 4.1.0 or greater
+- Kubernetes (k3d,k3s,minikube, etc) >= v1.24
+- Kubectl: https://kubernetes.io/docs/tasks/tools/#kubectl
 
 # About Neo4j
 Default Olympe installation is using Neo4j Community as database engine. Be aware that **Neo4j Enterprise is a licensed product**. Please read the [official license documentation](https://neo4j.com/licensing)
@@ -20,13 +20,14 @@ helm repo add olympe https://olympeio.github.io/olympe-helm/
 ```
 - Install this Helm chart
 ```
-helm install <name> olympe/olympe \
- --namespace <name> \
+name=<your project name>
+helm install $name olympe/olympe \
+ --namespace $name \
  --create-namespace \
  --wait
 ```
 
-- Follow the process described on the outputed notes
+This process will run the frontend and backend, as well as load the default patches required for Olympe to work. You can then access Draw by following the process described on the outputed notes
 
 ## Upgrade
 - Update the repositories
@@ -35,82 +36,67 @@ helm repo update
 ```
 - Use the `helm upgrade` command:
 ```
-helm upgrade <name> olympe/olympe \
-  --namespace <name> \
-  --version <version>
-```
-## Build your own images
-
-- Install project generator globally and generate a project.
-```
-npm install --global @olympeio/generator-project
-yo @olympeio/project
-```
-- Build and push the frontend image
-```
-npm run build:draw
-docker build -t <registry>/<frontend-image>:<tag> -f docker/olympe-frontend.Dockerfile .
-docker push <registry>/<frontend-image>:<tag>
+helm upgrade $name olympe/olympe \
+  --namespace $name
 ```
 
-- Build and push the orchestrator image
+# Build and deploy your own code
+
+## Olympe Project Template
+- Clone the [Olympe-Project-Template](https://github.com/olympeio/olympe-project-template) git repository
+- Follow the repository instructions to build your code
+
+## Deploy CodeAsData from your local computer
+From your local olympe template directory, copy your built Code As Data to the orchestrator:
 ```
-npx gulp patches
-docker build -t <registry>/<orchestrator-image>:<tag> -f docker/olympe-orchestrator.Dockerfile .
-docker push <registry>/<orchestrator-image>:<ftag>
+kubectl exec \
+--namespace $name \
+$(kubectl get pod --namespace $name -l app.kubernetes.io/component=orchestrator \
+  --no-headers \
+  -o custom-columns=":metadata.name") \
+ -- rm -rf /patches/*
+
+kubectl cp --namespace $name dist/codeAsData/. \
+ $(kubectl get pod --namespace $name -l app.kubernetes.io/component=orchestrator \
+ --no-headers -o custom-columns=":metadata.name"):/patches
 ```
-
-- Build and push the olympe-tools image
+- Once finished, run the update job:
 ```
-docker build -t <registry>/<olympe-tools-image>:<tag> -f docker/olympe-tools.Dockerfile .
-docker push <registry>/<olympe-tools-image>:<tag>
-```
-
-- Install this Helm chart using your images
-```
-helm dependency build && helm install <name> stable-composer/composer-helm \
- --namespace <name>
- --set orchestrator.image=<registry>/<orchestrator-image>:<tag> \
- --set frontend.image=<registry>/frontend-image>:<tag> \
- --set olympeTools.image=<registry>/<olympe-tools-image>:<tag> \
- --create-namespace
-```
-
-- Follow the process described on the outputed notes
-
-## Expose your application
-
-## External RabbitMQ
-- auth module
-- mqtt module
-
-## External Neo4j
- - licensing
- - protocol (bolt/neo4j)
-
-# Olympe Tools
-
-You can use the Olympe Tools image to execute multiple tasks:
-
-- ResetDB: Reset the database to its initial state or to the latest snapshot (if configured)
-- Snapshooter: Take a snapshot of your instance and backup it to a git repository
-- Change credentials: Change the admin user and/or password
-
-## ResetDB
-
-The resetDB is automatically executed at instance creation, but you can re-execute it manually if needed
-
-> :warning: **Executing it will wipe all the handmade data**: Except if you snaphooted them before!
-
-- Delete the remaining resetdb job
-```
-kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetdb --ignore-not-found
+kubectl delete job --namespace $name -l app.kubernetes.io/part-of=toolkit --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set orchestrator.initInstall.command=update \
+ -s templates/init-install.yml | kubectl apply --namespace $name -f -
 ```
 
-- Execute the new job
+## Deploy CodeAsData using a Docker image
+- Build and push the codeAsData image
 ```
-helm dependency build && helm template <namespace> olympe/olympe \
-  -s templates/olympe-tools.yml | kubectl apply -n <namespace> -f -
+docker_registry=<your docker registry>
+codeasdata_image=<your codeasdata image name>
+tag=<the tag of your codeasdata>
+docker build -t $docker_registry/$codeasdata_image:$tag \
+ --build-arg="SOURCES_PATH=runDraw/dist/codeAsData" \
+ -f docker/codeasdata.Dockerfile .
+docker push $docker_registry/$codeasdata_image:$tag
+```
+- Deploy CodeAsData
+```
+kubectl delete job --namespace $name $name-olympe-codeasdata --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set codeAsData.image.repository=$docker_registry \
+ --set codeAsData.image.name=$codeasdata_image \
+ --set codeAsData.image.tag=$tag \
+ -s templates/init-codeasdata.yml | kubectl apply --namespace $name -f -
+```
+- Once the job is finished, run the update job
+```
+kubectl delete job --namespace $name $name-olympe-install --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set orchestrator.initInstall.command=update \
+ -s templates/init-install.yml | kubectl apply --namespace $name -f -
 ```
 
 ## Snapshooter
@@ -119,54 +105,50 @@ helm dependency build && helm template <namespace> olympe/olympe \
 ```
 [...]
 snapshooters:
-  - name: <name>
+  - name: $name
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
     config |-
-      [{
-        "name": "<name>",
-        "rootTags": [<list of root tags>],
-        "path": "snapshot",
-        "server": {
-          "user": "admin",
-          "password": "***",
-          "host": "<namespace>-orchestrator",
-          "port": 8080
-        },
-        "git":{
-          "repo": "https://",
-          "branch": "<branch>",
-          "commitMessage": "Snapshot at {date} in {folder}\n\n"
+      [
+        {
+          "snapshooter": {
+            "name": "$name",
+            "rootTags": [<list of root tags>],
+            "outputDir": "snapshot"
+          },
+          "git": {
+            "repo": "<link to git repository>",
+            "branch": "<branch>",
+            "commitMessage": "Snapshoted at {date} in {folder}"
+          }
         }
-      }]
+      ]
 ```
 ### With custom secret
 - Create a secret with the following configuration:
 ```
-cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply --namespace $name -f -
 apiVersion: v1
 kind: Secret
 metadata:
   name: snapshooter-secret
 type: Opaque
 stringData:
-  config.json: |-
-    [{
-      "name": "<name>",
-      "rootTags": [<list of root tags>],
-      "path": "snapshot",
-      "server": {
-        "user": "admin",
-        "password": "***",
-        "host": "<namespace>-orchestrator",
-        "port": 8080
-      },
-      "git":{
-        "repo": "https://",
-        "branch": "<branch>",
-        "commitMessage": "Snapshot at {date} in {folder}\n\n"
+  snapshooter.json: |-
+    [
+      {
+        "snapshooter": {
+          "name": "$name",
+          "rootTags": [<list of root tags>],
+          "outputDir": "snapshot"
+        },
+        "git": {
+          "repo": "<link to git repository>",
+          "branch": "<branch>",
+          "commitMessage": "Snapshoted at {date} in {folder}"
+        }
       }
-    }]
+    ]
 EOF
 ```
   **rootTags**: You can get the root tag of your application(s) by opening it in Draw. the tag will be in the URL\n
@@ -176,38 +158,37 @@ EOF
 ```
 [...]
 snapshooters:
-  - name: <name>
+  - name: $name
     schedule: "45 12 * * *" # cron syntax
     secretName: snapshooter-secret
-    image: <registry>/<olympe-tools-image>:<tag>
+    image: olympeio/toolkit:stable
 ```
 
 ## Change credentials
 - Create a secret named `orchestrator-default-secret` in the correct namespace with your new credentials. You can setup only `DRAW_PASSWORD`, `DRAW_USERNAME` or both of them.
 ```
-cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply --namespace $name -f -
 apiVersion: v1
 kind: Secret
 metadata:
   name: orchestrator-default-secret
-  namespace: <namespace>
 type: Opaque
 stringData:
   DRAW_USERNAME: <username>
   DRAW_PASSWORD: ****
 EOF
 ```
-
-- Delete the remaining resetCredentials job (if applicable)
+- Restart the orchestrator
 ```
-kubectl delete job -n <namespace> --selector=app.kubernetes.io/component=resetcredentials --ignore-not-found
+kubectl rollout restart --namespace $name deploy/$name-olympe-orchestrator
 ```
-
-- Execute the new job
+- Execute the updateUser job
 ```
-helm dependency build && helm template <namespace> olympe/olympe \
- --set olympeTools.action=resetCredentials \
-  -s templates/olympe-tools.yml
+kubectl delete job --namespace $name -l app.kubernetes.io/part-of=toolkit --ignore-not-found
+helm template $name olympe/olympe \
+ --namespace $name \
+ --set orchestrator.initInstall.command=updateUser \
+ -s templates/init-install.yml | kubectl apply --namespace $name -f -
 ```
 
 {{ template "chart.requirementsSection" . }}

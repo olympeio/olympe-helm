@@ -20,7 +20,7 @@
   
   Visit http://localhost:8080 to use your application
     username: admin
-    password: kubectl get secret -n {{ .Release.Namespace }} {{ .Release.Namespace }}-orchestrator-secret -o jsonpath='{.data.DRAW_PASSWORD}' | base64 -d
+    password: kubectl get secret -n {{ .Release.Namespace }} {{ include "olympe.fullname" . }}-orchestrator-secret -o jsonpath='{.data.DRAW_PASSWORD}' | base64 -d
 {{- end }}
 {{- end }}
   
