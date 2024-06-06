@@ -51,13 +51,13 @@ From your local olympe template directory, copy your built Code As Data to the o
 ```
 kubectl exec \
 --namespace $name \
-$(kubectl get pod -n $name -l app.kubernetes.io/component=orchestrator \
- --no-headers \
- -o custom-columns=":metadata.name") \
+$(kubectl get pod --namespace $name -l app.kubernetes.io/component=orchestrator \
+  --no-headers \
+  -o custom-columns=":metadata.name") \
  -- rm -rf /patches/*
 
 kubectl cp --namespace $name dist/codeAsData/. \
- $(kubectl get pod -n $name -l app.kubernetes.io/component=orchestrator \
+ $(kubectl get pod --namespace $name -l app.kubernetes.io/component=orchestrator \
  --no-headers -o custom-columns=":metadata.name"):/patches
 ```
 - Once finished, run the update job:
@@ -66,7 +66,7 @@ kubectl delete job --namespace $name -l app.kubernetes.io/part-of=toolkit --igno
 helm template $name olympe/olympe \
  --namespace $name \
  --set orchestrator.initInstall.command=update \
- -s templates/init-install.yml | kubectl apply -n $name -f -
+ -s templates/init-install.yml | kubectl apply --namespace $name -f -
 ```
 
 ## Deploy CodeAsData using a Docker image
@@ -88,14 +88,15 @@ helm template $name olympe/olympe \
  --set codeAsData.image.repository=$docker_registry \
  --set codeAsData.image.name=$codeasdata_image \
  --set codeAsData.image.tag=$tag \
- -s templates/init-codeasdata.yml | kubectl apply -n $name -f -
+ -s templates/init-codeasdata.yml | kubectl apply --namespace $name -f -
 ```
 - Once the job is finished, run the update job
 ```
 kubectl delete job --namespace $name $name-olympe-install --ignore-not-found
 helm template $name olympe/olympe \
  --namespace $name \
- -s templates/init-install.yml | kubectl apply -n $name -f -
+ --set orchestrator.initInstall.command=update \
+ -s templates/init-install.yml | kubectl apply --namespace $name -f -
 ```
 
 ## Snapshooter
@@ -126,7 +127,7 @@ snapshooters:
 ### With custom secret
 - Create a secret with the following configuration:
 ```
-cat <<EOF | kubectl apply -n $name -f -
+cat <<EOF | kubectl apply --namespace $name -f -
 apiVersion: v1
 kind: Secret
 metadata:
@@ -166,7 +167,7 @@ snapshooters:
 ## Change credentials
 - Create a secret named `orchestrator-default-secret` in the correct namespace with your new credentials. You can setup only `DRAW_PASSWORD`, `DRAW_USERNAME` or both of them.
 ```
-cat <<EOF | kubectl apply -n $name -f -
+cat <<EOF | kubectl apply --namespace $name -f -
 apiVersion: v1
 kind: Secret
 metadata:
@@ -178,13 +179,16 @@ stringData:
 EOF
 ```
 - Restart the orchestrator
-- Execute the resetCredentials new job
+```
+kubectl rollout restart --namespace $name deploy/$name-olympe-orchestrator
+```
+- Execute the updateUser job
 ```
 kubectl delete job --namespace $name -l app.kubernetes.io/part-of=toolkit --ignore-not-found
 helm template $name olympe/olympe \
  --namespace $name \
- --set orchestrator.initInstall.command=resetCredentials \
- -s templates/init-install.yml | kubectl apply -n $name -f -
+ --set orchestrator.initInstall.command=updateUser \
+ -s templates/init-install.yml | kubectl apply --namespace $name -f -
 ```
 
 ## Requirements
