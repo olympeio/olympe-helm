@@ -2,8 +2,36 @@
 ## [Unreleased]
 
 
-<a name="2.2.9"></a>
-## [2.2.9] - 2024-03-20
+<a name="2.3.0"></a>
+## [2.3.0] - 2024-06-06
+### Chore
+- Update appVersion to v2.5.2
+- Update appVersion to v2.5.1
+- Update appVersion to v2.5.0
+- **deps:** update helm release rabbitmq to v14
+- **deps:** update helm release neo4j-standalone to v4.4.33
+- **deps:** update helm release rabbitmq to v12.15.0
+- **deps:** update helm release neo4j-standalone to v4.4.28
+- **deps:** update helm release rabbitmq to v12
+- **deps:** update helm release neo4j-standalone to v4.4.27
+
+### Feat
+- add service apps volume
+- define service apps as cronjobs
+- add missing labels on services for network policies + add network policies
+
+### Fix
+- init-install lower case
+- fix volumeName
+- fix local install
+- add missing labels for jobs
+- service app file-service pvc name
+- backend as cronjob: set default backoffLimit to 0
+- backend as cronjob: remove generated conf in backend + add suspend and startingDeadlineSeconds options
+
+
+<a name="olympe-2.2.9"></a>
+## [olympe-2.2.9] - 2024-03-20
 ### Fix
 - remove PERMISSION_CHECK_ENABLED override
 
@@ -350,8 +378,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.2.9...HEAD
-[2.2.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.8...2.2.9
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.3.0...HEAD
+[2.3.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.9...2.3.0
+[olympe-2.2.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.8...olympe-2.2.9
 [olympe-2.2.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.7...olympe-2.2.8
 [olympe-2.2.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.6...olympe-2.2.7
 [olympe-2.2.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.1.11...olympe-2.2.6
