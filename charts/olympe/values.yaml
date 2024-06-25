@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.7.2
+    customImage: olympeio/database:v2.8.0
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -165,7 +165,7 @@ orchestrator:
   image:
     repository: olympeio
     name: orchestrator
-    tag: 7.2.2
+    tag: 7.3.0
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
   clusterType: none
   # -- Orchestrator HA setup
