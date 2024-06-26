@@ -91,10 +91,9 @@ spec:
             - secretRef:
                 name: {{ printf "%s-orchestrator-default-secret" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
                 optional: true
-            {{ if .Values.orchestrator.secretRef }}
-            - secretRef:
-                name: {{ .Values.orchestrator.secretRef }}
-            {{ end }}
+            {{ with .Values.orchestrator.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- if .Values.orchestrator.env }}
           env:
             {{- toYaml .Values.orchestrator.env | nindent 12 }}
