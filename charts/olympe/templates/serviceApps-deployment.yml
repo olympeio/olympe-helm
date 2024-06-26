@@ -110,5 +110,31 @@ spec:
     {{- toYaml $v.ports | nindent 4 }}
     {{- end }}
 ---
+{{ if $.Values.previewServices }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-%s-preview" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+spec:
+  selector:
+    {{- include "olympe.selectorLabels" $ | nindent 4 }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: backend
+  ports:
+    - name: runtime
+      protocol: TCP
+      port: 3141
+      targetPort: 3141
+    {{- if .webservices }}
+    - name: webservice
+      protocol: TCP
+      port: 80
+      targetPort: {{ $.Values.serviceAppsDefaultPort }}
+    {{- end }}
+    {{- if $v.ports }}
+    {{- toYaml $v.ports | nindent 4 }}
+    {{- end }}
+---
+{{- end }}
 {{- end }}
 {{- end }}
