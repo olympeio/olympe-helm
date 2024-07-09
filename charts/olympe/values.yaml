@@ -146,7 +146,7 @@ toolkit:
   image:
     repository: olympeio
     name: toolkit
-    tag: stable
+    tag: 1.0.5
   # -- defines privilege and access control settings for the Olympe Tools on Pod level.
   podSecurityContext:
     runAsUser: 0
