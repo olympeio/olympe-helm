@@ -1,0 +1,44 @@
+{{ if and .Values.orchestrator.prometheus.enabled .Values.orchestrator.prometheus.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "%s-orchestrator-prometheus" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe-internal.labels" . | nindent 4 }}
+    {{- with .Values.orchestrator.prometheus.serviceMonitor.selector }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.orchestrator.prometheus.serviceMonitor.additionalLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.orchestrator.prometheus.serviceMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  endpoints:
+    - port: micrometer
+      {{- with .Values.orchestrator.prometheus.serviceMonitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+      path: /metrics
+      {{- with .Values.orchestrator.prometheus.serviceMonitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.orchestrator.prometheus.serviceMonitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . |nindent 8 }}
+      {{- end }}
+      {{- with .Values.orchestrator.prometheus.serviceMonitor.scheme }}
+      scheme: {{ . }}
+      {{- end }}
+      {{- with .Values.orchestrator.prometheus.serviceMonitor.tlsConfig }}
+      tlsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  selector:
+    matchLabels:
+      prometheus.io/scrape: "true"
+{{- end }}
