@@ -110,7 +110,7 @@ spec:
     {{- toYaml $v.ports | nindent 4 }}
     {{- end }}
 ---
-{{ if $.Values.previewServices }}
+{{- if $.Values.serviceAppsPreviewServices.enabled }}
 apiVersion: v1
 kind: Service
 metadata:

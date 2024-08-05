@@ -1,4 +1,4 @@
-{{ if and .Values.orchestrator.prometheus.enabled .Values.orchestrator.prometheus.serviceMonitor.enabled }}
+{{ if and .Values.enabled (and .Values.orchestrator.prometheus.enabled .Values.orchestrator.prometheus.serviceMonitor.enabled) }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor

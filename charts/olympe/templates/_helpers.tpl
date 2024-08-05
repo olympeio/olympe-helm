@@ -173,7 +173,11 @@ volumes:
   {{- if .serviceApp.oConfig }}
   - name: backend-oconfig
     secret:
+    {{- if kindIs "string" .serviceApp.oConfig }}
       secretName: {{ printf "%s-%s-oconfig" (include "olympe.fullname" .root) .serviceAppName | trunc 63 | trimSuffix "-" }}
+    {{- else }}
+      secretName: {{ printf "%s-%s-%s" (include "olympe.fullname" .root) .serviceAppName (lower .serviceApp.oConfig.current) | trunc 63 | trimSuffix "-" }}
+    {{- end }}
   {{- end }}
   {{ if .serviceApp.volumes }}
   {{- toYaml .serviceApp.volumes | nindent 2 }}
