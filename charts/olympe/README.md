@@ -241,6 +241,10 @@ helm template $name olympe/olympe \
 | frontend.oConfig | string | `""` | frontend oConfig content |
 | frontend.podSecurityContext | object | `{"runAsUser":101}` | defines privilege and access control settings for the frontend on Pod level. |
 | frontend.port | int | `80` | frontend port |
+| frontend.previewPort | int | `85` | frontend preview port |
+| frontend.previewService.enabled | bool | `false` |  |
+| frontend.previewService.port | int | `85` |  |
+| frontend.previewService.suffix | string | `"preview"` |  |
 | frontend.rabbitmq.host | string | `"rabbitmq"` |  |
 | frontend.rabbitmq.mqttPort | int | `15675` |  |
 | frontend.replicas | int | `1` | Number of frontend replicas |
@@ -249,11 +253,11 @@ helm template $name olympe/olympe \
 | frontend.tolerations | list | `[]` | setup tolerations for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | fullnameOverride | string | `""` | fully override release name |
 | image.pullPolicy | string | `"Always"` | Image pull policy |
-| ingress | object | `{"annotations":{"kubernetes.io/ingress.class":"nginx","nginx.ingress.kubernetes.io/proxy-connect-timeout":"36000","nginx.ingress.kubernetes.io/proxy-read-timeout":"36000","nginx.ingress.kubernetes.io/proxy-send-timeout":"36000"},"enabled":false,"extraPaths":[],"hosts":["olympe.local"],"tls":[{"hosts":[],"secretName":null}]}` | Ingress configuration |
+| ingress | object | `{"annotations":{"kubernetes.io/ingress.class":"nginx","nginx.ingress.kubernetes.io/proxy-connect-timeout":"36000","nginx.ingress.kubernetes.io/proxy-read-timeout":"36000","nginx.ingress.kubernetes.io/proxy-send-timeout":"36000"},"enabled":false,"extraPaths":[],"hosts":["olympe.local"],"previewHosts":["preview.olympe.local"],"tls":[{"hosts":[],"secretName":null}]}` | Ingress configuration |
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/database:v2.7.2"` |  |
+| neo4j.image.customImage | string | `"olympeio/database:v2.8.1"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -269,7 +273,7 @@ helm template $name olympe/olympe \
 | orchestrator.env | string | `nil` | Orchestrator environment variables (in statefulset) |
 | orchestrator.existingSecret | string | `""` |  |
 | orchestrator.haEnabled | bool | `false` | Orchestrator HA setup |
-| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.2.2"}` | Orchestrator image |
+| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.3.0"}` | Orchestrator image |
 | orchestrator.initInstall | object | `{"command":"install","enabled":true}` | Toggle codeAsData install during chart installation (only executed at creation) |
 | orchestrator.livenessProbe.failureThreshold | int | `10` |  |
 | orchestrator.livenessProbe.httpGet.path | string | `"/readiness"` |  |
@@ -283,7 +287,21 @@ helm template $name olympe/olympe \
 | orchestrator.neo4j.rootPassword | string | `"password1"` | shared neo4j root password |
 | orchestrator.nodeSelector | object | `{}` | setup nodeSelector for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/) |
 | orchestrator.podSecurityContext | object | `{"runAsUser":1000}` | defines privilege and access control settings for the Orchestrator on Pod level. |
-| orchestrator.prometheus | object | `{"enabled":false}` | enable Prometheus metrics |
+| orchestrator.port | int | `8080` |  |
+| orchestrator.previewService.enabled | bool | `false` |  |
+| orchestrator.previewService.port | int | `8080` |  |
+| orchestrator.previewService.suffix | string | `"preview"` |  |
+| orchestrator.prometheus | object | `{"enabled":false,"serviceMonitor":{"additionalLabels":{},"annotations":{},"enabled":false,"interval":"30s","metricRelabelings":[],"namespace":"","relabelings":[],"scheme":"","selector":{},"tlsConfig":{}}}` | enable Prometheus metrics |
+| orchestrator.prometheus.serviceMonitor.additionalLabels | object | `{}` | Prometheus ServiceMonitor labels |
+| orchestrator.prometheus.serviceMonitor.annotations | object | `{}` | Prometheus ServiceMonitor annotations |
+| orchestrator.prometheus.serviceMonitor.enabled | bool | `false` | Enable a prometheus ServiceMonitor |
+| orchestrator.prometheus.serviceMonitor.interval | string | `"30s"` | Prometheus ServiceMonitor interval |
+| orchestrator.prometheus.serviceMonitor.metricRelabelings | list | `[]` | Prometheus [MetricRelabelConfigs] to apply to samples before ingestion |
+| orchestrator.prometheus.serviceMonitor.namespace | string | `""` | Prometheus ServiceMonitor namespace |
+| orchestrator.prometheus.serviceMonitor.relabelings | list | `[]` | Prometheus [RelabelConfigs] to apply to samples before scraping |
+| orchestrator.prometheus.serviceMonitor.scheme | string | `""` | Prometheus ServiceMonitor scheme |
+| orchestrator.prometheus.serviceMonitor.selector | object | `{}` | Prometheus ServiceMonitor selector |
+| orchestrator.prometheus.serviceMonitor.tlsConfig | object | `{}` | Prometheus ServiceMonitor tlsConfig |
 | orchestrator.rabbitmq.host | string | `"rabbitmq"` | rabbitMQ host |
 | orchestrator.rabbitmq.orchestratorPassword | string | `"guest"` | rabbitMQ orchestrator password |
 | orchestrator.rabbitmq.orchestratorUsername | string | `"guest"` | rabbitMQ orchestrator username |
@@ -298,6 +316,12 @@ helm template $name olympe/olympe \
 | orchestrator.startupProbe.httpGet.path | string | `"/readiness"` |  |
 | orchestrator.startupProbe.httpGet.port | int | `8082` |  |
 | orchestrator.tolerations | list | `[]` | setup tolerations for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
+| previewIngress.annotations."kubernetes.io/ingress.class" | string | `"nginx"` |  |
+| previewIngress.annotations."nginx.ingress.kubernetes.io/proxy-connect-timeout" | string | `"36000"` |  |
+| previewIngress.annotations."nginx.ingress.kubernetes.io/proxy-read-timeout" | string | `"36000"` |  |
+| previewIngress.annotations."nginx.ingress.kubernetes.io/proxy-send-timeout" | string | `"36000"` |  |
+| previewIngress.enabled | bool | `false` |  |
+| previewIngress.prefix | string | `"preview."` |  |
 | rabbitmq.auth.password | string | `"guest"` |  |
 | rabbitmq.auth.username | string | `"guest"` |  |
 | rabbitmq.enabled | bool | `true` |  |
@@ -317,8 +341,10 @@ helm template $name olympe/olympe \
 | serviceApps | object | `{}` | Service Apps configuration. Please see the example folders for more details |
 | serviceAppsDefaultPort | int | `2015` |  |
 | serviceAppsImage | string | `"node:14.21.3-slim"` | Default Service Apps image |
+| serviceAppsPreviewServices.enabled | bool | `false` |  |
+| serviceAppsPreviewServices.suffix | string | `"preview"` |  |
 | snapshooters | list | `[]` | Snapshooters configuration, You can have multiple of them, each with the following values:<br /> - name: string, mandatory - Name of the snapshooter <br />    schedule: string, mandatory - schedule (cron format) <br />    config: string, json configuration. Please read documentation for examples (can't be used with secretName key below) <br />    secretName: string, name of the secret containing the configuration (can't be used with config key above) <br />    resources <br />      requests: <br />        memory: string, default "200Mi" <br />        cpu: string, default "100m" <br />      limits: <br />        memory: string, default "1000Mi" <br />        cpu: string, default "200m" <br /> |
 | toolkit.cronJobs | object | `{"garbageCollector":{"args":["startGC"],"command":"startGC","resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"100m","memory":"100Mi"}},"schedule":"5 1 * * 0","suspend":false}}` | available values are:     - help     - snapshot     - snapshotUsers     - snapshotBusinessData     - restoreUsers     - restoreBusinessData     - reset     - checkDB     - startGC     - statsDB     - maintenance     - updateUser      |
-| toolkit.image | object | `{"name":"toolkit","repository":"olympeio","tag":"stable"}` | Olympe Toolkit image |
+| toolkit.image | object | `{"name":"toolkit","repository":"olympeio","tag":"1.0.5"}` | Olympe Toolkit image |
 | toolkit.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | upgradeScript.schedule | string | `"5 1 * * 0"` |  |
