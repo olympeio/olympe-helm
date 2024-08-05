@@ -72,6 +72,8 @@ frontend:
   env: {}
   # -- frontend port
   port: 80
+  # -- frontend preview port
+  previewPort: 85
   # -- additional frontend configuration
   additionalConfig: ""
   # -- frontend oConfig content
@@ -103,6 +105,10 @@ frontend:
   tolerations: []
   # -- setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   affinity: {}
+  previewService:
+    enabled: false
+    port: 85
+    suffix: preview
 
 codeAsData:
   image:
@@ -166,6 +172,11 @@ orchestrator:
     repository: olympeio
     name: orchestrator
     tag: 7.3.0
+  port: 8080
+  previewService:
+    enabled: false
+    port: 8080
+    suffix: preview
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
   clusterType: none
   # -- Orchestrator HA setup
@@ -292,7 +303,9 @@ serviceApps: {}
 # -- Default Service Apps image
 serviceAppsImage: node:14.21.3-slim
 serviceAppsDefaultPort: 2015
-
+serviceAppsPreviewServices:
+  enabled: false
+  suffix: preview
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
@@ -333,7 +346,18 @@ ingress:
 
   hosts:
     - olympe.local
+  previewHosts:
+    - preview.olympe.local
   extraPaths: []
   tls:
     - secretName:
       hosts: []
+
+previewIngress:
+  enabled: false
+  prefix: "preview."
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "36000"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "36000"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "36000"
