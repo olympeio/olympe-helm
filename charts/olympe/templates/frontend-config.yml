@@ -24,7 +24,7 @@ metadata:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
-  app.conf: |
+  common.conf: |
     root /usr/share/nginx/html;
 
     location / {
@@ -33,8 +33,13 @@ data:
     {{- end }}
     }
 
+    #location /backend {
+    #  proxy_pass http://$backend;
+    #  proxy_pass_request_headers      on;
+    #}
+
     location /OlympeServer/websocket {
-      proxy_pass http://gateway/OlympeServer/websocket;
+      proxy_pass http://$orchestrator/OlympeServer/websocket;
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
@@ -44,7 +49,7 @@ data:
     }
 
     location /OlympeServer/rest {
-      proxy_pass http://gateway;
+      proxy_pass http://$orchestrator;
       proxy_http_version 1.1;
       client_max_body_size 3000M;
       proxy_connect_timeout       900;
@@ -59,7 +64,7 @@ data:
     }
 
     location /OlympeServer/status {
-      proxy_pass http://gateway/status;
+      proxy_pass http://$orchestrator/status;
       proxy_http_version 1.1;
       expires -1;
       add_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
@@ -70,7 +75,7 @@ data:
     }
 
     location /OlympeServer/rest/querysvc/graphDef/static {
-      proxy_pass http://gateway;
+      proxy_pass http://$orchestrator;
       proxy_http_version 1.1;
       client_max_body_size 50M;
       proxy_connect_timeout 900;
@@ -166,8 +171,49 @@ data:
         '' close;
       }
 
-      upstream gateway {
+      map $http_host $orchestrator {
+        {{- range .Values.ingress.hosts }}
+        {{ . }} orchestrator;
+        {{- end }}
+        {{- range .Values.ingress.previewHosts }}
+        {{ . }} orchestrator-preview;
+        {{- end }}
+        {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} orchestrator;
+        {{ printf "%s-frontend-preview" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} orchestrator-preview;
+        default orchestrator;
+      }
+      
+      {{- range $k, $v := .Values.serviceApps }}
+      {{- if ne (.type) "cronJob" }}
+
+      map $http_host ${{ $k | replace "-" "_" }} {
+      {{- range $.Values.ingress.hosts }}
+      {{ . }} {{ $k }};
+      {{- end }}
+      {{- range $.Values.ingress.previewHosts }}
+      {{ . }} {{ printf "%s-preview" $k | trunc 63 | trimSuffix "-" }};
+      {{- end }}
+      {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} {{ $k }};
+      {{ printf "%s-frontend-preview" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} {{ printf "%s-preview" $k | trunc 63 | trimSuffix "-" }};
+      default {{ $k }};
+      }
+      upstream {{ $k }} {
+        server {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}:3141;
+      }
+
+      upstream {{ printf "%s-preview" $k | trunc 63 | trimSuffix "-" }} {
+        server {{ printf "%s-%s-preview" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}:3141;
+      }
+
+      {{- end }}
+      {{- end }}
+
+      upstream orchestrator {
         server {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:8080;
+      }
+
+      upstream orchestrator-preview {
+        server {{ printf "%s-orchestrator-preview" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}:8080;
       }
 
       upstream micrometer {
@@ -178,11 +224,53 @@ data:
         server {{ printf "%s:%d" .Values.frontend.rabbitmq.host (.Values.frontend.rabbitmq.mqttPort | int) }};
       }
 
+      #upstream backend {
+      #  server {{ printf "%s-backend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:80;
+      #}
+
+      #upstream backend-preview {
+      #  server {{ printf "%s-backend-preview" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:80;
+      #}
+
+      #map $http_host $backend {
+      #  {{- range .Values.ingress.hosts }}
+      #  {{ . }} backend;
+      #  {{- end }}
+      #  {{- range .Values.ingress.previewHosts }}
+      #  {{ . }} backend-preview;
+      #  {{- end }}
+      #  {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }} backend;
+      #  {{ printf "%s-frontend-preview" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }} backend-preview;
+      #  default backend;
+      #}
+
       server {
         proxy_cache nginxcache;
         listen {{ .Values.frontend.port }};
         listen [::]:{{ .Values.frontend.port }};
         {{- with (first .Values.ingress.hosts) }}
+        server_name {{ . }};
+        {{- end }}
+
+        include /etc/nginx/server/*.conf;
+        include /etc/nginx/site[.]conf;
+
+        proxy_buffer_size          128k;
+        proxy_buffers              4 256k;
+        proxy_busy_buffers_size    256k;
+        large_client_header_buffers 4 64k;
+
+        location ^~ /olympe-admin {
+          gunzip on;
+          alias /usr/share/nginx/html;
+        }
+      }
+
+      server {
+        proxy_cache nginxcache;
+        listen {{ .Values.frontend.previewPort }};
+        listen [::]:{{ .Values.frontend.previewPort }};
+        {{- with (first .Values.ingress.previewHosts) }}
         server_name {{ . }};
         {{- end }}
 
@@ -215,7 +303,7 @@ data:
   {{- if ne (.type) "cronJob" }}
     location /{{ $k }}/runtime {
       client_max_body_size 100M;
-      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
+      proxy_pass http://${{ $k | replace "-" "_" }}/runtime;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -225,7 +313,7 @@ data:
     {{ $defaultBackend = $k }}
     location /runtime {
       client_max_body_size 100M;
-      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:3141/runtime;
+      proxy_pass http://${{ $k | replace "-" "_" }}/runtime;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -235,7 +323,7 @@ data:
     {{- if .webservices }}
     {{- range .webservices }}
     location {{ .uri }} {
-      proxy_pass http://{{ printf "%s-%s" $.Release.Namespace $k }}:{{ default 80 .port }}{{ default .uri .targetUri }};
+      proxy_pass http://${{ $k | replace "-" "_" }}:{{ default 80 .port }}{{ default .uri .targetUri }};
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}

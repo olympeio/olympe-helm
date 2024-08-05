@@ -45,6 +45,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.frontend.port }}
+            - containerPort: {{ .Values.frontend.previewPort }}
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
           envFrom:

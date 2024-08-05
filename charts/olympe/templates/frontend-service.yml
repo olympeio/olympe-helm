@@ -13,11 +13,15 @@ spec:
       name: http
       protocol: TCP
       targetPort: {{ .Values.frontend.port }}
+    - port: 85
+      name: http-preview
+      protocol: TCP
+      targetPort: {{ .Values.frontend.previewPort }}
   selector:
     {{- include "olympe.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
     name: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-{{ if $.Values.previewServices }}
+{{ if .Values.frontend.previewService.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -34,6 +38,10 @@ spec:
       name: http
       protocol: TCP
       targetPort: {{ .Values.frontend.port }}
+    - port: 85
+      name: http-preview
+      protocol: TCP
+      targetPort: {{ .Values.frontend.previewPort }}
   selector:
     {{- include "olympe.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
