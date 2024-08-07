@@ -353,6 +353,9 @@ ingress:
     - secretName:
       hosts: []
 
+additionalServices:
+  enabled: false
+
 previewIngress:
   enabled: false
   prefix: "preview."
