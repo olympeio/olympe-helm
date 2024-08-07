@@ -227,6 +227,13 @@ helm template $name olympe/olympe \
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | acceptLicenseAgreement | string | `"no"` | Please check the license agreement: https:// |
+| additionalIngress.annotations."kubernetes.io/ingress.class" | string | `"nginx"` |  |
+| additionalIngress.annotations."nginx.ingress.kubernetes.io/proxy-connect-timeout" | string | `"36000"` |  |
+| additionalIngress.annotations."nginx.ingress.kubernetes.io/proxy-read-timeout" | string | `"36000"` |  |
+| additionalIngress.annotations."nginx.ingress.kubernetes.io/proxy-send-timeout" | string | `"36000"` |  |
+| additionalIngress.enabled | bool | `false` |  |
+| additionalIngress.prefix | string | `"preview."` |  |
+| additionalServices.enabled | bool | `false` |  |
 | codeAsData.image.name | string | `"codeasdata"` |  |
 | codeAsData.image.repository | string | `"olympeio"` |  |
 | codeAsData.podSecurityContext.runAsUser | int | `0` |  |
@@ -316,12 +323,6 @@ helm template $name olympe/olympe \
 | orchestrator.startupProbe.httpGet.path | string | `"/readiness"` |  |
 | orchestrator.startupProbe.httpGet.port | int | `8082` |  |
 | orchestrator.tolerations | list | `[]` | setup tolerations for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
-| previewIngress.annotations."kubernetes.io/ingress.class" | string | `"nginx"` |  |
-| previewIngress.annotations."nginx.ingress.kubernetes.io/proxy-connect-timeout" | string | `"36000"` |  |
-| previewIngress.annotations."nginx.ingress.kubernetes.io/proxy-read-timeout" | string | `"36000"` |  |
-| previewIngress.annotations."nginx.ingress.kubernetes.io/proxy-send-timeout" | string | `"36000"` |  |
-| previewIngress.enabled | bool | `false` |  |
-| previewIngress.prefix | string | `"preview."` |  |
 | rabbitmq.auth.password | string | `"guest"` |  |
 | rabbitmq.auth.username | string | `"guest"` |  |
 | rabbitmq.enabled | bool | `true` |  |

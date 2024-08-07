@@ -356,7 +356,7 @@ ingress:
 additionalServices:
   enabled: false
 
-previewIngress:
+additionalIngress:
   enabled: false
   prefix: "preview."
   annotations:

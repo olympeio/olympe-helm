@@ -37,7 +37,7 @@ spec:
       {{- end }}
     {{- end }}
   {{- end }}
-  {{- if .Values.previewIngress.enabled }}
+  {{- if .Values.additionalIngress.enabled }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -55,14 +55,14 @@ spec:
     - secretName: {{ printf "%s-preview" .secretName }}
       hosts:
         {{- range .hosts }}
-        - {{ (printf "%s%s" $.Values.previewIngress.prefix .) | quote }}
+        - {{ (printf "%s%s" $.Values.additionalIngress.prefix .) | quote }}
         {{- end }}
       {{- end }}
     {{- end }}
   rules:
     {{- if .Values.ingress.hosts  }}
       {{- range .Values.ingress.hosts }}
-    - host: {{ (printf "%s%s" $.Values.previewIngress.prefix .) | quote }}
+    - host: {{ (printf "%s%s" $.Values.additionalIngress.prefix .) | quote }}
       http:
         paths:
         - path: /
