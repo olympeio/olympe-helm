@@ -59,19 +59,20 @@ spec:
   clusterIP: None
   type: ClusterIP
 {{- end }}
-{{ if .Values.orchestrator.previewService.enabled }}
+{{- if .Values.additionalServices.enabled }}
+  {{- range .Values.orchestrator.additionalServices }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ printf "%s-orchestrator-preview" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-orchestrator-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }}
   labels:
-    {{- include "olympe.labels" . | nindent 4 }}
+    {{- include "olympe.labels" $ | nindent 4 }}
     app.kubernetes.io/component: orchestrator
-    name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
 spec:
   selector:
-    name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: orchestrator
   ports:
     - name: app
@@ -81,16 +82,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: orchestrator-preview
+  name: {{ printf "orchestrator-%s" .suffix }}
   labels:
-    {{- include "olympe.labels" . | nindent 4 }}
+    {{- include "olympe.labels" $ | nindent 4 }}
     app.kubernetes.io/component: orchestrator
 spec:
   selector:
-    name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: orchestrator
   ports:
     - name: app
       port: 8080
       targetPort: 8080
+  {{- end }}
 {{- end }}
