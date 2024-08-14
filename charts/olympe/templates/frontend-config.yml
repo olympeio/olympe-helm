@@ -219,13 +219,38 @@ data:
         server {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}:3141;
       }
 
-
       {{- if $.Values.additionalServices.enabled }}
         {{- range $saAdditionalService := $.Values.serviceAppsAdditionalServices }}
       upstream {{ printf "%s-%s" $k $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }} {
         server {{ printf "%s-%s-%s" (include "olympe.fullname" $) $k $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }}:3141;
       }
         {{- end }}
+      {{- end }}
+
+      {{- /* Must add an upstream for each port used in defined webservices */}}
+      {{- if .webservices }}
+        {{- /* 1. Create a list of unique ports */}}
+        {{- $ports := list }}
+        {{- range .webservices }}
+          {{- $ports = append $ports (int (default 80 .port)) }}
+        {{- end }}
+        {{- $ports = $ports | uniq }}
+
+        {{- /* 2. Create an upstream for each port in the list */}}
+        {{- range $port := $ports }}
+      upstream {{ $k }}-{{ $port }} {
+        server {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}:{{ $port }};
+      }
+        {{- /* 2a. Create an upstream for each additional service for each port in the list */}}
+        {{- if $.Values.additionalServices.enabled }}
+          {{- range $saAdditionalService := $.Values.serviceAppsAdditionalServices }}
+      upstream {{ printf "%s-%s" $k $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }}-{{ $port }} {
+        server {{ printf "%s-%s-%s" (include "olympe.fullname" $) $k $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }}:{{ $port }};
+      }
+          {{- end }}
+        {{- end }}
+
+      {{- end }}
       {{- end }}
 
       {{- end }}
@@ -312,7 +337,7 @@ data:
   {{- if ne (.type) "cronJob" }}
     location /{{ $k }}/runtime {
       client_max_body_size 100M;
-      proxy_pass http://${{ $k | replace "-" "_" }}/runtime;
+      proxy_pass http://${{ $k | replace "-" "_" }};
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -322,7 +347,7 @@ data:
     {{ $defaultBackend = $k }}
     location /runtime {
       client_max_body_size 100M;
-      proxy_pass http://${{ $k | replace "-" "_" }}/runtime;
+      proxy_pass http://${{ $k | replace "-" "_" }};
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -332,7 +357,7 @@ data:
     {{- if .webservices }}
     {{- range .webservices }}
     location {{ .uri }} {
-      proxy_pass http://${{ $k | replace "-" "_" }}:{{ default 80 .port }}{{ default .uri .targetUri }};
+      proxy_pass http://${{ $k | replace "-" "_" }}-{{ default 80 .port }};
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
