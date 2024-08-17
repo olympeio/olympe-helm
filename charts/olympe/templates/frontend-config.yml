@@ -117,7 +117,6 @@ data:
       tcp_nodelay on;
       types_hash_max_size 2048;
 
-
       server_tokens off;
 
       error_log /var/log/nginx/error.log;
@@ -194,52 +193,31 @@ data:
       {{- /* Must add a `map` and an `upstream` for each port exposed by the service apps */}}
       {{- range $k, $v := .Values.serviceApps }}
       {{- if ne (.type) "cronJob" }}
-
-        {{- /* 1. Create a list of all the ports that must be accessible for the current backend */}}
-        {{- $ports := (list (int 3141)) }}
-        {{- range (.webservices | default list) }}
-          {{- $ports = append $ports (int (default 80 .port)) }}
-        {{- end }}
-
-        {{- /* 2. Loop over the ports list */}}
-        {{- range $port := ($ports | uniq) }} {{- /* Filter out duplicates of ports */}}
-          {{- $upstreamName := printf "%s_%d" ($k | replace "-" "_") $port }}{{- /* compute the name of the upstream */}}
+          {{- /* Use a fully qualified domain names (FQDNs) for the resolver to work */}}
+          {{- $addrSuffix := printf "%s.svc.cluster.local" (include "olympe.fullname" $) }}
+          {{- $serviceName := printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
           {{- /* -- Create the `map` entries */}}
-      map $http_host ${{ $upstreamName }} {
+      map $http_host ${{ $k | replace "-" "_" }} {
           {{- range $.Values.ingress.hosts }}
-        {{ . }} {{ $upstreamName }};
+        {{ . }} {{ $serviceName }}.{{ $addrSuffix }};
           {{- end }}
           {{- if and $.Values.additionalIngress.enabled $.Values.additionalServices.enabled }}
             {{- range $host := $.Values.ingress.hosts }}
               {{- range $saAdditionalService := $.Values.serviceAppsAdditionalServices }}
-        {{ printf "%s%s" $.Values.additionalIngress.prefix $host}} {{ printf "%s_%s" $upstreamName $saAdditionalService.suffix  | trunc 63 | trimSuffix "-" }};
+        {{ printf "%s%s" $.Values.additionalIngress.prefix $host}} {{ printf "%s-%s" $serviceName $saAdditionalService.suffix  | trunc 63 | trimSuffix "-" }}.{{ $addrSuffix }};
               {{- end }}
             {{- end }}
           {{- end }}
-        {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} {{ $upstreamName }};
+        {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} {{ $serviceName }}.{{ $addrSuffix }};
           {{- if $.Values.additionalServices.enabled }}
             {{- range $.Values.frontend.additionalServices }}
               {{- range $saAdditionalService := $.Values.serviceAppsAdditionalServices }}
-        {{ printf "%s-frontend-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }} {{ printf "%s_%s" $upstreamName $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }};
+        {{ printf "%s-frontend-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }} {{ printf "%s-%s" $serviceName $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }}.{{ $addrSuffix }};
               {{- end }}
             {{- end }}
           {{- end }}
-        default {{ $upstreamName }};
+        default {{ $serviceName }}.{{ $addrSuffix }};
       }
-          {{- /* -- Create the `upstream` entries */}}
-      upstream {{ $upstreamName }} {
-        server {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}:{{ $port }};
-      }
-          {{- /* -- Create an upstream for each additional service for each port in the list */}}
-          {{- if $.Values.additionalServices.enabled }}
-            {{- range $saAdditionalService := $.Values.serviceAppsAdditionalServices }}
-      upstream {{ printf "%s_%s" $upstreamName $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }} {
-        server {{ printf "%s-%s-%s" (include "olympe.fullname" $) $k $saAdditionalService.suffix | trunc 63 | trimSuffix "-" }}:{{ $port }};
-      }
-            {{- end }}
-          {{- end }}
-        {{- end }}
-
       {{- end }}
       {{- end }}
 
@@ -262,6 +240,10 @@ data:
       upstream rabbitmq {
         server {{ printf "%s:%d" .Values.frontend.rabbitmq.host (.Values.frontend.rabbitmq.mqttPort | int) }};
       }
+
+      # Resolver for kubernetes services: required because of variable in the proxy_pass directives
+      # so that the DNS resolution is done at runtime
+      resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
       server {
         proxy_cache nginxcache;
@@ -322,9 +304,10 @@ data:
 {{- $defaultBackend := "" }}
 {{- range $k, $v := .Values.serviceApps }}
   {{- if ne (.type) "cronJob" }}
+    {{- $serviceName := $k | replace "-" "_" }}
     location /{{ $k }}/runtime {
       client_max_body_size 100M;
-      proxy_pass http://${{ $k | replace "-" "_" }}_3141;
+      proxy_pass http://${{ $serviceName }}:3141;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -334,7 +317,7 @@ data:
     {{ $defaultBackend = $k }}
     location /runtime {
       client_max_body_size 100M;
-      proxy_pass http://${{ $k | replace "-" "_" }}_3141;
+      proxy_pass http://${{ $serviceName }}:3141;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -344,7 +327,7 @@ data:
     {{- if .webservices }}
     {{- range .webservices }}
     location {{ .uri }} {
-      proxy_pass http://${{ $k | replace "-" "_" }}_{{ default 80 .port }};
+      proxy_pass http://${{ $serviceName }}:{{ default 80 .port }};
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
