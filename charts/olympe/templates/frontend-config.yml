@@ -305,9 +305,9 @@ data:
 {{- range $k, $v := .Values.serviceApps }}
   {{- if ne (.type) "cronJob" }}
     {{- $serviceName := $k | replace "-" "_" }}
-    location /{{ $k }}/runtime {
+    location ~ ^/{{ $k }}/runtime/(.*)$ {
       client_max_body_size 100M;
-      proxy_pass http://${{ $serviceName }}:3141;
+      proxy_pass http://${{ $serviceName }}:3141/runtime/$1$is_args$args;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -315,9 +315,9 @@ data:
     }
     {{- if and (.defaultBackend) (eq $defaultBackend "") }}
     {{ $defaultBackend = $k }}
-    location /runtime {
+    location ~ ^/runtime/(.*)$ {
       client_max_body_size 100M;
-      proxy_pass http://${{ $serviceName }}:3141;
+      proxy_pass http://${{ $serviceName }}:3141/runtime/$1$is_args$args;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
@@ -326,8 +326,8 @@ data:
     {{- end }}
     {{- if .webservices }}
     {{- range .webservices }}
-    location {{ .uri }} {
-      proxy_pass http://${{ $serviceName }}:{{ default 80 .port }};
+    location ~ ^{{ .uri }}/(.*)$ {
+      proxy_pass http://${{ $serviceName }}:{{ default 80 .port }}{{ .uri }}/$1$is_args$args;
       proxy_pass_request_headers      on;
       {{- if .additionalDirectives }}
       {{ .additionalDirectives | indent 6 | trim }}
