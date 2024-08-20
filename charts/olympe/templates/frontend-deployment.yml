@@ -54,8 +54,8 @@ spec:
             {{- if .Values.frontend.envFrom }}
               {{- toYaml .Values.frontend.envFrom | nindent 12 }}
             {{ end }}
-          env:
           {{- if .Values.frontend.env }}
+          env:
             {{- toYaml .Values.frontend.env | nindent 12 }}
           {{ end }}
           volumeMounts:
