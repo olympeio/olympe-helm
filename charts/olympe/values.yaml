@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.8.2
+    customImage: olympeio/database:v2.9.0
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -152,7 +152,7 @@ toolkit:
   image:
     repository: olympeio
     name: toolkit
-    tag: 1.0.5
+    tag: 1.1.0
   # -- defines privilege and access control settings for the Olympe Tools on Pod level.
   podSecurityContext:
     runAsUser: 0
@@ -171,7 +171,7 @@ orchestrator:
   image:
     repository: olympeio
     name: orchestrator
-    tag: 7.3.3
+    tag: 7.4.0
   port: 8080
   previewService:
     enabled: false
