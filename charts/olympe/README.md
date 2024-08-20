@@ -264,7 +264,7 @@ helm template $name olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/database:v2.8.1"` |  |
+| neo4j.image.customImage | string | `"olympeio/database:v2.8.2"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -280,7 +280,7 @@ helm template $name olympe/olympe \
 | orchestrator.env | string | `nil` | Orchestrator environment variables (in statefulset) |
 | orchestrator.existingSecret | string | `""` |  |
 | orchestrator.haEnabled | bool | `false` | Orchestrator HA setup |
-| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.3.0"}` | Orchestrator image |
+| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.3.3"}` | Orchestrator image |
 | orchestrator.initInstall | object | `{"command":"install","enabled":true}` | Toggle codeAsData install during chart installation (only executed at creation) |
 | orchestrator.livenessProbe.failureThreshold | int | `10` |  |
 | orchestrator.livenessProbe.httpGet.path | string | `"/readiness"` |  |
