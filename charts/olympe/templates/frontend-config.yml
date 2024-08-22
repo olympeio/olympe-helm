@@ -11,9 +11,6 @@ data:
   {{- end }}
   TLS_TYPE: "http-only"
   APP_PORT: "443"
-  {{- range $key, $val := .Values.frontend.env }}
-  {{ $key }}: {{ $val | quote }}
-  {{- end }}
 
 ---
 apiVersion: v1
@@ -112,7 +109,7 @@ metadata:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
-  http.conf: |
+  http.conf.template: |
       tcp_nopush on;
       tcp_nodelay on;
       types_hash_max_size 2048;
@@ -133,6 +130,14 @@ data:
 
       proxy_cache_path /var/cache/nginx/$IMAGE_TAG keys_zone=nginxcache:20m;
       proxy_cache_path /var/cache/nginx/$IMAGE_TAG/graphdef levels=1:2 keys_zone=graphDef_cache:1m max_size=200m inactive=1M;
+      
+      fastcgi_temp_path /var/cache/nginx/$IMAGE_TAG/fastcgi_temp;
+      uwsgi_temp_path /var/cache/nginx/$IMAGE_TAG/uwsgi_temp;
+      scgi_temp_path /var/cache/nginx/$IMAGE_TAG/scgi_temp;
+      client_body_temp_path /var/cache/nginx/$IMAGE_TAG/client_temp;
+
+      # Not working if we delete this folder during cache cleanup
+      #proxy_temp_path /var/cache/nginx/$IMAGE_TAG/proxy_temp; 
 
       ##
       # Gzip Settings
