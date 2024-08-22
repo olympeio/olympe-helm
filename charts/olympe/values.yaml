@@ -68,8 +68,6 @@ frontend:
   image:
     repository: olympeio
     name: frontend
-  # -- frontend environment variables
-  env: {}
   # -- frontend port
   port: 80
   # -- frontend preview port
