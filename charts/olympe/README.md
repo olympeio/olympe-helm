@@ -242,7 +242,6 @@ helm template $name olympe/olympe \
 | frontend.additionalConfig | string | `""` | additional frontend configuration |
 | frontend.affinity | object | `{}` | setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | frontend.containerSecurityContext | object | `{"allowPrivilegeEscalation":false}` | defines privilege and access control settings for the frontend on Container level. |
-| frontend.env | object | `{}` | frontend environment variables |
 | frontend.image | object | `{"name":"frontend","repository":"olympeio"}` | frontend image |
 | frontend.nodeSelector | object | `{}` | setup nodeSelector for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/) |
 | frontend.oConfig | string | `""` | frontend oConfig content |
