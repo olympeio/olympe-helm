@@ -51,8 +51,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-frontend-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-            {{- if .Values.frontend.envFrom }}
-              {{- toYaml .Values.frontend.envFrom | nindent 12 }}
+            {{ with .Values.frontend.envFrom }}
+            {{- toYaml . | nindent 12 }}
             {{ end }}
           {{- if .Values.frontend.env }}
           env:
@@ -60,7 +60,7 @@ spec:
           {{ end }}
           volumeMounts:
             - name: frontend-custom-config
-              mountPath: /etc/nginx/conf.d/
+              mountPath: /etc/nginx/templates/
             - name: frontend-server-config
               mountPath: /etc/nginx/server/
             - name: frontend-subconf
