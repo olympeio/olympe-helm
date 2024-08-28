@@ -344,6 +344,7 @@ data:
 {{ end }}
 ---
 {{- if .Values.frontend.oConfig }}
+  {{- if kindIs "string" .Values.frontend.oConfig }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -353,4 +354,18 @@ metadata:
     app.kubernetes.io/component: frontend
 data:
   oConfig.json: {{ default "" .Values.frontend.oConfig | quote }}
-{{ end }}
+  {{- else }}
+    {{- range $configKey, $configValue := .Values.frontend.oConfig.configs }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-frontend-%s" (include "olympe.fullname" $) (lower $configKey) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: frontend
+data:
+  oConfig.json: {{- $configValue | toYaml | indent 1 }}
+---
+    {{- end }}
+  {{- end }}
+{{- end }}

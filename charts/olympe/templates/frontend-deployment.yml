@@ -85,7 +85,11 @@ spec:
       {{- if .Values.frontend.oConfig }}
       - name: frontend-oconfig
         configMap:
+          {{- if kindIs "string" .Values.frontend.oConfig }}
           name: {{ printf "%s-frontend-oconfig" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+          {{- else }}
+          name: {{ printf "%s-frontend-%s" (include "olympe.fullname" .) (lower .Values.frontend.oConfig.current) | trunc 63 | trimSuffix "-" }}
+          {{- end }}
       {{- end }}
       {{- if .Values.frontend.volumes }}
         {{- toYaml .Values.frontend.volumes | nindent 6 }}

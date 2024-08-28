@@ -74,8 +74,6 @@ frontend:
   previewPort: 85
   # -- additional frontend configuration
   additionalConfig: ""
-  # -- frontend oConfig content
-  oConfig: ""
   rabbitmq:
     host: rabbitmq
     mqttPort: 15675
