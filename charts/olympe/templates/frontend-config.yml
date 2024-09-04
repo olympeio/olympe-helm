@@ -109,7 +109,7 @@ metadata:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
-  http.conf.template: |
+  default.conf.template: |
       tcp_nopush on;
       tcp_nodelay on;
       types_hash_max_size 2048;
