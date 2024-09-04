@@ -42,23 +42,37 @@ helm upgrade $name olympe/olympe \
 
 # Build and deploy your own code
 
+> :warning: **About unsaved data**: Data that are not snapshooted will be wiped during the update process. Please [check below](#configure-a-snapshooter) how to snapshot your data
+
 ## Olympe Project Template
 - Clone the [Olympe-Project-Template](https://github.com/olympeio/olympe-project-template) git repository
 - Follow the repository instructions to build your code
 
 ## Deploy CodeAsData from your local computer
-From your local olympe template directory, copy your built Code As Data to the orchestrator:
+- Delete the current patches:
 ```
 kubectl exec \
 --namespace $name \
 $(kubectl get pod --namespace $name -l app.kubernetes.io/component=orchestrator \
   --no-headers \
   -o custom-columns=":metadata.name") \
- -- rm -rf /patches/*
-
-kubectl cp --namespace $name dist/codeAsData/. \
+ -- sh -c 'rm -rf /patches/*'
+```
+- From your local olympe template directory, compress and copy your built Code As Data to the orchestrator:
+```
+tar -czvf patches.tar.gz -C dist/codeAsData . &&\
+kubectl cp --namespace $name patches.tar.gz \
  $(kubectl get pod --namespace $name -l app.kubernetes.io/component=orchestrator \
  --no-headers -o custom-columns=":metadata.name"):/patches
+``` 
+- Extract the copied archive
+```
+kubectl exec \
+--namespace $name \
+$(kubectl get pod --namespace $name -l app.kubernetes.io/component=orchestrator \
+  --no-headers \
+  -o custom-columns=":metadata.name") \
+ -- sh -c 'tar -xzvf /patches/patches.tar.gz -C /patches && rm /patches/patches.tar.gz'
 ```
 - Once finished, run the update job:
 ```
@@ -99,69 +113,80 @@ helm template $name olympe/olympe \
  -s templates/init-install.yml | kubectl apply --namespace $name -f -
 ```
 
-## Snapshooter
+## Configure a Snapshooter
+A Snapshooter is a CronJob that will download and save the code as data into patches (json files) from a deployed environment to a git repository. You will need the following information to configure it:
+- **root tags**: You can get the root tag of your application(s) by opening it in Draw. the tag will be in the URL\n. You can snapshoot multiple tags (e.g. `["018a88a4d5312b1501c6","018a88a4d5312b1501c6"]`)
+- **git repository**: https link to repository with authentication token (e.g. `https://gitlab-token:****@gitlab.mycompany.com/my-project.git`)
+- **branch**: an existing branch on the selected git repository (e.g. `snapshot`)
+
 ### With config key
 - Enable the snapshooter in values.yaml
 ```
-[...]
+repo=<link to git repository>
+branch=<branch>
+rootTags=<list of root tags>
+cat <<EOF | helm upgrade $name olympe/olympe --namespace $name --reuse-values -f -
 snapshooters:
   - name: $name
     schedule: "45 12 * * *" # cron syntax
-    secretName: snapshooter-secret
-    config |-
+    config: |-
       [
         {
           "snapshooter": {
             "name": "$name",
-            "rootTags": [<list of root tags>],
+            "rootTags": $rootTags,
             "outputDir": "snapshot"
           },
           "git": {
-            "repo": "<link to git repository>",
-            "branch": "<branch>",
+            "repo": "$repo",
+            "branch": "$branch",
             "commitMessage": "Snapshoted at {date} in {folder}"
           }
         }
       ]
+EOF
 ```
 ### With custom secret
+If you don't want sensitive data in you helm values, you can also create the secret separately
+
 - Create a secret with the following configuration:
 ```
+repo=<link to git repository>
+branch=<branch>
+rootTags=<list of root tags>
 cat <<EOF | kubectl apply --namespace $name -f -
 apiVersion: v1
 kind: Secret
 metadata:
-  name: snapshooter-secret
+  name: $name-olympe-snapshooter-config
 type: Opaque
 stringData:
-  snapshooter.json: |-
+  $name.json: |-
     [
       {
         "snapshooter": {
           "name": "$name",
-          "rootTags": [<list of root tags>],
+          "rootTags": $rootTags,
           "outputDir": "snapshot"
         },
         "git": {
-          "repo": "<link to git repository>",
-          "branch": "<branch>",
+          "repo": "$repo",
+          "branch": "$branch",
           "commitMessage": "Snapshoted at {date} in {folder}"
         }
       }
     ]
 EOF
 ```
-  **rootTags**: You can get the root tag of your application(s) by opening it in Draw. the tag will be in the URL\n
-  **git.repo**: https link to repository with authentication token (e.g. https://gitlab-token:****@gitlab.mycompany.com/my-project.git)
+
 
 - Enable the snapshooter in values.yaml
 ```
-[...]
+cat <<EOF | helm upgrade $name olympe/olympe --namespace $name --reuse-values -f -
 snapshooters:
   - name: $name
     schedule: "45 12 * * *" # cron syntax
-    secretName: snapshooter-secret
-    image: olympeio/toolkit:stable
+EOF
 ```
 
 ## Change credentials

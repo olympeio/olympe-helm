@@ -45,21 +45,22 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.frontend.port }}
+            - containerPort: {{ .Values.frontend.previewPort }}
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-frontend-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
-            {{- if .Values.frontend.envFrom }}
-              {{- toYaml .Values.frontend.envFrom | nindent 12 }}
+            {{ with .Values.frontend.envFrom }}
+            {{- toYaml . | nindent 12 }}
             {{ end }}
-          env:
           {{- if .Values.frontend.env }}
+          env:
             {{- toYaml .Values.frontend.env | nindent 12 }}
           {{ end }}
           volumeMounts:
             - name: frontend-custom-config
-              mountPath: /etc/nginx/conf.d/
+              mountPath: /etc/nginx/templates/
             - name: frontend-server-config
               mountPath: /etc/nginx/server/
             - name: frontend-subconf
@@ -84,7 +85,11 @@ spec:
       {{- if .Values.frontend.oConfig }}
       - name: frontend-oconfig
         configMap:
+          {{- if kindIs "string" .Values.frontend.oConfig }}
           name: {{ printf "%s-frontend-oconfig" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+          {{- else }}
+          name: {{ printf "%s-frontend-%s" (include "olympe.fullname" .) (lower .Values.frontend.oConfig.current) | trunc 63 | trimSuffix "-" }}
+          {{- end }}
       {{- end }}
       {{- if .Values.frontend.volumes }}
         {{- toYaml .Values.frontend.volumes | nindent 6 }}

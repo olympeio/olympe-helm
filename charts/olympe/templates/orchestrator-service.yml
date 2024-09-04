@@ -5,6 +5,10 @@ metadata:
   labels:
     {{- include "olympe.labels" . | nindent 4 }}
     app.kubernetes.io/component: orchestrator
+    {{- if .Values.orchestrator.prometheus.enabled }}
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8081"
+    {{- end }}
 spec:
   selector:
     name: {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
@@ -13,9 +17,11 @@ spec:
     - name: app
       port: 8080
       targetPort: 8080
+    {{- if .Values.orchestrator.prometheus.enabled }}
     - name: micrometer
       port: 8081
       targetPort: 8081
+    {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -32,10 +38,6 @@ spec:
     - name: app
       port: 8080
       targetPort: 8080
-    - name: micrometer
-      port: 8081
-      targetPort: 8081
-
 {{- if .Values.orchestrator.haEnabled }}
 --- 
 apiVersion: v1
@@ -57,25 +59,40 @@ spec:
   clusterIP: None
   type: ClusterIP
 {{- end }}
-
-{{ if .Values.orchestrator.prometheus.enabled }}
-{{- $replicaCount := .Values.orchestrator.replicas | int | default 1}}
-{{- range $i, $e := until $replicaCount}}
+{{- if .Values.additionalServices.enabled }}
+  {{- range .Values.orchestrator.additionalServices }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ printf "orchestrator-prometheus-%d" $i | trunc 63 | trimSuffix "-" }}
-spec:
-  ports:
-    - name: micrometer
-      protocol: TCP
-      port: 8081
-      targetPort: 8081
-  selector:
-    statefulset.kubernetes.io/pod-name: {{ printf "%s-orchestrator-%d" (include "olympe.fullname" $) $i | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-orchestrator-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
     app.kubernetes.io/component: orchestrator
-  clusterIP: None
-  type: ClusterIP
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+spec:
+  selector:
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: orchestrator
+  ports:
+    - name: app
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "orchestrator-%s" .suffix }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  selector:
+    name: {{ printf "%s-orchestrator" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: orchestrator
+  ports:
+    - name: app
+      port: 8080
+      targetPort: 8080
+  {{- end }}
 {{- end }}
-{{- end -}}

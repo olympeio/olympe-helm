@@ -1,5 +1,6 @@
 {{- range $k, $v := .Values.serviceApps }}
-{{- if $v.oConfig }}
+  {{- if $v.oConfig }}
+    {{- if kindIs "string" $v.oConfig }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -11,5 +12,20 @@ type: Opaque
 stringData:
   oConfig.json: {{- $v.oConfig | toYaml | indent 1 }}
 ---
-{{- end }}
+    {{- else }}
+      {{- range $configKey, $configValue := $v.oConfig.configs }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "%s-%s-%s" (include "olympe.fullname" $) $k (lower $configKey) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: backend
+type: Opaque
+stringData:
+  oConfig.json: {{- $configValue | toYaml | indent 1 }}
+---
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}

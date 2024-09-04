@@ -1,10 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $svcPort := .Values.service.port -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
 kind: Ingress
 metadata:
   name: {{ printf "%s-ingress" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
@@ -14,19 +9,19 @@ metadata:
     {{- toYaml .Values.ingress.annotations | nindent 4 }}
     nginx.org/websocket-services: {{ printf "%s-frontend" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
 spec:
-{{- if .Values.ingress.tls }}
+  {{- if .Values.ingress.tls }}
   tls:
-  {{- range .Values.ingress.tls }}
+    {{- range .Values.ingress.tls }}
     - secretName: {{ .secretName }}
       hosts:
       {{- range .hosts }}
         - {{ . | quote }}
       {{- end }}
+    {{- end }}
   {{- end }}
-{{- end }}
   rules:
   {{- if .Values.ingress.hosts  }}
-  {{- range .Values.ingress.hosts }}
+    {{- range .Values.ingress.hosts }}
     - host: {{ tpl . $}}
       http:
         paths:
@@ -36,10 +31,52 @@ spec:
             service:
               name: {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               port:
-                number: 80
-  {{- if $.Values.ingress.extraPaths }}
-  {{ toYaml $.Values.ingress.extraPaths | indent 10 }}
+                number: {{ $.Values.frontend.port }}
+      {{- if $.Values.ingress.extraPaths }}
+        {{ toYaml $.Values.ingress.extraPaths | indent 10 }}
+      {{- end }}
+    {{- end }}
   {{- end }}
+  {{- if .Values.additionalIngress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ printf "%s-ingress-preview" (include "olympe-internal.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+    nginx.org/websocket-services: {{ printf "%s-frontend-%s" (include "olympe-internal.fullname" .) .Values.frontend.previewService.suffix | trunc 63 | trimSuffix "-" }}
+spec:
+    {{- if .Values.ingress.tls }}
+  tls:
+      {{- range .Values.ingress.tls }}
+    - secretName: {{ printf "%s-preview" .secretName }}
+      hosts:
+        {{- range .hosts }}
+        - {{ (printf "%s%s" $.Values.additionalIngress.prefix .) | quote }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  rules:
+    {{- if .Values.ingress.hosts  }}
+      {{- range .Values.ingress.hosts }}
+    - host: {{ (printf "%s%s" $.Values.additionalIngress.prefix .) | quote }}
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ printf "%s-frontend-%s" (include "olympe-internal.fullname" $) $.Values.frontend.previewService.suffix | trunc 63 | trimSuffix "-" }}
+              port:
+                number: {{ $.Values.frontend.previewService.port }}
+        {{- if $.Values.ingress.extraPaths }}
+          {{ toYaml $.Values.ingress.extraPaths | indent 10 }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
   {{- end }}
 {{- end }}
-{{- end }}
+

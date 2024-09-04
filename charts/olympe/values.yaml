@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.7.2
+    customImage: olympeio/database:v2.9.1
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -68,14 +68,12 @@ frontend:
   image:
     repository: olympeio
     name: frontend
-  # -- frontend environment variables
-  env: {}
   # -- frontend port
   port: 80
+  # -- frontend preview port
+  previewPort: 85
   # -- additional frontend configuration
   additionalConfig: ""
-  # -- frontend oConfig content
-  oConfig: ""
   rabbitmq:
     host: rabbitmq
     mqttPort: 15675
@@ -103,6 +101,10 @@ frontend:
   tolerations: []
   # -- setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   affinity: {}
+  previewService:
+    enabled: false
+    port: 85
+    suffix: preview
 
 codeAsData:
   image:
@@ -146,7 +148,7 @@ toolkit:
   image:
     repository: olympeio
     name: toolkit
-    tag: stable
+    tag: 1.1.0
   # -- defines privilege and access control settings for the Olympe Tools on Pod level.
   podSecurityContext:
     runAsUser: 0
@@ -165,7 +167,12 @@ orchestrator:
   image:
     repository: olympeio
     name: orchestrator
-    tag: 7.2.2
+    tag: 7.4.0
+  port: 8080
+  previewService:
+    enabled: false
+    port: 8080
+    suffix: preview
   # -- Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast"
   clusterType: none
   # -- Orchestrator HA setup
@@ -236,6 +243,29 @@ orchestrator:
   # -- enable Prometheus metrics
   prometheus:
     enabled: false
+    serviceMonitor:
+      # -- Enable a prometheus ServiceMonitor
+      enabled: false
+      # -- Prometheus ServiceMonitor interval
+      interval: 30s
+      # -- Prometheus [RelabelConfigs] to apply to samples before scraping
+      relabelings: []
+      # -- Prometheus [MetricRelabelConfigs] to apply to samples before ingestion
+      metricRelabelings: []
+      # -- Prometheus ServiceMonitor selector
+      selector: {}
+      # prometheus: kube-prometheus
+
+      # -- Prometheus ServiceMonitor scheme
+      scheme: ""
+      # -- Prometheus ServiceMonitor tlsConfig
+      tlsConfig: {}
+      # -- Prometheus ServiceMonitor namespace
+      namespace: "" # "monitoring"
+      # -- Prometheus ServiceMonitor labels
+      additionalLabels: {}
+      # -- Prometheus ServiceMonitor annotations
+      annotations: {}
   # Orchestrator liveness probe
   livenessProbe:
     httpGet:
@@ -269,7 +299,9 @@ serviceApps: {}
 # -- Default Service Apps image
 serviceAppsImage: node:14.21.3-slim
 serviceAppsDefaultPort: 2015
-
+serviceAppsPreviewServices:
+  enabled: false
+  suffix: preview
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
@@ -310,7 +342,21 @@ ingress:
 
   hosts:
     - olympe.local
+  previewHosts:
+    - preview.olympe.local
   extraPaths: []
   tls:
     - secretName:
       hosts: []
+
+additionalServices:
+  enabled: false
+
+additionalIngress:
+  enabled: false
+  prefix: "preview."
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "36000"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "36000"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "36000"
