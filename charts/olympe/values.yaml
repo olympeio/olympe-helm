@@ -68,16 +68,12 @@ frontend:
   image:
     repository: olympeio
     name: frontend
-  # -- frontend environment variables
-  env: {}
   # -- frontend port
   port: 80
   # -- frontend preview port
   previewPort: 85
   # -- additional frontend configuration
   additionalConfig: ""
-  # -- frontend oConfig content
-  oConfig: ""
   rabbitmq:
     host: rabbitmq
     mqttPort: 15675
