@@ -2,8 +2,46 @@
 ## [Unreleased]
 
 
-<a name="2.3.0"></a>
-## [2.3.0] - 2024-06-06
+<a name="2.4.0"></a>
+## [2.4.0] - 2024-09-04
+### Chore
+- Update appVersion to v2.9.1
+- Update appVersion to v2.9.0
+- Update appVersion to v2.8.2
+- Update appVersion to v4.0.0
+- Update appVersion to v2.8.1
+- Update appVersion to v2.8.0
+
+### Feat
+- frontend config with current and next version
+- add cache templating for nginx
+- test nginx dynamic cache
+- no-downtime: rename key
+- no-downtime: additional ingress
+- no-downtime: rename key
+- no-downtime: rename key
+- no-downtime: fix healthcheck
+- no-downtime: preview ingress + new values
+- no-downtime: service apps setup
+- no-downtime: orchestrator setup
+- no-downtime: frotnend setup
+- add prometheus service monitor
+- add preview services for no downtime deployment
+- add custom secretRef for orchestrator
+
+### Fix
+- frontend config name
+- remove empty env variable frontend
+- remove configmap range env key
+- frontend environment variable
+- set toolkit version
+
+### Reverts
+- chore: Update appVersion to v4.0.0
+
+
+<a name="olympe-2.3.0"></a>
+## [olympe-2.3.0] - 2024-06-06
 ### Chore
 - Update appVersion to v2.5.2
 - Update appVersion to v2.5.1
@@ -378,8 +416,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.3.0...HEAD
-[2.3.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.9...2.3.0
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.4.0...HEAD
+[2.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.3.0...2.4.0
+[olympe-2.3.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.9...olympe-2.3.0
 [olympe-2.2.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.8...olympe-2.2.9
 [olympe-2.2.8]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.7...olympe-2.2.8
 [olympe-2.2.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.6...olympe-2.2.7
