@@ -139,9 +139,6 @@ data:
       scgi_temp_path /var/cache/nginx/$IMAGE_TAG/scgi_temp;
       client_body_temp_path /var/cache/nginx/$IMAGE_TAG/client_temp;
 
-      # Not working if we delete this folder during cache cleanup
-      #proxy_temp_path /var/cache/nginx/$IMAGE_TAG/proxy_temp; 
-
       ##
       # Gzip Settings
       ##
