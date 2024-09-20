@@ -2,8 +2,11 @@
 ## [Unreleased]
 
 
-<a name="2.4.1"></a>
-## [2.4.1] - 2024-09-18
+<a name="2.4.2"></a>
+## [2.4.2] - 2024-09-20
+
+<a name="olympe-2.4.1"></a>
+## [olympe-2.4.1] - 2024-09-18
 ### Fix
 - frontend config syntax
 
@@ -422,8 +425,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.4.1...HEAD
-[2.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.0...2.4.1
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.4.2...HEAD
+[2.4.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.1...2.4.2
+[olympe-2.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.0...olympe-2.4.1
 [olympe-2.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.3.0...olympe-2.4.0
 [olympe-2.3.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.9...olympe-2.3.0
 [olympe-2.2.9]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.8...olympe-2.2.9
