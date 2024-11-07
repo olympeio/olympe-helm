@@ -30,3 +30,4 @@ data:
   ACTIVITY_TIMEOUT: {{ default "70000000" .Values.orchestrator.activityTimeout | quote }}
   USER_EVENTS_ENABLED: {{ default "false" .Values.orchestrator.userEvents | quote }}
   ORCHESTRATOR_CODE_AS_DATA_DIR: {{ default "/patches" .Values.orchestrator.codeAsDataDir | quote }}
+  EXCLUDED_VERTICLES: {{ default "" (include "excluded_verticles" .) | quote }}

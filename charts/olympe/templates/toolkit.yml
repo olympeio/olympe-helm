@@ -62,7 +62,7 @@ spec:
                   optional: true
               env:
               - name: ORCHESTRATOR_HOST
-                value: orchestrator
+                value: {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               {{- if gt (len $.Values.snapshooters) 0 }}
               {{- with (index $.Values.snapshooters 0) }}
               - name: SNAPSHOT_CONFIG

@@ -187,3 +187,11 @@ volumes:
 {{- define "magda.var_dump" -}}
 {{- . | mustToPrettyJson | printf "\nThe JSON output of the dumped var is: \n%s" | fail }}
 {{- end -}}
+
+{{- define "excluded_verticles" -}}
+  {{- $excludedVerticles := list }}
+  {{- range .Values.orchestrator.components }}
+    {{- $excludedVerticles = append $excludedVerticles .name }}
+  {{- end }}
+  {{- $excludedVerticles | toJson }}
+{{- end -}}

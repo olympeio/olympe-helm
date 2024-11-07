@@ -1,0 +1,120 @@
+{{- range .Values.orchestrator.components  }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  {{- if .annotations }}
+  annotations:
+{{ toYaml .annotations | indent 4 }}
+  {{- end }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: {{ .name }}
+    app.kubernetes.io/part-of: orchestrator
+spec:
+  {{- if eq $.Values.enabled true }}
+  replicas: {{ .replicas | default 1 }}
+  {{- else }}
+  replicas: 0
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "olympe.selectorLabels" $ | nindent 6 }}
+      name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+      app.kubernetes.io/component: {{ .name }}
+      app.kubernetes.io/part-of: orchestrator
+  template:
+    metadata:
+    {{- if .podAnnotations }}
+      annotations:
+{{ toYaml .podAnnotations | indent 8 }}
+    {{- end }}
+      labels:
+        {{- include "olympe.selectorLabels" $ | nindent 8 }}
+        name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+        app.kubernetes.io/component: {{ .name }}
+        app.kubernetes.io/part-of: orchestrator
+    spec:
+    {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "olympe.serviceAccountName" $ }}
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        {{- toYaml $.Values.orchestrator.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .name }}
+          securityContext:
+            {{- toYaml $.Values.orchestrator.containerSecurityContext | nindent 12 }}
+          image: {{ .image }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          tty: true
+          ports:
+            - containerPort: {{ .port }}
+          livenessProbe:
+            {{- toYaml $.Values.orchestrator.livenessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml $.Values.orchestrator.startupProbe | nindent 12 }}    
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-orchestrator-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: {{ printf "%s-orchestrator-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            - secretRef:
+                name: {{ printf "%s-orchestrator-default-secret" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+                optional: true
+            {{ with $.Values.orchestrator.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{ with .envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          
+          env:
+            {{- if $.Values.orchestrator.env }}
+            {{- toYaml $.Values.orchestrator.env | nindent 12 }}
+            {{- end }}
+            {{- if .env }}
+            {{- toYaml .env | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: file-service
+              mountPath: /opt/orchestrator/file-service
+            - name: backup-data
+              mountPath: /backupData
+            - name: patches
+              mountPath: /patches
+            {{ with .volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: file-service
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-fs" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+        - name: backup-data
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+        - name: patches
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-orchestrator-patches" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+        {{ with .volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

@@ -163,6 +163,8 @@ orchestrator:
     command: install
   # -- Number of orchestrator replicas
   replicas: 1
+  # -- Orchestrator components
+  components: []
   # -- Orchestrator image
   image:
     repository: olympeio
