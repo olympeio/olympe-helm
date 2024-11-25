@@ -2,8 +2,17 @@
 ## [Unreleased]
 
 
-<a name="2.4.2"></a>
-## [2.4.2] - 2024-09-20
+<a name="2.5.0"></a>
+## [2.5.0] - 2024-11-25
+### Chore
+- Update appVersion to v2.9.2
+
+### Feat
+- ability to split orchestrator in components
+
+
+<a name="olympe-2.4.2"></a>
+## [olympe-2.4.2] - 2024-09-20
 
 <a name="olympe-2.4.1"></a>
 ## [olympe-2.4.1] - 2024-09-18
@@ -425,8 +434,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.4.2...HEAD
-[2.4.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.1...2.4.2
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.0...HEAD
+[2.5.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.2...2.5.0
+[olympe-2.4.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.1...olympe-2.4.2
 [olympe-2.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.0...olympe-2.4.1
 [olympe-2.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.3.0...olympe-2.4.0
 [olympe-2.3.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.2.9...olympe-2.3.0
