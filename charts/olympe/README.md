@@ -262,7 +262,7 @@ helm template $name olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/database:v2.9.1"` |  |
+| neo4j.image.customImage | string | `"olympeio/database:v2.9.2"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -273,12 +273,13 @@ helm template $name olympe/olympe \
 | nodes.dataVolume.accessModes[0] | string | `"ReadWriteOnce"` |  |
 | orchestrator.affinity | object | `{}` | setup affinity for the orchestrator. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) |
 | orchestrator.clusterType | string | `"none"` | Orchestrator cluster type. Can be "none", "infinispan" or "hazelcast" |
+| orchestrator.components | list | `[]` | Orchestrator components |
 | orchestrator.containerSecurityContext | object | `{"allowPrivilegeEscalation":false}` | defines privilege and access control settings for the Orchestrator on Container level. |
 | orchestrator.dataVolume | object | `{"accessModes":["ReadWriteOnce"],"backupData":{},"fileService":{},"patches":{}}` | setup dataVolume for the frontend |
 | orchestrator.env | string | `nil` | Orchestrator environment variables (in statefulset) |
 | orchestrator.existingSecret | string | `""` |  |
 | orchestrator.haEnabled | bool | `false` | Orchestrator HA setup |
-| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.4.0"}` | Orchestrator image |
+| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.4.1"}` | Orchestrator image |
 | orchestrator.initInstall | object | `{"command":"install","enabled":true}` | Toggle codeAsData install during chart installation (only executed at creation) |
 | orchestrator.livenessProbe.failureThreshold | int | `10` |  |
 | orchestrator.livenessProbe.httpGet.path | string | `"/readiness"` |  |
