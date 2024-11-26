@@ -17,4 +17,24 @@ spec:
     - name: {{ .name }}
       port: {{ .port }}
       targetPort: {{ .port }}
+{{- if $.Values.additionalServices.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-%s-preview" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ .name }}
+    app.kubernetes.io/part-of: orchestrator
+spec:
+  selector:
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/component: {{ .name }}
+    app.kubernetes.io/part-of: orchestrator
+  ports:
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .port }}
+{{- end }}
 {{- end }}
