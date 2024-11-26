@@ -3,6 +3,27 @@ entries:
   olympe:
   - apiVersion: v2
     appVersion: v2.9.2
+    created: "2024-11-26T09:25:46.347166751Z"
+    dependencies:
+    - alias: neo4j
+      condition: neo4j.enabled
+      name: neo4j-standalone
+      repository: https://helm.neo4j.com/neo4j
+      version: 4.4.33
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 14.3.2
+    description: Helm chart for a Kubernetes implementation of an Olympe project
+    digest: 83081532cea81a9109b2d9e92887a470d8ab4a724f1d304f9189adbbf8539e91
+    icon: https://d4i4w3v4.rocketcdn.me/wp-content/uploads/2020/01/Olympe_white.svg
+    name: olympe
+    type: application
+    urls:
+    - https://github.com/olympeio/olympe-helm/releases/download/olympe-2.5.1/olympe-2.5.1.tgz
+    version: 2.5.1
+  - apiVersion: v2
+    appVersion: v2.9.2
     created: "2024-11-25T12:33:36.30171819Z"
     dependencies:
     - alias: neo4j
@@ -712,4 +733,4 @@ entries:
     urls:
     - https://github.com/olympeio/olympe-helm/releases/download/olympe-1.3.0/olympe-1.3.0.tgz
     version: 1.3.0
-generated: "2024-11-25T12:33:36.301965894Z"
+generated: "2024-11-26T09:25:46.34739278Z"
