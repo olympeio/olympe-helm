@@ -262,7 +262,7 @@ helm template $name olympe/olympe \
 | nameOverride | string | `""` | partially override realease name |
 | neo4j.enabled | bool | `true` |  |
 | neo4j.fullnameOverride | string | `"neo4j"` |  |
-| neo4j.image.customImage | string | `"olympeio/database:v2.9.2"` |  |
+| neo4j.image.customImage | string | `"olympeio/database:v2.10.0"` |  |
 | neo4j.neo4j.password | string | `"olympe"` |  |
 | neo4j.services.neo4j.spec.type | string | `"ClusterIP"` |  |
 | neo4j.volumes.data.defaultStorageClass.requests.storage | string | `"20Gi"` |  |
@@ -279,7 +279,7 @@ helm template $name olympe/olympe \
 | orchestrator.env | string | `nil` | Orchestrator environment variables (in statefulset) |
 | orchestrator.existingSecret | string | `""` |  |
 | orchestrator.haEnabled | bool | `false` | Orchestrator HA setup |
-| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.4.1"}` | Orchestrator image |
+| orchestrator.image | object | `{"name":"orchestrator","repository":"olympeio","tag":"7.5.0"}` | Orchestrator image |
 | orchestrator.initInstall | object | `{"command":"install","enabled":true}` | Toggle codeAsData install during chart installation (only executed at creation) |
 | orchestrator.livenessProbe.failureThreshold | int | `10` |  |
 | orchestrator.livenessProbe.httpGet.path | string | `"/readiness"` |  |
@@ -345,6 +345,6 @@ helm template $name olympe/olympe \
 | serviceAppsPreviewServices.suffix | string | `"preview"` |  |
 | snapshooters | list | `[]` | Snapshooters configuration, You can have multiple of them, each with the following values:<br /> - name: string, mandatory - Name of the snapshooter <br />    schedule: string, mandatory - schedule (cron format) <br />    config: string, json configuration. Please read documentation for examples (can't be used with secretName key below) <br />    secretName: string, name of the secret containing the configuration (can't be used with config key above) <br />    resources <br />      requests: <br />        memory: string, default "200Mi" <br />        cpu: string, default "100m" <br />      limits: <br />        memory: string, default "1000Mi" <br />        cpu: string, default "200m" <br /> |
 | toolkit.cronJobs | object | `{"garbageCollector":{"args":["startGC"],"command":"startGC","resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"100m","memory":"100Mi"}},"schedule":"5 1 * * 0","suspend":false}}` | available values are:     - help     - snapshot     - snapshotUsers     - snapshotBusinessData     - restoreUsers     - restoreBusinessData     - reset     - checkDB     - startGC     - statsDB     - maintenance     - updateUser      |
-| toolkit.image | object | `{"name":"toolkit","repository":"olympeio","tag":"1.1.0"}` | Olympe Toolkit image |
+| toolkit.image | object | `{"name":"toolkit","repository":"olympeio","tag":"1.2.0"}` | Olympe Toolkit image |
 | toolkit.podSecurityContext | object | `{"runAsUser":0}` | defines privilege and access control settings for the Olympe Tools on Pod level. |
 | upgradeScript.schedule | string | `"5 1 * * 0"` |  |
