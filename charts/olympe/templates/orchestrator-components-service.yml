@@ -8,6 +8,10 @@ metadata:
     {{- include "olympe.labels" $ | nindent 4 }}
     app.kubernetes.io/component: {{ .name }}
     app.kubernetes.io/part-of: orchestrator
+    {{- if $.Values.orchestrator.prometheus.enabled }}
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8081"
+    {{- end }}
 spec:
   selector:
     name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
@@ -17,6 +21,11 @@ spec:
     - name: {{ .name }}
       port: {{ .port }}
       targetPort: {{ .port }}
+    {{- if $.Values.orchestrator.prometheus.enabled }}
+    - name: micrometer
+      port: 8081
+      targetPort: 8081
+    {{- end }}
 {{- if $.Values.additionalServices.enabled }}
 ---
 apiVersion: v1
@@ -36,5 +45,10 @@ spec:
     - name: {{ .name }}
       port: {{ .port }}
       targetPort: {{ .port }}
+    {{- if $.Values.orchestrator.prometheus.enabled }}
+    - name: micrometer
+      port: 8081
+      targetPort: 8081
+    {{- end }}
 {{- end }}
 {{- end }}
