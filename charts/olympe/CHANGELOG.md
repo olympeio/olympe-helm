@@ -2,8 +2,18 @@
 ## [Unreleased]
 
 
-<a name="2.5.1"></a>
-## [2.5.1] - 2024-11-26
+<a name="2.5.2"></a>
+## [2.5.2] - 2024-12-09
+### Chore
+- Update appVersion to v2.10.1
+- Update appVersion to v2.10.0
+
+### Fix
+- prometheus for orchestrator components
+
+
+<a name="olympe-2.5.1"></a>
+## [olympe-2.5.1] - 2024-11-26
 ### Fix
 - missing 2.5.0 config
 
@@ -440,8 +450,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.1...HEAD
-[2.5.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.0...2.5.1
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.2...HEAD
+[2.5.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.1...2.5.2
+[olympe-2.5.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.0...olympe-2.5.1
 [olympe-2.5.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.2...olympe-2.5.0
 [olympe-2.4.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.1...olympe-2.4.2
 [olympe-2.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.4.0...olympe-2.4.1
