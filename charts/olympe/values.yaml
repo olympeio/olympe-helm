@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.10.3
+    customImage: olympeio/database:v2.10.4
   fullnameOverride: neo4j
   neo4j:
     password: olympe
