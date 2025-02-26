@@ -241,7 +241,7 @@ data:
         '' close;
       }
 
-      map $http_host $orchestrator {
+      map $host $orchestrator {
         {{- range .Values.ingress.hosts }}
         {{ . }} orchestrator;
         {{- end }}
@@ -268,7 +268,7 @@ data:
           {{- $addrSuffix := printf "%s.svc.cluster.local" (include "olympe.fullname" $) }}
           {{- $serviceName := printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
           {{- /* -- Create the `map` entries */}}
-      map $http_host ${{ $k | replace "-" "_" }} {
+      map $host ${{ $k | replace "-" "_" }} {
           {{- range $.Values.ingress.hosts }}
         {{ . }} {{ $serviceName }}.{{ $addrSuffix }};
           {{- end }}
@@ -298,7 +298,7 @@ data:
           {{- $serviceName := printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
           {{- $port := .port }}
           {{- /* -- Create the `map` entries */}}
-      map $http_host ${{ (replace "-" "_" .name) }} {
+      map $host ${{ (replace "-" "_" .name) }} {
           {{- range $.Values.ingress.hosts }}
         {{ . }} {{ $serviceName }}.{{ $addrSuffix }}:{{ $port }};
           {{- end }}
