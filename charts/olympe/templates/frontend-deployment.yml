@@ -46,6 +46,7 @@ spec:
           ports:
             - containerPort: {{ .Values.frontend.port }}
             - containerPort: {{ .Values.frontend.previewPort }}
+            - containerPort: 5671
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
           envFrom:
@@ -59,6 +60,9 @@ spec:
             {{- toYaml .Values.frontend.env | nindent 12 }}
           {{ end }}
           volumeMounts:
+            - name: frontend-rootconf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
             - name: frontend-custom-config
               mountPath: /etc/nginx/templates/
             - name: frontend-server-config
@@ -73,6 +77,9 @@ spec:
               {{- toYaml .Values.frontend.volumeMounts | nindent 12 }}
             {{ end }}
       volumes:
+      - name: frontend-rootconf
+        configMap:
+          name: {{ printf "%s-frontend-rootconf" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
       - name: frontend-custom-config
         configMap:
           name: {{ printf "%s-frontend-custom-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}

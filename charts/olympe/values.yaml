@@ -77,6 +77,7 @@ frontend:
   rabbitmq:
     host: rabbitmq
     mqttPort: 15675
+    amqpPort: 5672
   resources:
     requests:
       # -- frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
