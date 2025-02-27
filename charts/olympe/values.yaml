@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.10.1
+    customImage: olympeio/database:v2.10.3
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -169,7 +169,7 @@ orchestrator:
   image:
     repository: olympeio
     name: orchestrator
-    tag: 7.5.0
+    tag: 7.5.1
   port: 8080
   previewService:
     enabled: false
