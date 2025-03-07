@@ -100,12 +100,6 @@ containers:
     resources:
       {{- toYaml .serviceApp.resources | nindent 6 }}
     env:
-      - name: ORCHESTRATOR_HOST
-        value: orchestrator
-      - name: ORCHESTRATOR_PORT
-        value: "8080"
-      - name: ORCHESTRATOR_SSL
-        value: "false"
       {{- with (first .hosts) }}
       - name: APP_HOSTNAME
         value: {{ . }}

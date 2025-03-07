@@ -1,0 +1,38 @@
+{{- range $k, $v := .Values.serviceApps }}
+{{- if and (ne (.type) "cronJob") ((($v.autoscaling).enabled)) }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
+  minReplicas: {{ (($v.autoscaling).minReplicas) | default 1 }}
+  maxReplicas: {{ (($v.autoscaling).maxReplicas) | default 2 }}
+  metrics:
+  {{- if (($v.autoscaling).metrics) }}
+    {{ toYaml $v.autoscaling.metrics | nindent 4 }}
+  {{- else }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ (($v.autoscaling).cpuAverageUtilization) | default 75 }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ (($v.autoscaling).memoryAverageUtilization) | default 85 }}
+  {{- end }}
+  {{- if (($v.autoscaling).behavior) }}
+  behavior: {{ toYaml $v.autoscaling.behavior | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

@@ -17,6 +17,10 @@ spec:
       name: http-preview
       protocol: TCP
       targetPort: {{ .Values.frontend.previewPort }}
+    - port: 5671
+      name: rabbitmq-amqp
+      protocol: TCP
+      targetPort: 5671
   selector:
     {{- include "olympe.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
@@ -43,6 +47,10 @@ spec:
       name: http-preview
       protocol: TCP
       targetPort: {{ .targetPort }}
+    - port: 5671
+      name: rabbitmq-amqp
+      protocol: TCP
+      targetPort: 5671
   selector:
     {{- include "olympe.selectorLabels" $ | nindent 4 }}
     app.kubernetes.io/component: frontend

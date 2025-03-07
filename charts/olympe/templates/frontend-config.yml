@@ -11,7 +11,57 @@ data:
   {{- end }}
   TLS_TYPE: "http-only"
   APP_PORT: "443"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-frontend-rootconf" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "olympe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  auto;
 
+    error_log  /var/log/nginx/error.log notice;
+    pid        /var/run/nginx.pid;
+
+
+    events {
+        worker_connections  1024;
+    }
+
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        keepalive_timeout  65;
+
+        #gzip  on;
+
+        include /etc/nginx/conf.d/*.conf;
+    }
+    stream {
+      upstream rabbitmq-amqp {
+        server {{ printf "%s:%d" .Values.frontend.rabbitmq.host (.Values.frontend.rabbitmq.amqpPort | int) }};
+      }
+
+      server {
+        listen 5671;
+        proxy_pass rabbitmq-amqp;
+      }
+    }
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -94,10 +144,18 @@ data:
       add_header 'Cache-Control' 'no-cache, must-revalidate, proxy-revalidate, max-age=0';
     }
 
-    
-
     location /mqtt/ws {
       proxy_pass http://rabbitmq/ws;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_connect_timeout 7d;
+      proxy_send_timeout 7d;
+      proxy_read_timeout 7d;
+    }
+
+    location /amqp/ws {
+      proxy_pass http://rabbitmq-websocket;
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
@@ -275,6 +333,14 @@ data:
         server {{ printf "%s:%d" .Values.frontend.rabbitmq.host (.Values.frontend.rabbitmq.mqttPort | int) }};
       }
 
+      upstream rabbitmq-amqp {
+        server {{ printf "%s:%d" .Values.frontend.rabbitmq.host (.Values.frontend.rabbitmq.amqpPort | int) }};
+      }
+
+      upstream rabbitmq-websocket {
+        server rabbitmq-websocket.rabbitmq.svc.cluster.local:15670;
+      }
+
       # Resolver for kubernetes services: required because of variable in the proxy_pass directives
       # so that the DNS resolution is done at runtime
       resolver kube-dns.kube-system.svc.cluster.local valid=10s;
@@ -334,6 +400,17 @@ metadata:
     app.kubernetes.io/component: frontend
 data:
   additional.conf: {{ default "" .Values.frontend.additionalConfig | quote }}
+#  stream.conf: |
+#    stream {
+#      upstream rabbitmq-amqp {
+#        server {{ printf "%s:%d" .Values.frontend.rabbitmq.host (.Values.frontend.rabbitmq.amqpPort | int) }};
+#      }
+#
+#      server {
+#        {{ printf "listen %d;" (.Values.frontend.rabbitmq.amqpPort | int) }}
+#        proxy_pass rabbitmq-amqp;
+#      }
+#    }
   backend.conf: |
 {{- $defaultBackend := "" }}
 {{- range $k, $v := .Values.serviceApps }}
