@@ -2,8 +2,24 @@
 ## [Unreleased]
 
 
-<a name="2.5.4"></a>
-## [2.5.4] - 2025-02-27
+<a name="2.5.5"></a>
+## [2.5.5] - 2025-03-07
+### Chore
+- Update appVersion to v2.10.4
+
+### Feat
+- amqp setup
+- add service apps HPA
+
+### Fix
+- frontend configuration
+
+### Reverts
+- fix: snapshooter configuration
+
+
+<a name="olympe-2.5.4"></a>
+## [olympe-2.5.4] - 2025-02-27
 ### Fix
 - frontend configuration
 
@@ -469,8 +485,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.4...HEAD
-[2.5.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.3...2.5.4
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.5...HEAD
+[2.5.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.4...2.5.5
+[olympe-2.5.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.3...olympe-2.5.4
 [olympe-2.5.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.2...olympe-2.5.3
 [olympe-2.5.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.1...olympe-2.5.2
 [olympe-2.5.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.0...olympe-2.5.1
