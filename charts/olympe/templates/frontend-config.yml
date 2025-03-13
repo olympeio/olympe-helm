@@ -41,7 +41,11 @@ data:
                           '$status $body_bytes_sent "$http_referer" '
                           '"$http_user_agent" "$http_x_forwarded_for"';
 
-        access_log  /var/log/nginx/access.log  main;
+        map $status $loggable {
+{{ .Values.frontend.loggable | indent 10 }}
+        }
+
+        access_log  /var/log/nginx/access.log  main if=$loggable;
 
         sendfile        on;
         #tcp_nopush     on;
@@ -180,7 +184,6 @@ data:
       tcp_nodelay on;
 
       # requires because names of the services are too long for the default hash bucket size when building maps in the config
-      map_hash_bucket_size 256;
       types_hash_max_size 2048;
 
       server_tokens off;
