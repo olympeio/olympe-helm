@@ -102,6 +102,9 @@ frontend:
   tolerations: []
   # -- setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   affinity: {}
+  loggable: |
+    ~^2  0;
+    default 1;
   previewService:
     enabled: false
     port: 85
