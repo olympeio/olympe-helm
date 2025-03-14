@@ -103,8 +103,9 @@ frontend:
   # -- setup affinity for the frontend. Please see [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
   affinity: {}
   loggable: |
-    ~^2  0;
-    default 1;
+    ~^[23]  0;  # Do NOT log 2xx and 101 (Switching Protocols)
+    101     0;
+    default 1;  # Log everything else
   previewService:
     enabled: false
     port: 85
