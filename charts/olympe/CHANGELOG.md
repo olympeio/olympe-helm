@@ -2,8 +2,14 @@
 ## [Unreleased]
 
 
-<a name="2.5.6"></a>
-## [2.5.6] - 2025-03-13
+<a name="2.5.7"></a>
+## [2.5.7] - 2025-03-14
+### Fix
+- change default loggable value
+
+
+<a name="olympe-2.5.6"></a>
+## [olympe-2.5.6] - 2025-03-13
 ### Fix
 - add frontend configurable logs to reduce amount of logs
 
@@ -491,8 +497,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.6...HEAD
-[2.5.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.5...2.5.6
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.7...HEAD
+[2.5.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.6...2.5.7
+[olympe-2.5.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.5...olympe-2.5.6
 [olympe-2.5.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.4...olympe-2.5.5
 [olympe-2.5.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.3...olympe-2.5.4
 [olympe-2.5.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.2...olympe-2.5.3
