@@ -64,7 +64,7 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
             - name: frontend-custom-config
-              mountPath: /etc/nginx/templates/
+              mountPath: /etc/nginx/conf.d/
             - name: frontend-server-config
               mountPath: /etc/nginx/server/
             - name: frontend-subconf

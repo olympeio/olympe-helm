@@ -76,8 +76,10 @@ frontend:
   additionalConfig: ""
   rabbitmq:
     host: rabbitmq
+    websocket: rabbitmq-websocket
     mqttPort: 15675
     amqpPort: 5672
+    websocketPort: 15670
   resources:
     requests:
       # -- frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
@@ -239,6 +241,7 @@ orchestrator:
     accessModes:
       - ReadWriteOnce
     fileService: {}
+    queryService: {}
     backupData: {}
     patches: {}
   # -- defines privilege and access control settings for the Orchestrator on Pod level.
