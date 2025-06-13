@@ -2,8 +2,23 @@
 ## [Unreleased]
 
 
-<a name="2.5.7"></a>
-## [2.5.7] - 2025-03-14
+<a name="2.6.0"></a>
+## [2.6.0] - 2025-06-13
+### Chore
+- Update appVersion to v2.11.3
+- Update appVersion to v2.10.8
+- Update appVersion to v2.10.7
+- Update appVersion to v2.11.2
+- Update appVersion to v2.11.1
+- Update appVersion to v2.11.0
+- Update appVersion to v2.10.5
+
+### Feat
+- add cache volume for orchestrator + remove cache on frontend size
+
+
+<a name="olympe-2.5.7"></a>
+## [olympe-2.5.7] - 2025-03-14
 ### Fix
 - change default loggable value
 
@@ -497,8 +512,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.5.7...HEAD
-[2.5.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.6...2.5.7
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.0...HEAD
+[2.6.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.7...2.6.0
+[olympe-2.5.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.6...olympe-2.5.7
 [olympe-2.5.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.5...olympe-2.5.6
 [olympe-2.5.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.4...olympe-2.5.5
 [olympe-2.5.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.3...olympe-2.5.4
