@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.10.4
+    customImage: olympeio/database:v2.11.3
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -76,8 +76,10 @@ frontend:
   additionalConfig: ""
   rabbitmq:
     host: rabbitmq
+    websocket: rabbitmq-websocket
     mqttPort: 15675
     amqpPort: 5672
+    websocketPort: 15670
   resources:
     requests:
       # -- frontend memory request. See [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
@@ -153,7 +155,7 @@ toolkit:
   image:
     repository: olympeio
     name: toolkit
-    tag: 1.2.1
+    tag: 1.2.2
   # -- defines privilege and access control settings for the Olympe Tools on Pod level.
   podSecurityContext:
     runAsUser: 0
@@ -174,7 +176,7 @@ orchestrator:
   image:
     repository: olympeio
     name: orchestrator
-    tag: 7.5.1
+    tag: 7.5.2
   port: 8080
   previewService:
     enabled: false
@@ -239,6 +241,7 @@ orchestrator:
     accessModes:
       - ReadWriteOnce
     fileService: {}
+    queryService: {}
     backupData: {}
     patches: {}
   # -- defines privilege and access control settings for the Orchestrator on Pod level.

@@ -101,6 +101,8 @@ spec:
           volumeMounts:
             - name: file-service
               mountPath: /opt/orchestrator/file-service
+            - name: query-service
+              mountPath: /opt/orchestrator/query-service
             - name: backup-data
               mountPath: /backupData
             - name: patches
@@ -112,6 +114,9 @@ spec:
         - name: file-service
           persistentVolumeClaim:
             claimName: {{ printf "%s-orchestrator-fs" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+        - name: query-service
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-query-service" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
         - name: backup-data
           persistentVolumeClaim:
             claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
