@@ -2,8 +2,14 @@
 ## [Unreleased]
 
 
-<a name="2.6.0"></a>
-## [2.6.0] - 2025-06-13
+<a name="2.6.1"></a>
+## [2.6.1] - 2025-06-14
+### Fix
+- query service individiaul storage class name
+
+
+<a name="olympe-2.6.0"></a>
+## [olympe-2.6.0] - 2025-06-13
 ### Chore
 - Update appVersion to v2.11.3
 - Update appVersion to v2.10.8
@@ -512,8 +518,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.0...HEAD
-[2.6.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.7...2.6.0
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.1...HEAD
+[2.6.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.0...2.6.1
+[olympe-2.6.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.7...olympe-2.6.0
 [olympe-2.5.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.6...olympe-2.5.7
 [olympe-2.5.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.5...olympe-2.5.6
 [olympe-2.5.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.4...olympe-2.5.5
