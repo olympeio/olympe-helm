@@ -81,7 +81,7 @@ spec:
   resources:
     requests:
       storage: {{ default "1Gi" .Values.orchestrator.dataVolume.queryService.storage }}
-  {{- with .Values.orchestrator.dataVolume.storageClassName }}
+  {{- with .Values.orchestrator.queryService.storageClassName }}
   storageClassName: {{ . }}
   {{- end }}
   {{- if (((((.Values).orchestrator).dataVolume).queryService).volumeName) }}
