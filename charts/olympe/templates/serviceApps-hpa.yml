@@ -1,5 +1,6 @@
 {{- range $k, $v := .Values.serviceApps }}
 {{- if and (ne (.type) "cronJob") ((($v.autoscaling).enabled)) }}
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:

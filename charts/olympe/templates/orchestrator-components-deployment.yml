@@ -4,9 +4,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ printf "%s-%s" (include "olympe.fullname" $) .name | trunc 63 | trimSuffix "-" }}
-  {{- if .annotations }}
   annotations:
-{{ toYaml .annotations | indent 4 }}
+  {{- with .annotations }} 
+    {{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- if (default false (.autoscaling).enabled) }}
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
   {{- end }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}

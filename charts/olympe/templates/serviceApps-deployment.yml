@@ -5,19 +5,24 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
-  {{- if .annotations }}
   annotations:
-{{ toYaml .annotations | indent 4 }}
+  {{- with .annotations }} 
+    {{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- if ((($v.autoscaling).enabled)) }}
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
   {{- end }}
   labels:
     {{- include "olympe.labels" $ | nindent 4 }}
     name: {{ printf "%s-%s" (include "olympe.fullname" $) $k | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/component: backend
 spec:
+  {{- if not ((($v.autoscaling).enabled)) }}
   {{- if eq $.Values.enabled true }}
   replicas: {{ .replicas }}
   {{- else }}
   replicas: 0
+  {{- end }}
   {{- end }}
   selector:
     matchLabels:

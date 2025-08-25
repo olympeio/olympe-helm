@@ -1,5 +1,6 @@
 {{- range .Values.orchestrator.components }}
 {{- if (default false (.autoscaling).enabled) }}
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
