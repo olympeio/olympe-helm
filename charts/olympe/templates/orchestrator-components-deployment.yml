@@ -57,8 +57,28 @@ spec:
           tty: true
           ports:
             - containerPort: {{ .port }}
+          {{ $version := $.Values.orchestrator.image.tag | semver }}
+          {{ $ver_number := print $version.Major "." $version.Minor "." $version.Patch }}
           livenessProbe:
+            {{- if $.Values.orchestrator.livenessProbe }}
             {{- toYaml $.Values.orchestrator.livenessProbe | nindent 12 }}
+            {{- else if (semverCompare ">=7.6.1" $ver_number) }}
+            httpGet:
+              path: /liveness
+              port: 8082
+            {{- else }}
+            httpGet:
+              path: /readiness
+              port: 8082
+            {{- end }}
+          readinessProbe:
+            {{- if $.Values.orchestrator.readinessProbe }}
+            {{- toYaml $.Values.orchestrator.readinessProbe | nindent 12 }}
+            {{- else }}
+            httpGet:
+              path: /readiness
+              port: 8082
+            {{- end }}
           startupProbe:
             {{- toYaml $.Values.orchestrator.startupProbe | nindent 12 }}    
           resources:

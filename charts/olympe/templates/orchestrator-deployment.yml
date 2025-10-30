@@ -57,30 +57,27 @@ spec:
           {{- if eq .Values.orchestrator.image.name "orchestrator" }}
           {{ $version := .Values.orchestrator.image.tag | semver }}
           {{ $ver_number := print $version.Major "." $version.Minor "." $version.Patch }}
-          {{- if (semverCompare ">=6.5.0" $ver_number) }}
           livenessProbe:
+            {{- if .Values.orchestrator.livenessProbe }}
             {{- toYaml .Values.orchestrator.livenessProbe | nindent 12 }}
-          startupProbe:
-            {{- toYaml .Values.orchestrator.startupProbe | nindent 12 }}
-          {{- else }}
-          livenessProbe:
+            {{- else if (semverCompare ">=7.6.1" $ver_number) }}
             httpGet:
-              path: /
-              port: 8080
-            failureThreshold: 10
-          startupProbe:
+              path: /liveness
+              port: 8082
+            {{- else }}
             httpGet:
-              path: /
-              port: 8080
-            failureThreshold: 10
+              path: /readiness
+              port: 8082
+            {{- end }}
+          readinessProbe:
+            {{- if .Values.orchestrator.readinessProbe }}
+            {{- toYaml .Values.orchestrator.readinessProbe | nindent 12 }}
+            {{- else }}
+            httpGet:
+              path: /readiness
+              port: 8082
+            {{- end }}
           {{- end }}
-          {{- else }}
-          livenessProbe:
-            {{- toYaml .Values.orchestrator.livenessProbe | nindent 12 }}
-          startupProbe:
-            {{- toYaml .Values.orchestrator.startupProbe | nindent 12 }}
-          {{- end }}
-          
           resources:
             {{- toYaml .Values.orchestrator.resources | nindent 12 }}
           envFrom:

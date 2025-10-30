@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.11.8
+    customImage: olympeio/database:v2.11.10
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -276,18 +276,6 @@ orchestrator:
       additionalLabels: {}
       # -- Prometheus ServiceMonitor annotations
       annotations: {}
-  # Orchestrator liveness probe
-  livenessProbe:
-    httpGet:
-      path: /readiness
-      port: 8082
-    failureThreshold: 10
-  # Orchestrator startup probe
-  startupProbe:
-    httpGet:
-      path: /readiness
-      port: 8082
-    failureThreshold: 10
 
 nodes:
   dataVolume:
