@@ -2,8 +2,18 @@
 ## [Unreleased]
 
 
-<a name="2.6.2"></a>
-## [2.6.2] - 2025-08-25
+<a name="2.6.3"></a>
+## [2.6.3] - 2025-10-30
+### Chore
+- Update appVersion to v2.11.10
+- Update appVersion to v2.11.9
+
+### Feat
+- update livenessProbe for orchestrator >= 7.6.1
+
+
+<a name="olympe-2.6.2"></a>
+## [olympe-2.6.2] - 2025-08-25
 ### Chore
 - Update appVersion to v2.11.8
 - Update appVersion to v2.11.7
@@ -534,8 +544,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.2...HEAD
-[2.6.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.1...2.6.2
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.3...HEAD
+[2.6.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.2...2.6.3
+[olympe-2.6.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.1...olympe-2.6.2
 [olympe-2.6.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.0...olympe-2.6.1
 [olympe-2.6.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.7...olympe-2.6.0
 [olympe-2.5.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.5.6...olympe-2.5.7
