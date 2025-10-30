@@ -276,18 +276,6 @@ orchestrator:
       additionalLabels: {}
       # -- Prometheus ServiceMonitor annotations
       annotations: {}
-  # Orchestrator liveness probe
-  livenessProbe:
-    httpGet:
-      path: /readiness
-      port: 8082
-    failureThreshold: 10
-  # Orchestrator startup probe
-  startupProbe:
-    httpGet:
-      path: /readiness
-      port: 8082
-    failureThreshold: 10
 
 nodes:
   dataVolume:
