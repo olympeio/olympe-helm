@@ -58,7 +58,7 @@ spec:
           {{ $version := .Values.orchestrator.image.tag | semver }}
           {{ $ver_number := print $version.Major "." $version.Minor "." $version.Patch }}
           livenessProbe:
-            {{- if .Values.orchestrator.livenessProbe }}
+            {{- if and .Values.orchestrator.livenessProbe (hasKey .Values.orchestrator.livenessProbe "httpGet") }}
             {{- toYaml .Values.orchestrator.livenessProbe | nindent 12 }}
             {{- else if (semverCompare ">=7.6.1" $ver_number) }}
             httpGet:
