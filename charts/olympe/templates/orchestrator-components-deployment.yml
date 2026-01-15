@@ -60,7 +60,7 @@ spec:
           {{ $version := $.Values.orchestrator.image.tag | semver }}
           {{ $ver_number := print $version.Major "." $version.Minor "." $version.Patch }}
           livenessProbe:
-            {{- if $.Values.orchestrator.livenessProbe }}
+            {{- if and $.Values.orchestrator.livenessProbe (hasKey $.Values.orchestrator.livenessProbe "httpGet") }}
             {{- toYaml $.Values.orchestrator.livenessProbe | nindent 12 }}
             {{- else if (semverCompare ">=7.6.1" $ver_number) }}
             httpGet:
@@ -79,8 +79,10 @@ spec:
               path: /readiness
               port: 8082
             {{- end }}
+          {{- if and $.Values.orchestrator.startupProbe (hasKey $.Values.orchestrator.startupProbe "httpGet") }}
           startupProbe:
-            {{- toYaml $.Values.orchestrator.startupProbe | nindent 12 }}    
+            {{- toYaml $.Values.orchestrator.startupProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .resources | nindent 12 }}
           envFrom:
