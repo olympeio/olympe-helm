@@ -2,8 +2,17 @@
 ## [Unreleased]
 
 
-<a name="2.6.4"></a>
-## [2.6.4] - 2026-01-15
+<a name="2.6.5"></a>
+## [2.6.5] - 2026-03-04
+### Chore
+- update appVersion to 2.13.0
+
+### Fix
+- remove caching for index.html
+
+
+<a name="olympe-2.6.4"></a>
+## [olympe-2.6.4] - 2026-01-15
 ### Chore
 - Update appVersion to v2.11.12
 - Update appVersion to v2.12.0
@@ -556,8 +565,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.4...HEAD
-[2.6.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.3...2.6.4
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.5...HEAD
+[2.6.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.4...2.6.5
+[olympe-2.6.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.3...olympe-2.6.4
 [olympe-2.6.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.2...olympe-2.6.3
 [olympe-2.6.2]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.1...olympe-2.6.2
 [olympe-2.6.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.0...olympe-2.6.1
