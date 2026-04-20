@@ -18,7 +18,7 @@ spec:
       volumes:
         - name: patches
           persistentVolumeClaim:
-            claimName: {{ printf "%s-orchestrator-patches" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            claimName: {{ include "olympe.pvcNameEfs" (dict "root" . "suffix" "orchestrator-patches") }}
       containers:
         - name: deploy
           image: "{{ printf "%s/%s:%s" .Values.codeAsData.image.repository .Values.codeAsData.image.name (default .Chart.AppVersion .Values.codeAsData.image.tag) }}"

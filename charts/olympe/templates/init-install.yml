@@ -19,7 +19,7 @@ spec:
       volumes:
         - name: backup-data
           persistentVolumeClaim:
-            claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+            claimName: {{ include "olympe.pvcNameEfs" (dict "root" . "suffix" "orchestrator-backup-data") }}
       containers:
         - name: {{ lower .Values.orchestrator.initInstall.command }}
           image: "{{ printf "%s/%s:%s" .Values.toolkit.image.repository .Values.toolkit.image.name .Values.toolkit.image.tag }}"

@@ -3,10 +3,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ printf "%s-nodes-file-service" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+  name: {{ include "olympe.pvcNameEfs" (dict "root" . "suffix" "nodes-file-service") }}
   labels:
     {{- include "olympe.labels" . | nindent 4 }}
-    name: {{ printf "%s-nodes-file-service" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+    name: {{ include "olympe.pvcNameEfs" (dict "root" . "suffix" "nodes-file-service") }}
 spec:
   accessModes:
   {{- range .Values.nodes.dataVolume.accessModes }}

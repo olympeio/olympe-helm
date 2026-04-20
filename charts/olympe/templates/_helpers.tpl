@@ -25,6 +25,37 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 {{/*
+PVC name for EFS dynamic provisioning: the CSI driver builds paths as
+/{namespace}/{pvcName}-{uuid} and the total length must not exceed 100 characters.
+Budget for the PVC name is min(63, 61 - len(namespace)); if that is non-positive,
+truncate to at least one character (path may still exceed EFS limits for extreme namespaces).
+If any known PVC fullname+suffix exceeds the budget, all EFS PVCs fallback to suffix-only naming.
+When truncating, keep the end of the name so the most specific (last) part is preserved.
+Pass dict "root" (chart root context) and "suffix" (e.g. orchestrator-backup-data).
+*/}}
+{{- define "olympe.pvcNameEfs" -}}
+{{- $root := index . "root" -}}
+{{- $suffix := index . "suffix" -}}
+{{- $base := printf "%s-%s" (include "olympe.fullname" $root) $suffix -}}
+{{- $nsLen := len $root.Release.Namespace -}}
+{{- $budget := sub 61 $nsLen | int -}}
+{{- $limit := max 1 (min 63 $budget) | int -}}
+{{- $suffixes := list "orchestrator-fs" "query-service" "orchestrator-backup-data" "orchestrator-patches" "nodes-file-service" -}}
+{{- $useSuffixOnly := false -}}
+{{- range $knownSuffix := $suffixes -}}
+{{- if gt (len (printf "%s-%s" (include "olympe.fullname" $root) $knownSuffix)) $limit -}}
+{{- $useSuffixOnly = true -}}
+{{- end -}}
+{{- end -}}
+{{- $candidate := $base -}}
+{{- if $useSuffixOnly -}}
+{{- $candidate = $suffix -}}
+{{- end -}}
+{{- $tailLimit := mul -1 $limit | int -}}
+{{- $candidate | trunc $tailLimit | trimPrefix "-" | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "olympe.chart" -}}

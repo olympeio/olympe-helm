@@ -122,16 +122,16 @@ spec:
       volumes:
         - name: file-service
           persistentVolumeClaim:
-            claimName: {{ printf "%s-orchestrator-fs" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            claimName: {{ include "olympe.pvcNameEfs" (dict "root" $ "suffix" "orchestrator-fs") }}
         - name: query-service
           persistentVolumeClaim:
-            claimName: {{ printf "%s-query-service" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            claimName: {{ include "olympe.pvcNameEfs" (dict "root" $ "suffix" "query-service") }}
         - name: backup-data
           persistentVolumeClaim:
-            claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            claimName: {{ include "olympe.pvcNameEfs" (dict "root" $ "suffix" "orchestrator-backup-data") }}
         - name: patches
           persistentVolumeClaim:
-            claimName: {{ printf "%s-orchestrator-patches" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+            claimName: {{ include "olympe.pvcNameEfs" (dict "root" $ "suffix" "orchestrator-patches") }}
         {{ with .volumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
