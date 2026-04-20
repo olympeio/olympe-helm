@@ -65,4 +65,4 @@ spec:
           volumes:
           - name: backup-data
             persistentVolumeClaim:
-              claimName: {{ printf "%s-orchestrator-backup-data" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+              claimName: {{ include "olympe.pvcNameEfs" (dict "root" $ "suffix" "orchestrator-backup-data") }}
