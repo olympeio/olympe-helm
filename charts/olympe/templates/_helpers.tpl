@@ -37,6 +37,9 @@ Pass dict "root" (chart root context) and "suffix" (e.g. orchestrator-backup-dat
 {{- $root := index . "root" -}}
 {{- $suffix := index . "suffix" -}}
 {{- $base := printf "%s-%s" (include "olympe.fullname" $root) $suffix -}}
+{{- if not (default false $root.Values.pvcShortName) -}}
+{{- $base | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
 {{- $nsLen := len $root.Release.Namespace -}}
 {{- $budget := sub 61 $nsLen | int -}}
 {{- $limit := max 1 (min 63 $budget) | int -}}
@@ -53,6 +56,7 @@ Pass dict "root" (chart root context) and "suffix" (e.g. orchestrator-backup-dat
 {{- end -}}
 {{- $tailLimit := mul -1 $limit | int -}}
 {{- $candidate | trunc $tailLimit | trimPrefix "-" | trimSuffix "-" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -194,7 +198,7 @@ containers:
 volumes:
   - name: file-service
     persistentVolumeClaim:
-      claimName: {{ printf "%s-nodes-file-service" (include "olympe.fullname" .root) | trunc 63 | trimSuffix "-" }}
+      claimName: {{ include "olympe.pvcNameEfs" (dict "root" .root "suffix" "nodes-file-service") }}
   {{- if .serviceApp.oConfig }}
   - name: backend-oconfig
     secret:
