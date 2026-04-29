@@ -2,8 +2,17 @@
 ## [Unreleased]
 
 
-<a name="2.6.6"></a>
-## [2.6.6] - 2026-04-20
+<a name="2.6.7"></a>
+## [2.6.7] - 2026-04-29
+### Chore
+- Update appVersion to v2.14.0
+
+### Fix
+- fix helper for long instance names
+
+
+<a name="olympe-2.6.6"></a>
+## [olympe-2.6.6] - 2026-04-20
 ### Fix
 - fix pvc names for instances with long names
 
@@ -571,8 +580,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.6...HEAD
-[2.6.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.5...2.6.6
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.7...HEAD
+[2.6.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.6...2.6.7
+[olympe-2.6.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.5...olympe-2.6.6
 [olympe-2.6.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.4...olympe-2.6.5
 [olympe-2.6.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.3...olympe-2.6.4
 [olympe-2.6.3]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.2...olympe-2.6.3
