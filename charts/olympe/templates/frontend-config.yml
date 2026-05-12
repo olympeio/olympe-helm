@@ -181,7 +181,7 @@ metadata:
 data:
   http.conf: |
       {{- $orchExt := .Values.orchestrator.external | default dict }}
-      {{- $orchestratorHost := ternary "orchestrator" (printf "%s.%s.svc.cluster.local" (default "orchestrator" $orchExt.serviceName) (default "orchestrator" $orchExt.namespace)) .Values.orchestrator.enabled }}
+      {{- $orchestratorHost := ternary (printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-") (printf "%s.%s.svc.cluster.local" (default "orchestrator" $orchExt.serviceName) (default "orchestrator" $orchExt.namespace)) .Values.orchestrator.enabled }}
       {{- $orchestratorUpstreamPort := default .Values.orchestrator.port $orchExt.port }}
       tcp_nopush on;
       tcp_nodelay on;
@@ -244,22 +244,22 @@ data:
 
       map $host $orchestrator {
         {{- range .Values.ingress.hosts }}
-        {{ . }} {{ printf "%s:%d" $orchestratorHost ($orchestratorUpstreamPort | int) }};
+        {{ . }} orchestrator;
         {{- end }}
         {{- if and .Values.additionalIngress.enabled .Values.additionalServices.enabled }}
           {{- range $host := .Values.ingress.hosts }}
             {{- range $.Values.orchestrator.additionalServices }}
-        {{ printf "%s%s" $.Values.additionalIngress.prefix $host}} {{ printf "%s-%s" $orchestratorHost .suffix }};
+        {{ printf "%s%s" $.Values.additionalIngress.prefix $host}} {{ printf "orchestrator-%s" .suffix }};
             {{- end }}
           {{- end }}
         {{- end }}
-        {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} {{ $orchestratorHost }}:{{ default "8080" .Values.orchestrator.port }};
+        {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} orchestrator;
         {{- if .Values.additionalServices.enabled }}
           {{- range .Values.orchestrator.additionalServices }}
-        {{ printf "%s-frontend-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }} {{ printf "%s-%s" $orchestratorHost .suffix }};
+        {{ printf "%s-frontend-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }} {{ printf "orchestrator-%s" .suffix }};
           {{- end }}
         {{- end }}
-        default {{ printf "%s:%d" $orchestratorHost ($orchestratorUpstreamPort | int) }};
+        default orchestrator;
       }
 
       {{- /* Must add a `map` and an `upstream` for each port exposed by the service apps */}}
@@ -335,7 +335,7 @@ data:
       {{- if .Values.additionalServices.enabled }}
           {{- range .Values.orchestrator.additionalServices }}
       upstream {{ printf "orchestrator-%s" .suffix }} {
-        server {{ printf "orchestrator-%s.orchestrator.svc.cluster.local" .suffix | trunc 63 | trimSuffix "-" }}:8080;
+        server {{ printf "%s-%s:%d" $orchestratorHost .suffix ($orchestratorUpstreamPort | int) }};
       }
         {{- end }}
       {{- end }}
