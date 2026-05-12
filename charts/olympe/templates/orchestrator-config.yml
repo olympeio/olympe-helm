@@ -1,3 +1,4 @@
+{{- if eq .Values.orchestrator.enabled true }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -31,3 +32,4 @@ data:
   USER_EVENTS_ENABLED: {{ default "false" .Values.orchestrator.userEvents | quote }}
   ORCHESTRATOR_CODE_AS_DATA_DIR: {{ default "/patches" .Values.orchestrator.codeAsDataDir | quote }}
   EXCLUDED_VERTICLES: {{ default "" (include "excluded_verticles" .) | quote }}
+{{- end }}

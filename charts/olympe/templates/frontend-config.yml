@@ -85,7 +85,7 @@ data:
     }
 
     location /OlympeServer/websocket {
-      proxy_pass http://$orchestrator/OlympeServer/websocket;
+      proxy_pass http://$orchestrator/OlympeServer/websocket{{ include "olympe.orchestratorSuffix" (dict "context" . "with_uri" false) }};
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
@@ -95,7 +95,7 @@ data:
     }
 
     location /OlympeServer/maintenance/websocket {
-      proxy_pass http://$orchestrator/OlympeServer/maintenance/websocket;
+      proxy_pass http://$orchestrator/OlympeServer/maintenance/websocket{{ include "olympe.orchestratorSuffix" (dict "context" . "with_uri" false) }};
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
@@ -106,11 +106,11 @@ data:
 
     {{- range .Values.orchestrator.components }}
     {{ printf "location /OlympeServer/rest/%s {" (default .name .path) }}
-      {{ printf "proxy_pass http://$%s;" (replace "-" "_" .name) }}
+      proxy_pass http://${{ (replace "-" "_" .name) }}{{ include "olympe.orchestratorSuffix" (dict "context" $) }};
       proxy_http_version 1.1;
     }
     {{ printf "location /OlympeServer/rest/%s/graphDef/static {" (default .name .path) }}
-      {{ printf "proxy_pass http://$%s;" (replace "-" "_" .name) }}
+      proxy_pass http://${{ (replace "-" "_" .name) }}{{ include "olympe.orchestratorSuffix" (dict "context" $) }};
       proxy_http_version 1.1;
       client_max_body_size 50M;
       proxy_connect_timeout 900;
@@ -128,7 +128,7 @@ data:
     {{- end }}
     
     location ^~ /OlympeServer/ {
-      proxy_pass http://$orchestrator;
+      proxy_pass http://$orchestrator{{ include "olympe.orchestratorSuffix" (dict "context" .) }};
       proxy_http_version 1.1;
       client_max_body_size 3000M;
       proxy_connect_timeout       900;
@@ -180,6 +180,9 @@ metadata:
     app.kubernetes.io/component: frontend
 data:
   http.conf: |
+      {{- $orchExt := .Values.orchestrator.external | default dict }}
+      {{- $orchestratorHost := ternary "orchestrator" (printf "%s.%s.svc.cluster.local" (default "orchestrator" $orchExt.serviceName) (default "orchestrator" $orchExt.namespace)) .Values.orchestrator.enabled }}
+      {{- $orchestratorUpstreamPort := default .Values.orchestrator.port $orchExt.port }}
       tcp_nopush on;
       tcp_nodelay on;
 
@@ -241,22 +244,22 @@ data:
 
       map $host $orchestrator {
         {{- range .Values.ingress.hosts }}
-        {{ . }} orchestrator;
+        {{ . }} {{ printf "%s:%d" $orchestratorHost ($orchestratorUpstreamPort | int) }};
         {{- end }}
         {{- if and .Values.additionalIngress.enabled .Values.additionalServices.enabled }}
           {{- range $host := .Values.ingress.hosts }}
             {{- range $.Values.orchestrator.additionalServices }}
-        {{ printf "%s%s" $.Values.additionalIngress.prefix $host}} {{ printf "orchestrator-%s" .suffix }};
+        {{ printf "%s%s" $.Values.additionalIngress.prefix $host}} {{ printf "%s-%s" $orchestratorHost .suffix }};
             {{- end }}
           {{- end }}
         {{- end }}
-        {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} orchestrator;
+        {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }} {{ $orchestratorHost }}:{{ default "8080" .Values.orchestrator.port }};
         {{- if .Values.additionalServices.enabled }}
           {{- range .Values.orchestrator.additionalServices }}
-        {{ printf "%s-frontend-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }} {{ printf "orchestrator-%s" .suffix }};
+        {{ printf "%s-frontend-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }} {{ printf "%s-%s" $orchestratorHost .suffix }};
           {{- end }}
         {{- end }}
-        default orchestrator;
+        default {{ printf "%s:%d" $orchestratorHost ($orchestratorUpstreamPort | int) }};
       }
 
       {{- /* Must add a `map` and an `upstream` for each port exposed by the service apps */}}
@@ -290,6 +293,19 @@ data:
       {{- end }}
       {{- end }}
 
+      {{- if eq .Values.orchestrator.enabled false }}
+      {{- range .Values.orchestrator.external.components }}
+        {{- $addrSuffix := printf "%s.svc.cluster.local" (include "olympe.fullname" $) }}
+        {{- $serviceName := .name }}
+        {{- $servicePort := .port }}
+      map $host $query_service {
+        {{- range $.Values.ingress.hosts }}
+        {{ printf "%s %s.%s.svc.cluster.local:%d" . $serviceName $.Values.orchestrator.external.namespace (int $servicePort) }};
+        {{- end }}
+        {{ printf "default %s.%s.svc.cluster.local:%d" $serviceName $.Values.orchestrator.external.namespace (int $servicePort) }};
+      }
+      {{- end }}
+      {{- else -}}
       {{- range .Values.orchestrator.components }}
           {{- /* Use a fully qualified domain names (FQDNs) for the resolver to work */}}
           {{- $addrSuffix := printf "%s.svc.cluster.local" (include "olympe.fullname" $) }}
@@ -310,21 +326,22 @@ data:
         default {{ $serviceName }}.{{ $addrSuffix }}:{{ $port }};
       }
       {{- end }}
+      {{- end }}
 
       upstream orchestrator {
-        server {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:8080;
+        server {{ printf "%s:%d" $orchestratorHost ($orchestratorUpstreamPort | int) }};
       }
 
       {{- if .Values.additionalServices.enabled }}
           {{- range .Values.orchestrator.additionalServices }}
       upstream {{ printf "orchestrator-%s" .suffix }} {
-        server {{ printf "%s-orchestrator-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }}:8080;
+        server {{ printf "orchestrator-%s.orchestrator.svc.cluster.local" .suffix | trunc 63 | trimSuffix "-" }}:8080;
       }
         {{- end }}
       {{- end }}
 
       upstream micrometer {
-        server {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:8081;
+        server {{ printf "%s:8081" $orchestratorHost }};
       }
 
       upstream rabbitmq {

@@ -1,3 +1,4 @@
+{{- if eq .Values.orchestrator.enabled true }}
 {{- range .Values.orchestrator.components }}
 ---
 apiVersion: v1
@@ -50,5 +51,6 @@ spec:
       port: 8081
       targetPort: 8081
     {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

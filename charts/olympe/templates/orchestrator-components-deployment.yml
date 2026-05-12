@@ -1,3 +1,4 @@
+{{- if eq .Values.orchestrator.enabled true }}
 {{- range .Values.orchestrator.components  }}
 ---
 apiVersion: apps/v1
@@ -18,7 +19,11 @@ metadata:
     app.kubernetes.io/part-of: orchestrator
 spec:
   {{- if eq $.Values.enabled true }}
-  replicas: {{ .replicas | default 1 }}
+  {{- if hasKey . "replicas" }}
+  replicas: {{ .replicas }}
+  {{- else }}
+  replicas: 1
+  {{- end }}
   {{- else }}
   replicas: 0
   {{- end }}
@@ -147,4 +152,5 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+{{- end }}
 {{- end }}
