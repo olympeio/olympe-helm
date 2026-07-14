@@ -22,6 +22,9 @@ spec:
     - name: {{ .name }}
       port: {{ .port }}
       targetPort: {{ .port }}
+    {{- with .additionalPorts }} 
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if $.Values.orchestrator.prometheus.enabled }}
     - name: micrometer
       port: 8081

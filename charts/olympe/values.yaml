@@ -169,6 +169,8 @@ orchestrator:
     namespace: orchestrator
     serviceName: orchestrator
     port: 8080
+    rabbitmq:
+      orchestratorVhost: orchestrator
     components:
     - name: query-service
       path: querysvc

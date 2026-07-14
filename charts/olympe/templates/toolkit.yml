@@ -65,6 +65,8 @@ spec:
                 value: {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               - name: ORCHESTRATOR_SERVICE_PORT
                 value: '80'
+              - name: INSTANCE_NAME
+                value: {{ (include "olympe.fullname" $) }}
               {{- if gt (len $.Values.snapshooters) 0 }}
               {{- with (index $.Values.snapshooters 0) }}
               - name: SNAPSHOT_CONFIG
@@ -78,17 +80,12 @@ spec:
                 {{- toYaml $.Values.toolkit.env | nindent 14 }}
               {{- end }}
               volumeMounts:
-              - name: backup-data
-                mountPath: /backupData
               {{- if gt (len $.Values.snapshooters) 0 }}
               - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
                 mountPath: /config
               {{- end }}
           restartPolicy: {{ default "Never" .restartPolicy }}
           volumes:
-          - name: backup-data
-            persistentVolumeClaim:
-              claimName: {{ include "olympe.pvcNameEfs" (dict "root" $ "suffix" "orchestrator-backup-data") }}
           {{- if gt (len $.Values.snapshooters) 0 }}
           - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
             secret:
