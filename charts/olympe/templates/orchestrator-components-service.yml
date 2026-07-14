@@ -1,3 +1,4 @@
+{{- if eq .Values.orchestrator.enabled true }}
 {{- range .Values.orchestrator.components }}
 ---
 apiVersion: v1
@@ -21,6 +22,9 @@ spec:
     - name: {{ .name }}
       port: {{ .port }}
       targetPort: {{ .port }}
+    {{- with .additionalPorts }} 
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if $.Values.orchestrator.prometheus.enabled }}
     - name: micrometer
       port: 8081
@@ -50,5 +54,6 @@ spec:
       port: 8081
       targetPort: 8081
     {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

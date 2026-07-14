@@ -25,6 +25,29 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 {{/*
+Return an optional orchestrator proxy suffix.
+When orchestrator is disabled, append query args expected by external orchestrator endpoint.
+*/}}
+{{- define "olympe.orchestratorSuffix" -}}
+  {{- $ctx := .context -}}
+  {{- /* default with_uri=true */ -}}
+  {{- $withUri := true -}}
+  {{- if hasKey . "with_uri" -}}
+    {{- $withUri = .with_uri -}}
+  {{- end -}}
+
+  {{- if eq $ctx.Values.orchestrator.enabled false -}}
+    {{- if $withUri -}}
+      {{- printf "$uri?inst=%s&$args" (include "olympe.fullname" $ctx) -}}
+    {{- else -}}
+      {{- printf "?inst=%s&$args" (include "olympe.fullname" $ctx) -}}
+    {{- end -}}
+  {{- else -}}
+    {{- printf "" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 PVC name for EFS dynamic provisioning: the CSI driver builds paths as
 /{namespace}/{pvcName}-{uuid} and the total length must not exceed 100 characters.
 Budget for the PVC name is min(63, 61 - len(namespace)); if that is non-positive,

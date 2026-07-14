@@ -1,7 +1,7 @@
 neo4j:
   enabled: true
   image:
-    customImage: olympeio/database:v2.14.0
+    customImage: olympeio/database:v2.15.1
   fullnameOverride: neo4j
   neo4j:
     password: olympe
@@ -164,6 +164,17 @@ upgradeScript:
   schedule: 5 1 * * 0
 
 orchestrator:
+  enabled: true
+  external:
+    namespace: orchestrator
+    serviceName: orchestrator
+    port: 8080
+    rabbitmq:
+      orchestratorVhost: orchestrator
+    components:
+    - name: query-service
+      path: querysvc
+      port: 8585
   # -- Toggle codeAsData install during chart installation (only executed at creation)
   initInstall:
     enabled: true

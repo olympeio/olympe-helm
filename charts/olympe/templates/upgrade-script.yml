@@ -58,11 +58,4 @@ spec:
               {{ if .Values.upgradeScript.env }}
                 {{- toYaml .Values.upgradeScript.env | nindent 14 }}
               {{- end }}
-              volumeMounts:
-              - name: backup-data
-                mountPath: /backupData
           restartPolicy: {{ default "Never" .Values.upgradeScript.restartPolicy }}
-          volumes:
-          - name: backup-data
-            persistentVolumeClaim:
-              claimName: {{ include "olympe.pvcNameEfs" (dict "root" $ "suffix" "orchestrator-backup-data") }}

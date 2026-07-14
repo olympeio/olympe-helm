@@ -89,6 +89,7 @@ data:
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
+      {{ printf "proxy_set_header Instance %s;" (include "olympe.fullname" .) }}
       proxy_connect_timeout 7d;
       proxy_send_timeout 7d;
       proxy_read_timeout 7d;
@@ -99,18 +100,22 @@ data:
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
+      {{ printf "proxy_set_header Instance %s;" (include "olympe.fullname" .) }}
       proxy_connect_timeout 7d;
       proxy_send_timeout 7d;
       proxy_read_timeout 7d;
     }
 
-    {{- range .Values.orchestrator.components }}
+    {{- if eq .Values.orchestrator.enabled false }}
+    {{- range .Values.orchestrator.external.components }}
     {{ printf "location /OlympeServer/rest/%s {" (default .name .path) }}
       {{ printf "proxy_pass http://$%s;" (replace "-" "_" .name) }}
+      {{ printf "proxy_set_header Instance %s;" (include "olympe.fullname" $) }}
       proxy_http_version 1.1;
     }
     {{ printf "location /OlympeServer/rest/%s/graphDef/static {" (default .name .path) }}
       {{ printf "proxy_pass http://$%s;" (replace "-" "_" .name) }}
+      {{ printf "proxy_set_header Instance %s;" (include "olympe.fullname" $) }}
       proxy_http_version 1.1;
       client_max_body_size 50M;
       proxy_connect_timeout 900;
@@ -126,6 +131,37 @@ data:
       add_header X-Cache-Status $upstream_cache_status;
     }
     {{- end }}
+    {{- else }}
+    {{- range .Values.orchestrator.components }}
+    {{ printf "location /OlympeServer/rest/%s {" (default .name .path) }}
+      {{ printf "proxy_pass http://$%s;" (replace "-" "_" .name) }}
+      {{ printf "proxy_set_header Instance %s;" (include "olympe.fullname" $) }}
+      proxy_http_version 1.1;
+    }
+    {{ printf "location /OlympeServer/rest/%s/graphDef/static {" (default .name .path) }}
+      {{ printf "proxy_pass http://$%s;" (replace "-" "_" .name) }}
+      {{ printf "proxy_set_header Instance %s;" (include "olympe.fullname" $) }}
+      proxy_http_version 1.1;
+      client_max_body_size 50M;
+      proxy_connect_timeout 900;
+      proxy_send_timeout 900;
+      proxy_read_timeout 900;
+      send_timeout 900;
+
+      proxy_cache_key "$scheme$host$uri$is_args$arg_query$arg_v";
+      proxy_cache graphDef_cache;
+      proxy_cache_methods GET;
+      proxy_ignore_headers Cache-Control;
+      proxy_cache_valid 200 1M;
+      add_header X-Cache-Status $upstream_cache_status;
+    }
+    {{- end }}
+    {{- end }}
+    
+    location ^~ /OlympeServer/rest/ {
+      proxy_pass http://$orchestrator;
+      {{ printf "proxy_set_header Instance %s;" (include "olympe.fullname" .) }}
+    }
     
     location ^~ /OlympeServer/ {
       proxy_pass http://$orchestrator;
@@ -180,6 +216,9 @@ metadata:
     app.kubernetes.io/component: frontend
 data:
   http.conf: |
+      {{- $orchExt := .Values.orchestrator.external | default dict }}
+      {{- $orchestratorHost := ternary (printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-") (printf "%s.%s.svc.cluster.local" (default "orchestrator" $orchExt.serviceName) (default "orchestrator" $orchExt.namespace)) .Values.orchestrator.enabled }}
+      {{- $orchestratorUpstreamPort := default .Values.orchestrator.port $orchExt.port }}
       tcp_nopush on;
       tcp_nodelay on;
 
@@ -290,6 +329,19 @@ data:
       {{- end }}
       {{- end }}
 
+      {{- if eq .Values.orchestrator.enabled false }}
+      {{- range .Values.orchestrator.external.components }}
+        {{- $addrSuffix := printf "%s.svc.cluster.local" (include "olympe.fullname" $) }}
+        {{- $serviceName := .name }}
+        {{- $servicePort := .port }}
+      map $host $query_service {
+        {{- range $.Values.ingress.hosts }}
+        {{ printf "%s %s.%s.svc.cluster.local:%d" . $serviceName $.Values.orchestrator.external.namespace (int $servicePort) }};
+        {{- end }}
+        {{ printf "default %s.%s.svc.cluster.local:%d" $serviceName $.Values.orchestrator.external.namespace (int $servicePort) }};
+      }
+      {{- end }}
+      {{- else -}}
       {{- range .Values.orchestrator.components }}
           {{- /* Use a fully qualified domain names (FQDNs) for the resolver to work */}}
           {{- $addrSuffix := printf "%s.svc.cluster.local" (include "olympe.fullname" $) }}
@@ -310,21 +362,23 @@ data:
         default {{ $serviceName }}.{{ $addrSuffix }}:{{ $port }};
       }
       {{- end }}
+      {{- end }}
 
       upstream orchestrator {
-        server {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:8080;
+        server {{ printf "%s:%d" $orchestratorHost ($orchestratorUpstreamPort | int) }};
       }
 
       {{- if .Values.additionalServices.enabled }}
           {{- range .Values.orchestrator.additionalServices }}
+          {{- $suffixedOrchestratorHost := ternary (printf "%s-orchestrator-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-") (printf "%s-%s.%s.svc.cluster.local" (default "orchestrator" $orchExt.serviceName) .suffix (default "orchestrator" $orchExt.namespace)) $.Values.orchestrator.enabled }}
       upstream {{ printf "orchestrator-%s" .suffix }} {
-        server {{ printf "%s-orchestrator-%s" (include "olympe.fullname" $) .suffix | trunc 63 | trimSuffix "-" }}:8080;
+        server {{ printf "%s:%d" $suffixedOrchestratorHost ($orchestratorUpstreamPort | int) }};
       }
         {{- end }}
       {{- end }}
 
       upstream micrometer {
-        server {{ printf "%s-orchestrator" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}:8081;
+        server {{ printf "%s:8081" $orchestratorHost }};
       }
 
       upstream rabbitmq {
@@ -345,6 +399,8 @@ data:
 
       server {
         proxy_cache nginxcache;
+        proxy_next_upstream error timeout invalid_header http_502 http_503 http_504;
+        proxy_next_upstream_tries 3;
         listen {{ .Values.frontend.port }};
         listen [::]:{{ .Values.frontend.port }};
         {{- with (first .Values.ingress.hosts) }}

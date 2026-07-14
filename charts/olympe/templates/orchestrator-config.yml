@@ -19,7 +19,11 @@ data:
   KUBERNETES_NAMESPACE: {{ .Release.Namespace }}
   RABBITMQ_HOST: {{ .Values.orchestrator.rabbitmq.host }}
   RABBITMQ_VIRTUAL_HOST: {{ default "orchestrator" .Values.orchestrator.rabbitmq.vhost }}
+  {{- if eq .Values.orchestrator.enabled true }}
   RABBITMQ_ORCHESTRATOR_VHOST: {{ default "orchestrator" .Values.orchestrator.rabbitmq.orchestratorVhost }}
+  {{- else }}
+  RABBITMQ_ORCHESTRATOR_VHOST: {{ default "orchestrator" .Values.orchestrator.external.rabbitmq.orchestratorVhost }}
+  {{- end }}
   RABBITMQ_PORT: {{ .Values.orchestrator.rabbitmq.port | quote }}
   RABBITMQ_PROTO: {{ default "amqp" .Values.orchestrator.rabbitmq.proto }}
   DB_URI_SCHEME: {{ .Values.orchestrator.neo4j.protocol }}
