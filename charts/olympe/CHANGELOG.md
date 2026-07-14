@@ -2,8 +2,22 @@
 ## [Unreleased]
 
 
-<a name="2.6.7"></a>
-## [2.6.7] - 2026-04-29
+<a name="2.7.0"></a>
+## [2.7.0] - 2026-07-14
+### Chore
+- Update appVersion to v2.15.1
+- Update appVersion to v2.15.0
+
+### Feat
+- implement orchestrator mutualization
+- implement orchestrator mutualization
+
+### Fix
+- implement orchestrator endpoint for mutualization
+
+
+<a name="olympe-2.6.7"></a>
+## [olympe-2.6.7] - 2026-04-29
 ### Chore
 - Update appVersion to v2.14.0
 
@@ -550,11 +564,11 @@
 - set backofflimit to 1 for initial resetdb
 
 
-<a name="olympe-1.3.1-SNAPSHOT"></a>
-## [olympe-1.3.1-SNAPSHOT] - 2023-02-08
-
 <a name="olympe-1.3.1-SNAPSHOT-SNAPSHOT"></a>
 ## [olympe-1.3.1-SNAPSHOT-SNAPSHOT] - 2023-02-08
+
+<a name="olympe-1.3.1-SNAPSHOT"></a>
+## [olympe-1.3.1-SNAPSHOT] - 2023-02-08
 
 <a name="olympe-1.3.7"></a>
 ## [olympe-1.3.7] - 2023-02-06
@@ -580,8 +594,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.6.7...HEAD
-[2.6.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.6...2.6.7
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.7.0...HEAD
+[2.7.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.7...2.7.0
+[olympe-2.6.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.6...olympe-2.6.7
 [olympe-2.6.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.5...olympe-2.6.6
 [olympe-2.6.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.4...olympe-2.6.5
 [olympe-2.6.4]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.3...olympe-2.6.4
@@ -626,9 +641,9 @@
 [olympe-2.0.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.0.0...olympe-2.0.1
 [olympe-2.0.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.1...olympe-2.0.0
 [olympe-1.4.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.4.0...olympe-1.4.1
-[olympe-1.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT...olympe-1.4.0
-[olympe-1.3.1-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT-SNAPSHOT...olympe-1.3.1-SNAPSHOT
-[olympe-1.3.1-SNAPSHOT-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.7...olympe-1.3.1-SNAPSHOT-SNAPSHOT
+[olympe-1.4.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT-SNAPSHOT...olympe-1.4.0
+[olympe-1.3.1-SNAPSHOT-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.1-SNAPSHOT...olympe-1.3.1-SNAPSHOT-SNAPSHOT
+[olympe-1.3.1-SNAPSHOT]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.7...olympe-1.3.1-SNAPSHOT
 [olympe-1.3.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.6...olympe-1.3.7
 [olympe-1.3.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.5...olympe-1.3.6
 [olympe-1.3.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-1.3.4...olympe-1.3.5
