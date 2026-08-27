@@ -50,7 +50,9 @@ spec:
               - snapshot
             env:
               - name: ORCHESTRATOR_HOST
-                value: orchestrator
+                value: {{ printf "%s-frontend" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+              - name: ORCHESTRATOR_SERVICE_PORT
+                value: '80'
               - name: SNAPSHOT_CONFIG
                 value: {{ printf "/config/%s.json" .name | trunc 63 | trimSuffix "-" }}
               {{- if .env }}
