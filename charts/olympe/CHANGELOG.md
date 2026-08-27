@@ -2,8 +2,11 @@
 ## [Unreleased]
 
 
-<a name="2.7.0"></a>
-## [2.7.0] - 2026-07-14
+<a name="2.7.1"></a>
+## [2.7.1] - 2026-08-27
+
+<a name="olympe-2.7.0"></a>
+## [olympe-2.7.0] - 2026-07-14
 ### Chore
 - Update appVersion to v2.15.1
 - Update appVersion to v2.15.0
@@ -594,8 +597,9 @@
 <a name="olympe-1.3.0"></a>
 ## olympe-1.3.0 - 2023-02-06
 
-[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.7.0...HEAD
-[2.7.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.7...2.7.0
+[Unreleased]: https://github.com/olympeio/olympe-helm-test.git/compare/2.7.1...HEAD
+[2.7.1]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.7.0...2.7.1
+[olympe-2.7.0]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.7...olympe-2.7.0
 [olympe-2.6.7]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.6...olympe-2.6.7
 [olympe-2.6.6]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.5...olympe-2.6.6
 [olympe-2.6.5]: https://github.com/olympeio/olympe-helm-test.git/compare/olympe-2.6.4...olympe-2.6.5
