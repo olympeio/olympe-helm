@@ -96,8 +96,14 @@ spec:
         configMap:
           {{- if kindIs "string" .Values.frontend.oConfig }}
           name: {{ printf "%s-frontend-oconfig" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+          {{- else if .Values.frontend.oConfig.configMapRef }}
+          name: {{ .Values.frontend.oConfig.configMapRef }}
           {{- else }}
+            {{- if kindIs "string" .Values.frontend.oConfig.current }}
           name: {{ printf "%s-frontend-%s" (include "olympe.fullname" .) (lower .Values.frontend.oConfig.current) | trunc 63 | trimSuffix "-" }}
+            {{- else }}
+          name: {{ .Values.frontend.oConfig.current.configMapRef }}
+            {{- end }}
           {{- end }}
       {{- end }}
       {{- if .Values.frontend.volumes }}

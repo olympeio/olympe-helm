@@ -514,7 +514,7 @@ metadata:
     app.kubernetes.io/component: frontend
 data:
   oConfig.json: {{ default "" .Values.frontend.oConfig | quote }}
-  {{- else }}
+  {{- else if not .Values.frontend.oConfig.configMapRef }}
     {{- range $configKey, $configValue := .Values.frontend.oConfig.configs }}
 apiVersion: v1
 kind: ConfigMap
