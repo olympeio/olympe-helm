@@ -29,7 +29,7 @@ data:
 
 
     events {
-        worker_connections  1024;
+        worker_connections  {{ .Values.frontend.workerConnections }};
     }
 
 
@@ -42,7 +42,7 @@ data:
                           '"$http_user_agent" "$http_x_forwarded_for"';
 
         map $status $loggable {
-{{ .Values.frontend.loggable | indent 10 }}
+          {{- .Values.frontend.loggable | nindent 12 }}
         }
 
         access_log  /var/log/nginx/access.log  main if=$loggable;

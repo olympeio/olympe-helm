@@ -74,6 +74,7 @@ frontend:
   previewPort: 85
   # -- additional frontend configuration
   additionalConfig: ""
+  workerConnections: 1024
   rabbitmq:
     host: rabbitmq
     websocket: rabbitmq-websocket
