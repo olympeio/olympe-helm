@@ -54,7 +54,11 @@ spec:
               - name: ORCHESTRATOR_SERVICE_PORT
                 value: '80'
               - name: SNAPSHOT_CONFIG
+                {{- if kindIs "string" .config }}
                 value: {{ printf "/config/%s.json" .name | trunc 63 | trimSuffix "-" }}
+                {{- else }}
+                value: /config/config.json
+                {{- end }}
               {{- if .env }}
               {{- toYaml .env | nindent 14 }}
               {{- end }}
@@ -67,7 +71,11 @@ spec:
           volumes:
             - name: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
               secret:
+                {{- if kindIs "string" .config }}
                 secretName: {{ printf "%s-snapshooter-config" (include "olympe.fullname" $) | trunc 63 | trimSuffix "-" }}
+                {{- else }}
+                secretName: {{ .config.secretRef }}
+                {{- end }}
 ---
 {{- end }}
 {{- if gt (len .Values.snapshooters) 0 }}
@@ -82,7 +90,7 @@ metadata:
 type: Opaque
 stringData:
   {{- range .Values.snapshooters }}
-  {{- if hasKey . "config" }}
+  {{- if and (hasKey . "config") (kindIs "string" .config) }}
   {{ printf "%s.json" .name | trunc 63 | trimSuffix "-" }}: {{- .config | toYaml | indent 1 }}
   {{- end }}
   {{- end }}

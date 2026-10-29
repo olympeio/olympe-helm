@@ -158,6 +158,8 @@ containers:
     resources:
       {{- toYaml .serviceApp.resources | nindent 6 }}
     env:
+      - name: APP_NAME
+        value: {{ .serviceAppName }}
       {{- with (first .hosts) }}
       - name: APP_HOSTNAME
         value: {{ . }}
@@ -227,8 +229,14 @@ volumes:
     secret:
     {{- if kindIs "string" .serviceApp.oConfig }}
       secretName: {{ printf "%s-%s-oconfig" (include "olympe.fullname" .root) .serviceAppName | trunc 63 | trimSuffix "-" }}
+    {{- else if .serviceApp.oConfig.secretRef }}
+      secretName: {{ .serviceApp.oConfig.secretRef }}
     {{- else }}
+      {{- if kindIs "string" .serviceApp.oConfig.current }}
       secretName: {{ printf "%s-%s-%s" (include "olympe.fullname" .root) .serviceAppName (lower .serviceApp.oConfig.current) | trunc 63 | trimSuffix "-" }}
+      {{- else }}
+      secretName: {{ .serviceApp.oConfig.current.secretRef }}
+      {{- end }}
     {{- end }}
   {{- end }}
   {{ if .serviceApp.volumes }}

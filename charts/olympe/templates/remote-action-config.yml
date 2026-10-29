@@ -1,0 +1,41 @@
+apiVersion: olympe.io/v1alpha1
+kind: RemoteActionConfig
+metadata:
+  name: {{ printf "%s-ra-config" (include "olympe.fullname" .) | trunc 63 | trimSuffix "-" }}
+spec:
+  hosts:
+    {{- range .Values.ingress.hosts }}
+    - {{ tpl . $ | quote }}
+    {{- end }}
+  ttlSeconds: {{ .Values.remoteActions.config.ttlSeconds }}
+  servicePort: {{ .Values.remoteActions.config.servicePort }}
+  ingressClassName: {{ .Values.remoteActions.config.ingressClassName }}
+  enableTLS: {{ .Values.remoteActions.config.enableTLS }}
+  clusterIssuer: {{ .Values.remoteActions.config.clusterIssuer }}
+  secretName: {{ .Values.remoteActions.config.secretName }}
+  pathPrefix: {{ .Values.remoteActions.config.pathPrefix }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ra-controller
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: ra-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ra-controller
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ra-controller
+rules:
+  - apiGroups: ["networking.k8s.io","olympe.io"]
+    resources: ["ingresses","remoteactions/status","remoteactions"]
+    verbs: ["get", "create", "update", "delete"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create","patch"]

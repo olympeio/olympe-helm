@@ -74,6 +74,7 @@ frontend:
   previewPort: 85
   # -- additional frontend configuration
   additionalConfig: ""
+  workerConnections: 1024
   rabbitmq:
     host: rabbitmq
     websocket: rabbitmq-websocket
@@ -287,6 +288,16 @@ orchestrator:
       additionalLabels: {}
       # -- Prometheus ServiceMonitor annotations
       annotations: {}
+
+remoteActions:
+  config:
+    ttlSeconds: 3600
+    servicePort: 3141
+    ingressClassName: nginx
+    enableTLS: true
+    clusterIssuer: letsencrypt-prod
+    secretName: test-prod-letsencrypt
+    pathPrefix: /ra
 
 nodes:
   dataVolume:
